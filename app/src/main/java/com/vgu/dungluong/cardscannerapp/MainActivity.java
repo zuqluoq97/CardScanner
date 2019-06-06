@@ -35,7 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MainActivity extends Activity  {
-
+    
     private static final String TAG = MainActivity.class.getSimpleName();
     static final int PHOTO_REQUEST_CODE = 1;
     private TessBaseAPI tessBaseApi;
