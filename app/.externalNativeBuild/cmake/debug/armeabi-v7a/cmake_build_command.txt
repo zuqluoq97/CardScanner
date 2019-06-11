@@ -1,0 +1,15 @@
+Executable : G:\newAndroid\sdk\cmake\3.6.4111459\bin\cmake.exe
+arguments : 
+-HG:\ProjectAndroid\CardScanner\app
+-BG:\ProjectAndroid\CardScanner\app\.externalNativeBuild\cmake\debug\armeabi-v7a
+-DANDROID_ABI=armeabi-v7a
+-DANDROID_PLATFORM=android-26
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=G:\ProjectAndroid\CardScanner\app\build\intermediates\cmake\debug\obj\armeabi-v7a
+-DCMAKE_BUILD_TYPE=Debug
+-DANDROID_NDK=G:\newAndroid\sdk\ndk-bundle
+-DCMAKE_CXX_FLAGS=
+-DCMAKE_TOOLCHAIN_FILE=G:\newAndroid\sdk\ndk-bundle\build\cmake\android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=G:\newAndroid\sdk\cmake\3.6.4111459\bin\ninja.exe
+-GAndroid Gradle - Ninja
+jvmArgs : 
+

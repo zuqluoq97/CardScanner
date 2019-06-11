@@ -21,7 +21,7 @@ ANDROID_ABI:UNINITIALIZED=x86
 ANDROID_NDK:UNINITIALIZED=G:\newAndroid\sdk\ndk-bundle
 
 //No help, variable specified on the command line.
-ANDROID_PLATFORM:UNINITIALIZED=android-22
+ANDROID_PLATFORM:UNINITIALIZED=android-26
 
 //Archiver
 CMAKE_AR:FILEPATH=G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/i686-linux-android-ar.exe
@@ -191,6 +191,9 @@ Project_BINARY_DIR:STATIC=G:/ProjectAndroid/CardScanner/app/.externalNativeBuild
 
 //Value Computed by CMake
 Project_SOURCE_DIR:STATIC=G:/ProjectAndroid/CardScanner/app
+
+//Path to a library.
+log-lib:FILEPATH=G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/i686-linux-android/26/liblog.so
 
 
 ########################

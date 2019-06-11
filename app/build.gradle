@@ -4,10 +4,11 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.vgu.dungluong.cardscannerapp"
-        minSdkVersion 22
+        minSdkVersion 26
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -26,6 +27,17 @@ android {
             path "CMakeLists.txt"
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    packagingOptions {
+        exclude 'edu/stanford/nlp/pipeline/demo/corenlp-parseviewer.js'
+        exclude 'edu/stanford/nlp/pipeline/demo/corenlp-brat.html'
+        exclude 'edu/stanford/nlp/pipeline/demo/corenlp-brat.css'
+        exclude 'edu/stanford/nlp/pipeline/demo/corenlp-brat.js'
+        exclude 'edu/stanford/nlp/pipeline/demo/corenlp-parseviewer.js'
+    }
     sourceSets {main { jni.srcDirs = ['src/main/jni', 'src/main/jniLibs/'] } }
 }
 
@@ -37,6 +49,12 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.rmtheis:tess-two:9.0.0'
+    implementation ('edu.stanford.nlp:stanford-corenlp:3.9.2'){
+        exclude group: 'com.sun.xml.bind'
+    }
+    implementation ('edu.stanford.nlp:stanford-corenlp:3.9.2:models'){
+        exclude group: 'com.sun.xml.bind'
+    }
     api 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation project(path: ':opencv')
 }
