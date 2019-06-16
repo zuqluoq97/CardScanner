@@ -9,9 +9,12 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // Add abiFilters
         externalNativeBuild {
             cmake {
-                cppFlags ""
+                cppFlags "-frtti -fexceptions"
+                abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
             }
         }
     }
@@ -26,6 +29,7 @@ android {
             path "CMakeLists.txt"
         }
     }
+    // Add jnitLibs dirctory
     sourceSets {main { jni.srcDirs = ['src/main/jni', 'src/main/jniLibs/'] } }
 }
 

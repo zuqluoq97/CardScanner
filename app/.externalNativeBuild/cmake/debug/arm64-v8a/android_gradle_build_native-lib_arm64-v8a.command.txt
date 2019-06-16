@@ -1,0 +1,8 @@
+Executable : G:\newAndroid\sdk\cmake\3.6.4111459\bin\cmake.exe
+arguments : 
+--build
+G:\ProjectAndroid\CardScanner\app\.externalNativeBuild\cmake\debug\arm64-v8a
+--target
+native-lib
+jvmArgs : 
+
