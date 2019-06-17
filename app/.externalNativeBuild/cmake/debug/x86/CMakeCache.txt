@@ -21,7 +21,7 @@ ANDROID_ABI:UNINITIALIZED=x86
 ANDROID_NDK:UNINITIALIZED=G:\newAndroid\sdk\ndk-bundle
 
 //No help, variable specified on the command line.
-ANDROID_PLATFORM:UNINITIALIZED=android-22
+ANDROID_PLATFORM:UNINITIALIZED=android-24
 
 //Archiver
 CMAKE_AR:FILEPATH=G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/i686-linux-android-ar.exe
@@ -177,8 +177,8 @@ CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO:STRING=
 //Path to a program.
 CMAKE_STRIP:FILEPATH=G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/i686-linux-android-strip.exe
 
-//No help, variable specified on the command line.
-CMAKE_TOOLCHAIN_FILE:UNINITIALIZED=G:\newAndroid\sdk\ndk-bundle\build\cmake\android.toolchain.cmake
+//The CMake toolchain file
+CMAKE_TOOLCHAIN_FILE:FILEPATH=G:/newAndroid/sdk/ndk-bundle/build/cmake/android.toolchain.cmake
 
 //If this value is on, makefiles will be generated without the
 // .SILENT directive, and all commands will be echoed to the console
@@ -193,7 +193,7 @@ Project_BINARY_DIR:STATIC=G:/ProjectAndroid/CardScanner/app/.externalNativeBuild
 Project_SOURCE_DIR:STATIC=G:/ProjectAndroid/CardScanner/app
 
 //Path to a library.
-log-lib:FILEPATH=G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/i686-linux-android/22/liblog.so
+log-lib:FILEPATH=G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot/usr/lib/i686-linux-android/24/liblog.so
 
 //Dependencies for the target
 native-lib_LIB_DEPENDS:STATIC=general;lib_opencv;general;${log-lib};

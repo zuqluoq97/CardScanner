@@ -1,0 +1,3 @@
+G:/ProjectAndroid/CardScanner/app/.externalNativeBuild/cmake/release/armeabi-v7a/CMakeFiles/native-lib.dir
+G:/ProjectAndroid/CardScanner/app/.externalNativeBuild/cmake/release/armeabi-v7a/CMakeFiles/edit_cache.dir
+G:/ProjectAndroid/CardScanner/app/.externalNativeBuild/cmake/release/armeabi-v7a/CMakeFiles/rebuild_cache.dir

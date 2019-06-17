@@ -1,0 +1,53 @@
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    // Android Support libraries
+    implementation deps.support_lib.appcompat
+    implementation deps.support_lib.recyclerview
+    implementation deps.support_lib.androidx_recyclerview
+    implementation deps.constraint_layout
+    implementation deps.support_lib.design
+
+    // Fonts & icon
+    implementation deps.calligraphy
+
+    // Network
+    implementation deps.android_network
+
+    // Dagger (Dependency injection)
+    implementation deps.dagger.main
+    annotationProcessor deps.dagger.compiler
+    annotationProcessor deps.dagger.android_processor
+    implementation deps.dagger.android_support
+
+    // Rx Java (Reactive Programming)
+    implementation deps.rxjava.main
+    implementation deps.rxjava.android
+
+    // Logger
+    implementation deps.logger
+
+    // Dependencies for local unit tests
+    testImplementation deps.junit
+    testImplementation deps.mockito
+    testAnnotationProcessor deps.dagger.compiler
+
+    // UI Testing
+    androidTestImplementation deps.espresso.core
+    androidTestImplementation deps.espresso.intents
+    androidTestImplementation deps.mockito
+    androidTestAnnotationProcessor deps.dagger.compiler
+
+    // View Model
+    annotationProcessor deps.lifecycle.compiler
+    implementation deps.lifecycle.extensions
+
+    // Tess two library
+    implementation deps.tesstwo
+
+    // Image cropper
+    api deps.image_cropper
+
+    // Opencv
+    implementation project(path: ':opencv')
+}

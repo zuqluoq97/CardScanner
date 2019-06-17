@@ -1,0 +1,94 @@
+ext.deps = [:]
+
+ext.versions = [:]
+def versions = [:]
+
+// Sdk versions
+versions.compile_sdk = 28
+versions.min_sdk = 24
+versions.target_sdk = 28
+
+// Application versions
+versions.version_code = 1
+versions.version_name = "v1.0.0"
+
+// Android and Google essentials
+versions.android_plugin = '3.3.2'
+versions.build_tools = '28.0.3'
+versions.support_library = '28.0.0'
+versions.androidx_constraintlayout = '2.0.0-alpha3'
+versions.androidx_appcompat = '1.1.0-alpha04'
+versions.androidx_recyclerview = '1.1.0-alpha04'
+
+versions.androidx_room = '2.1.0-alpha04'
+versions.dagger2 = '2.22.1'
+versions.rxjava2 = '2.2.8'
+versions.rxandroid = '2.1.1'
+versions.lifecycle = '2.1.0-alpha03'
+versions.tesstwo = '9.0.0'
+versions.image_cropper = '2.8.0'
+
+// Third party dependencies
+versions.calligraphy = '2.2.0'
+versions.rx2_fast_android_networking = '1.0.1'
+versions.timber = '4.7.1'
+
+// Test
+versions.junit = '4.13-beta-2'
+versions.espresso = '3.0.1'
+versions.mockito = '2.15.0'
+ext.versions = versions
+
+def deps = [:]
+
+// ----- START OF GOOGLE AND ANDROID ESSENTIALS
+deps.android_plugin = "com.android.tools.build:gradle:$versions.android_plugin"
+deps.constraint_layout = "androidx.constraintlayout:constraintlayout:$versions.androidx_constraintlayout"
+
+def support_lib = [:]
+support_lib.design = "com.android.support:design:$versions.support_library"
+support_lib.appcompat = "androidx.appcompat:appcompat:$versions.androidx_appcompat"
+support_lib.androidx_recyclerview = "androidx.recyclerview:recyclerview:$versions.androidx_recyclerview"
+support_lib.recyclerview = "com.android.support:recyclerview-v7:$versions.support_library"
+deps.support_lib = support_lib
+
+def lifecycle = [:]
+lifecycle.extensions = "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+lifecycle.compiler = "androidx.lifecycle:lifecycle-compiler:$versions.lifecycle"
+deps.lifecycle = lifecycle
+
+// ----- END OF ANDROID AND GOOGLE ESSENTIALS
+
+def espresso = [:]
+espresso.core = "com.android.support.test.espresso:espresso-core:$versions.espresso"
+espresso.intents = "com.android.support.test.espresso:espresso-intents:$versions.espresso"
+deps.espresso = espresso
+
+deps.mockito = "org.mockito:mockito-core:$versions.mockito"
+
+deps.junit = "junit:junit:$versions.junit"
+
+deps.android_network = "com.amitshekhar.android:rx2-android-networking:$versions.rx2_fast_android_networking"
+
+deps.calligraphy = "uk.co.chrisjenx:calligraphy:$versions.calligraphy"
+
+deps.logger = "com.jakewharton.timber:timber:$versions.timber"
+
+deps.tesstwo = "com.rmtheis:tess-two:$versions.tesstwo"
+
+deps.image_cropper = "com.theartofdev.edmodo:android-image-cropper:$versions.image_cropper"
+
+def dagger = [:]
+dagger.main = "com.google.dagger:dagger:$versions.dagger2"
+dagger.compiler = "com.google.dagger:dagger-compiler:$versions.dagger2"
+dagger.android_processor = "com.google.dagger:dagger-android-processor:$versions.dagger2"
+dagger.android_support = "com.google.dagger:dagger-android-support:$versions.dagger2"
+deps.dagger = dagger
+
+def rxjava = [:]
+rxjava.main = "io.reactivex.rxjava2:rxjava:$versions.rxjava2"
+rxjava.android = "io.reactivex.rxjava2:rxandroid:$versions.rxandroid"
+deps.rxjava = rxjava
+
+ext.deps = deps
+
