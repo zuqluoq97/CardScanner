@@ -34,13 +34,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class MainActivity extends Activity  {
+public class MainActivity2 extends Activity  {
 //    static {
 //        if (BuildConfig.DEBUG) {
 //            OpenCVLoader.initDebug();
 //        }
 //    }
-//    private static final String TAG = MainActivity.class.getSimpleName();
+//    private static final String TAG = MainActivity2.class.getSimpleName();
 //    static final int PHOTO_REQUEST_CODE = 1;
 //    private TessBaseAPI tessBaseApi;
 //    TextView textView;
@@ -64,7 +64,7 @@ public class MainActivity extends Activity  {
 //                    //startCameraActivity();
 //                    CropImage.activity()
 //                            .setGuidelines(CropImageView.Guidelines.ON)
-//                            .start(MainActivity.this);
+//                            .start(MainActivity2.this);
 //                }
 //            });
 //        }
@@ -81,7 +81,7 @@ public class MainActivity extends Activity  {
 //            prepareDirectory(IMGS_PATH);
 //
 //            outputFileUri = FileProvider.getUriForFile(
-//                    MainActivity.this,
+//                    MainActivity2.this,
 //                    getApplicationContext().getPackageName() + ".my.package.name.provider",
 //                    new File(IMGS_PATH + "/ocr.jpg"));
 //

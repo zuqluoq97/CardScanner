@@ -1,6 +1,6 @@
 package com.vgu.dungluong.cardscannerapp.di.builder;
 
-import com.vgu.dungluong.cardscannerapp.MainActivity;
+import com.vgu.dungluong.cardscannerapp.ui.main.MainActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivityModule;
 
 import dagger.Module;
@@ -12,6 +12,6 @@ import dagger.android.ContributesAndroidInjector;
 @Module
 public abstract class ActivityBuilder {
 
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = {MainActivityModule.class})
     abstract MainActivity bindMainActivity();
 }

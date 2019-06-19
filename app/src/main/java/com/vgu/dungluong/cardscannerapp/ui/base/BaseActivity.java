@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.vgu.dungluong.cardscannerapp.R;
+import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
 import com.vgu.dungluong.cardscannerapp.utils.PermissionUtils;
 
@@ -30,7 +31,7 @@ import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.PERMISSIONS;
  * Created by Dung Luong on 17/06/2019
  */
 public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseViewModel>
-        extends AppCompatActivity{
+        extends AppCompatActivity implements BaseFragment.Callback{
 
     // TODO
     // This can probably depend on isLoading variable of BaseViewModel
@@ -48,7 +49,8 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseView
     /**
      * @return layout resource id
      */
-    public abstract @LayoutRes
+    public abstract
+    @LayoutRes
     int getLayoutId();
 
     /**
@@ -95,6 +97,16 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseView
         this.mViewModel = mViewModel == null ? getViewModel() : mViewModel;
         mViewDataBinding.setVariable(getBindingVariable(), mViewModel);
         mViewDataBinding.executePendingBindings();
+    }
+
+    @Override
+    public void onFragmentAttached() {
+
+    }
+
+    @Override
+    public void onFragmentDetached(String tag) {
+
     }
 
     @Override

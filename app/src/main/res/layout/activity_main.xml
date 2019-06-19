@@ -8,26 +8,40 @@
             type="com.vgu.dungluong.cardscannerapp.ui.main.MainViewModel"/>
     </data>
 
-
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/action_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Capture image"
-            tools:ignore="HardcodedText">
-        </Button>
+        <SurfaceView
+            android:id="@+id/surface"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-        <TextView
-            android:id="@+id/textResult"
-            android:layout_width="wrap_content"
+        <com.vgu.dungluong.cardscannerapp.ui.view.PaperRectangle
+            android:id="@+id/paper_rect"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorTransparent" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="OCR result will be here"
-            android:layout_below="@+id/action_btn"
-            tools:ignore="HardcodedText" />
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/bottom_banner_bg"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/shut"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_centerInParent="true"
+                android:background="?android:attr/selectableItemBackground"
+                android:src="@drawable/ic_camera_enhance_light_blue_500_24dp"
+                android:onClick="@{() -> viewModel.shut()}"
+                android:clickable="@{!viewModel.isLoading}"
+                tools:ignore="ContentDescription" />
+        </RelativeLayout>
 
     </RelativeLayout>
 </layout>
