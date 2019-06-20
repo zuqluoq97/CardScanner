@@ -157,26 +157,6 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseView
         }
     }
 
-    /**
-     * Callback received when a permissions request has been completed
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if(requestCode == CODE_PERMISSIONS_REQUEST){
-            if(PermissionUtils.verifyPermissions(grantResults)){
-
-            } else {
-                CommonUtils.dialogConfiguration(this,
-                        getString(R.string.request_permissions_title),
-                        getString(R.string.permission_not_grant_message),
-                        false)
-                        .setPositiveButton(android.R.string.yes, ((dialog, which) -> restart())).show();
-            }
-        }
-    }
-
     private void openRequestPermissionDialog() {
         ActivityCompat.requestPermissions(this,
                 PERMISSIONS,

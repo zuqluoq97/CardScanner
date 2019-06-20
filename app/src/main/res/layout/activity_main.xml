@@ -39,7 +39,6 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:src="@drawable/ic_camera_enhance_light_blue_500_24dp"
                 android:onClick="@{() -> viewModel.shut()}"
-                android:clickable="@{!viewModel.isLoading}"
                 tools:ignore="ContentDescription" />
         </RelativeLayout>
 

@@ -4,6 +4,8 @@ import android.hardware.Camera;
 
 import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
 
+import org.opencv.core.Mat;
+
 import io.reactivex.Observable;
 
 /**
@@ -13,5 +15,5 @@ public interface DataManager extends PermissionHelper {
 
     Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera);
 
-
+    Observable<Mat> handlePictureFrame(byte[] bytes, Camera camera);
 }

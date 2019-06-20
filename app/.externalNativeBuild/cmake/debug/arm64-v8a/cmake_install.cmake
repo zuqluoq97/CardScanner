@@ -1,4 +1,4 @@
-# Install script for directory: G:/ProjectAndroid/CardScanner/app
+# Install script for directory: D:/Software/01 Android Studio/CardScanner/app
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "G:/ProjectAndroid/CardScanner/app/.externalNativeBuild/cmake/debug/arm64-v8a/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "D:/Software/01 Android Studio/CardScanner/app/.externalNativeBuild/cmake/debug/arm64-v8a/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

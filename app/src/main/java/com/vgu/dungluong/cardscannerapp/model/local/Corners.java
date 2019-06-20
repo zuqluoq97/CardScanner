@@ -5,6 +5,8 @@ import org.opencv.core.Size;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+
 /**
  * Created by Dung Luong on 19/06/2019
  */
@@ -33,5 +35,11 @@ public class Corners {
 
     public void setSize(Size size) {
         this.size = size;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return corners.toString() + " " + size.toString();
     }
 }

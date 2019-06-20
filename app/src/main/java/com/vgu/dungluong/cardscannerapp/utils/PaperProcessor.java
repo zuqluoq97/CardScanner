@@ -115,22 +115,29 @@ public class PaperProcessor {
         cannedImage.release();
         kernel.release();
         dilate.release();
-
         return contours;
     }
 
-    @Nullable
     private static Corners getCorners(List<MatOfPoint> contours, Size size){
-        int indexTo = 0;
-        for (int i = 0; i < contours.size(); i++){
-            if(i > 5) indexTo = 4;
-            else indexTo = contours.size() - 1;
+        int indexTo;
+        switch (contours.size()){
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+                indexTo = contours.size() - 1;
+                break;
+            default:
+                indexTo = 4;
         }
         for (int i = 0; i < contours.size(); i++){
+            AppLogger.i(String.valueOf(i));
             if(i > indexTo){
                 return null;
             }else {
-                MatOfPoint2f c2f = new MatOfPoint2f(contours.get(i));
+                MatOfPoint2f c2f = new MatOfPoint2f(contours.get(i).toArray());
                 double peri = Imgproc.arcLength(c2f, true);
                 MatOfPoint2f approx = new MatOfPoint2f();
                 Imgproc.approxPolyDP(c2f, approx, 0.02 * peri, true);

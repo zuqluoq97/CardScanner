@@ -1,9 +1,9 @@
 
 {
-	"buildFiles" : [ "G:/ProjectAndroid/CardScanner/app/CMakeLists.txt" ],
+	"buildFiles" : [ "D:/Software/01 Android Studio/CardScanner/app/CMakeLists.txt" ],
 	"cleanCommands" : 
 	[
-		"G:\\newAndroid\\sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build G:\\ProjectAndroid\\CardScanner\\app\\.externalNativeBuild\\cmake\\release\\x86 --target clean"
+		"C:\\Users\\ltdung\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build \"D:\\Software\\01 Android Studio\\CardScanner\\app\\.externalNativeBuild\\cmake\\release\\x86\" --target clean"
 	],
 	"cppFileExtensions" : [ "cpp" ],
 	"libraries" : 
@@ -13,34 +13,34 @@
 			"abi" : "x86",
 			"artifactName" : "lib_opencv",
 			"buildType" : "release",
-			"output" : "G:/ProjectAndroid/CardScanner/app/src/main/jniLibs/x86/libopencv_java4.so",
-			"toolchain" : "2094448073"
+			"output" : "D:/Software/01",
+			"toolchain" : "511533365"
 		},
 		"native-lib-Release-x86" : 
 		{
 			"abi" : "x86",
 			"artifactName" : "native-lib",
-			"buildCommand" : "G:\\newAndroid\\sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build G:\\ProjectAndroid\\CardScanner\\app\\.externalNativeBuild\\cmake\\release\\x86 --target native-lib",
+			"buildCommand" : "C:\\Users\\ltdung\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build \"D:\\Software\\01 Android Studio\\CardScanner\\app\\.externalNativeBuild\\cmake\\release\\x86\" --target native-lib",
 			"buildType" : "release",
 			"files" : 
 			[
 				
 				{
-					"flags" : "  --target=i686-none-linux-android24 --gcc-toolchain=G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64 --sysroot=G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Dnative_lib_EXPORTS -IG:\\Software\\opencv\\opencv-4.1.0-android-sdk\\sdk\\native\\jni\\include  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -fno-addrsig -Wa,--noexecstack -Wformat -Werror=format-security  -frtti -fexceptions -std=gnu++11 -O2 -DNDEBUG  -fPIC    -c ",
-					"src" : "G:/ProjectAndroid/CardScanner/app/src/main/cpp/native-lib.cpp",
-					"workingDirectory" : "G:/ProjectAndroid/CardScanner/app/.externalNativeBuild/cmake/release/x86"
+					"flags" : "  --target=i686-none-linux-android24 --gcc-toolchain=C:/Users/ltdung/AppData/Local/Android/Sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64 --sysroot=C:/Users/ltdung/AppData/Local/Android/Sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/sysroot  -Dnative_lib_EXPORTS -ID:\\UserProfile\\Downloads\\OpenCV-android-sdk\\sdk\\native\\jni\\include  -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -fno-addrsig -Wa,--noexecstack -Wformat -Werror=format-security  -frtti -fexceptions -std=gnu++11 -O2 -DNDEBUG  -fPIC    -c ",
+					"src" : "D:/Software/01 Android Studio/CardScanner/app/src/main/cpp/native-lib.cpp",
+					"workingDirectory" : "D:/Software/01 Android Studio/CardScanner/app/.externalNativeBuild/cmake/release/x86"
 				}
 			],
-			"output" : "G:/ProjectAndroid/CardScanner/app/build/intermediates/cmake/release/obj/x86/libnative-lib.so",
-			"toolchain" : "2094448073"
+			"output" : "D:/Software/01 Android Studio/CardScanner/app/build/intermediates/cmake/release/obj/x86/libnative-lib.so",
+			"toolchain" : "511533365"
 		}
 	},
 	"toolchains" : 
 	{
-		"2094448073" : 
+		"511533365" : 
 		{
-			"cCompilerExecutable" : "G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe",
-			"cppCompilerExecutable" : "G:/newAndroid/sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang++.exe"
+			"cCompilerExecutable" : "C:/Users/ltdung/AppData/Local/Android/Sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang.exe",
+			"cppCompilerExecutable" : "C:/Users/ltdung/AppData/Local/Android/Sdk/ndk-bundle/toolchains/llvm/prebuilt/windows-x86_64/bin/clang++.exe"
 		}
 	}
 }

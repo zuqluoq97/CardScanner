@@ -1,5 +1,6 @@
 package com.vgu.dungluong.cardscannerapp.di.builder;
 
+import com.vgu.dungluong.cardscannerapp.ui.crop.CropActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivityModule;
 
@@ -14,4 +15,7 @@ public abstract class ActivityBuilder {
 
     @ContributesAndroidInjector(modules = {MainActivityModule.class})
     abstract MainActivity bindMainActivity();
+
+    @ContributesAndroidInjector
+    abstract CropActivity bindCropActivity();
 }

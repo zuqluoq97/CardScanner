@@ -11,13 +11,12 @@
 
     <!-- app message -->
     <string name="double_to_exit">Press Back again to exit!</string>
-
+    <string name="camera_grant">Camera permission granted.</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    <string name="camera_grant">grant camera!</string>
     <string name="press_again_logout">Press back again and logout</string>
 
     <string name="crop">Crop</string>

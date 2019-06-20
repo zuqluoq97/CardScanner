@@ -19,4 +19,6 @@ public interface MainNavigator {
     PaperRectangle getPaperRect();
 
     void onShutButtonClick();
+
+    void openCropActivity();
 }

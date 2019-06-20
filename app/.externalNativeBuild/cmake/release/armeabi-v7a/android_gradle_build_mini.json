@@ -1,21 +1,21 @@
 {
   "buildFiles": [
-    "G:\\ProjectAndroid\\CardScanner\\app\\CMakeLists.txt"
+    "D:\\Software\\01 Android Studio\\CardScanner\\app\\CMakeLists.txt"
   ],
   "cleanCommands": [
-    "G:\\newAndroid\\sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build G:\\ProjectAndroid\\CardScanner\\app\\.externalNativeBuild\\cmake\\release\\armeabi-v7a --target clean"
+    "C:\\Users\\ltdung\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build \"D:\\Software\\01 Android Studio\\CardScanner\\app\\.externalNativeBuild\\cmake\\release\\armeabi-v7a\" --target clean"
   ],
   "libraries": {
     "native-lib-Release-armeabi-v7a": {
       "artifactName": "native-lib",
-      "buildCommand": "G:\\newAndroid\\sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build G:\\ProjectAndroid\\CardScanner\\app\\.externalNativeBuild\\cmake\\release\\armeabi-v7a --target native-lib",
+      "buildCommand": "C:\\Users\\ltdung\\AppData\\Local\\Android\\Sdk\\cmake\\3.6.4111459\\bin\\cmake.exe --build \"D:\\Software\\01 Android Studio\\CardScanner\\app\\.externalNativeBuild\\cmake\\release\\armeabi-v7a\" --target native-lib",
       "abi": "armeabi-v7a",
-      "output": "G:\\ProjectAndroid\\CardScanner\\app\\build\\intermediates\\cmake\\release\\obj\\armeabi-v7a\\libnative-lib.so"
+      "output": "D:\\Software\\01 Android Studio\\CardScanner\\app\\build\\intermediates\\cmake\\release\\obj\\armeabi-v7a\\libnative-lib.so"
     },
     "lib_opencv-Release-armeabi-v7a": {
       "artifactName": "lib_opencv",
       "abi": "armeabi-v7a",
-      "output": "G:\\ProjectAndroid\\CardScanner\\app\\src\\main\\jniLibs\\armeabi-v7a\\libopencv_java4.so"
+      "output": "D:\\Software\\01"
     }
   }
 }
