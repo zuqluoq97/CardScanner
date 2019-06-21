@@ -133,7 +133,6 @@ public class PaperProcessor {
                 indexTo = 4;
         }
         for (int i = 0; i < contours.size(); i++){
-            AppLogger.i(String.valueOf(i));
             if(i > indexTo){
                 return null;
             }else {

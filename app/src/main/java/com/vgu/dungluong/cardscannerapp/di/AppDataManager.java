@@ -66,7 +66,7 @@ public class AppDataManager implements DataManager{
         Camera.Size pictureSize = camera.getParameters().getPictureSize();
         AppLogger.i("Picture size " + pictureSize.toString());
         Mat mat = new Mat(new Size(pictureSize.width != 0 ? pictureSize.width : 1920.0,
-                pictureSize.height != 0 ? pictureSize.height : 1920.0),  CvType.CV_8U);
+                pictureSize.height != 0 ? pictureSize.height : 1080.0),  CvType.CV_8U);
         mat.put(0, 0, bytes);
         Mat pic = Imgcodecs.imdecode(mat, -1);
         Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE);
@@ -93,6 +93,7 @@ public class AppDataManager implements DataManager{
         Utils.bitmapToMat(bitmap, img);
         bitmap.recycle();
         Core.rotate(img, img, Core.ROTATE_90_CLOCKWISE);
+
         try {
             out.close();
         }catch (IOException ie){

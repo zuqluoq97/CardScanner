@@ -10,15 +10,17 @@ import com.vgu.dungluong.cardscannerapp.ui.view.PaperRectangle;
  */
 public interface MainNavigator {
 
-    void exit();
-
-    Display getDisplay();
-
-    SurfaceView getSurfaceView();
-
-    PaperRectangle getPaperRect();
-
+//    void exit();
+//
+//    Display getDisplay();
+//
+//    SurfaceView getSurfaceView();
+//
+//    PaperRectangle getPaperRect();
+//
     void onShutButtonClick();
+//
+//    void openCropActivity();
 
-    void openCropActivity();
+
 }

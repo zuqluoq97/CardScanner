@@ -32,58 +32,59 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
     }
 
     public void shut(){
-        setIsLoading(true);
+        //setIsLoading(true);
         getNavigator().onShutButtonClick();
     }
-
-    public void handlePictureTaken(byte[] bytes, Camera camera){
-        getCompositeDisposable().add(getDataManager()
-                .handleTakenPictureByte(bytes, camera)
-                .subscribeOn(getSchedulerProvider().io())
-                .observeOn(getSchedulerProvider().ui())
-                .subscribe(result -> {
-                    setIsLoading(false);
-                    AppLogger.i(result.toString());
-                    getNavigator().openCropActivity();
-                }, throwable -> {
-                    setIsLoading(false);
-                    AppLogger.e(throwable.getLocalizedMessage());
-                }));
-    }
-
-    public void handlePreviewFrame(byte[] bytes, Camera camera){
-        setIsLoading(true);
-        getCompositeDisposable().add(getDataManager()
-                .handlePictureFrame(bytes, camera)
-                .subscribeOn(getSchedulerProvider().io())
-                .observeOn(getSchedulerProvider().ui())
-                .subscribe(img -> {
-                    setIsLoading(false);
-                    AppLogger.i(img.toString());
-                    handleMat(img);
-                }, throwable -> {
-                    setIsLoading(false);
-                    AppLogger.e(throwable.getLocalizedMessage());
-                }));
-    }
-
-    private void handleMat(Mat img){
-        getCompositeDisposable().add(Observable.create((ObservableOnSubscribe<Corners>) emitter -> {
-            Corners corner = PaperProcessor.processPicture(img);
-            setIsLoading(false);
-            if(corner != null){
-                emitter.onNext(corner);
-            }else{
-                emitter.onError(new Throwable("paper not detected"));
-            }
-        })
-                .subscribeOn(getSchedulerProvider().io())
-                .observeOn(getSchedulerProvider().ui())
-                .subscribe(corner -> {
-                    AppLogger.i(corner.toString());
-                    getNavigator().getPaperRect().onCornersDetected(corner);
-                }, throwable -> {
-                    getNavigator().getPaperRect().onConrnersNotDetected();
-                }));
-    }
+//
+//    public void handlePictureTaken(byte[] bytes, Camera camera){
+//        getCompositeDisposable().add(getDataManager()
+//                .handleTakenPictureByte(bytes, camera)
+//                .subscribeOn(getSchedulerProvider().io())
+//                .observeOn(getSchedulerProvider().ui())
+//                .subscribe(result -> {
+//                    setIsLoading(false);
+//                    AppLogger.i(result.toString());
+//                    getNavigator().openCropActivity();
+//                }, throwable -> {
+//                    setIsLoading(false);
+//                    AppLogger.e(throwable.getLocalizedMessage());
+//                }));
+//    }
+//
+//    public void handlePreviewFrame(byte[] bytes, Camera camera){
+//        setIsLoading(true);
+//        getCompositeDisposable().add(getDataManager()
+//                .handlePictureFrame(bytes, camera)
+//                .subscribeOn(getSchedulerProvider().io())
+//                .observeOn(getSchedulerProvider().ui())
+//                .subscribe(img -> {
+//                    setIsLoading(false);
+//                    AppLogger.i(img.toString());
+//                    handleMat(img);
+//                }, throwable -> {
+//                    setIsLoading(false);
+//                    AppLogger.e(throwable.getLocalizedMessage());
+//                }));
+//    }
+//
+//    private void handleMat(Mat img){
+//        getCompositeDisposable().add(Observable.create((ObservableOnSubscribe<Corners>) emitter -> {
+//            Corners corner = PaperProcessor.processPicture(img);
+//            setIsLoading(false);
+//            if(corner != null){
+//                emitter.onNext(corner);
+//            }else{
+//                emitter.onError(new Throwable("paper not detected"));
+//            }
+//        })
+//                .subscribeOn(getSchedulerProvider().io())
+//                .observeOn(getSchedulerProvider().ui())
+//                .subscribe(corner -> {
+//                    AppLogger.i(corner.toString());
+//                    getNavigator().getPaperRect().onCornersDetected(corner);
+//                }, throwable -> {
+//                    AppLogger.i(throwable.getLocalizedMessage());
+//                    getNavigator().getPaperRect().onConrnersNotDetected();
+//                }));
+//    }
 }
