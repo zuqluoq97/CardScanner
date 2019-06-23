@@ -27,6 +27,7 @@ import android.media.ImageReader;
 import android.media.MediaActionSound;
 import android.os.Bundle;
 
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.text.format.DateUtils;
@@ -53,8 +54,14 @@ import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CameraUtils;
 import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
 import com.vgu.dungluong.cardscannerapp.utils.PermissionUtils;
+import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -78,6 +85,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.CODE_PERMISSIONS_REQUEST;
@@ -88,6 +96,7 @@ import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.STATE_PREVIEW;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.STATE_WAITING_LOCK;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.STATE_WAITING_NON_PRECAPTURE;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.STATE_WAITING_PRECAPTURE;
+import static com.vgu.dungluong.cardscannerapp.utils.PaperProcessor.processPicture;
 
 /**
  * Created by Dung Luong on 17/06/2019
@@ -109,11 +118,13 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
 
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture texture, int width, int height) {
+            AppLogger.i("onSurfaceTextureAvailable");
             openCamera(width, height);
         }
 
         @Override
         public void onSurfaceTextureSizeChanged(SurfaceTexture texture, int width, int height) {
+            AppLogger.i("onSurfaceTextureSizeChanged");
             configureTransform(width, height);
         }
 
@@ -147,6 +158,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         @Override
         public void onOpened(@NonNull CameraDevice cameraDevice) {
             // This method is called when the camera is opened.  We start camera preview here.
+            AppLogger.i("onOpened");
             mCameraOpenCloseLock.release();
             mCameraDevice = cameraDevice;
             createCameraPreviewSession();
@@ -188,7 +200,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
 
         @Override
         public void onImageAvailable(ImageReader reader) {
-            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+            AppLogger.i(reader.getHeight() + " " + reader.getWidth());
+            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile, reader.getHeight(), reader.getWidth()));
         }
 
     };
@@ -279,6 +292,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         }
 
     };
+    private List<Size> bigEnough;
 
     /**
      * Given {@code choices} of {@code Size}s supported by a camera, choose the smallest one that
@@ -320,9 +334,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         // Pick the smallest of those big enough. If there is no one big enough, pick the
         // largest of those not big enough.
         if (bigEnough.size() > 0) {
-            return Collections.min(bigEnough, new CompareSizesByArea());
+            return Collections.min(bigEnough, new CameraUtils.CompareSizesByArea());
         } else if (notBigEnough.size() > 0) {
-            return Collections.max(notBigEnough, new CompareSizesByArea());
+            return Collections.max(notBigEnough, new CameraUtils.CompareSizesByArea());
         } else {
             AppLogger.e(TAG + ": Couldn't find any suitable preview size");
             return choices[0];
@@ -362,7 +376,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     private void setUpCameraOutputs(int width, int height) {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
-            for (String cameraId : manager.getCameraIdList()) {
+            for (String cameraId : Objects.requireNonNull(manager).getCameraIdList()) {
                 CameraCharacteristics characteristics
                         = manager.getCameraCharacteristics(cameraId);
 
@@ -381,7 +395,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                 // For still image captures, we use the largest available size.
                 Size largest = Collections.max(
                         Arrays.asList(map.getOutputSizes(ImageFormat.JPEG)),
-                        new CompareSizesByArea());
+                        new CameraUtils.CompareSizesByArea());
                 mImageReader = ImageReader.newInstance(largest.getWidth(), largest.getHeight(),
                         ImageFormat.JPEG, /*maxImages*/2);
                 mImageReader.setOnImageAvailableListener(
@@ -390,8 +404,10 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                 // Find out if we need to swap dimension to get the preview size relative to sensor
                 // coordinate.
                 int displayRotation = getWindowManager().getDefaultDisplay().getRotation();
+
                 //noinspection ConstantConditions
                 mSensorOrientation = characteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+
                 boolean swappedDimensions = false;
                 switch (displayRotation) {
                     case Surface.ROTATION_0:
@@ -416,7 +432,6 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                 int rotatedPreviewHeight = height;
                 int maxPreviewWidth = displaySize.x;
                 int maxPreviewHeight = displaySize.y;
-
                 if (swappedDimensions) {
                     rotatedPreviewWidth = height;
                     rotatedPreviewHeight = width;
@@ -432,6 +447,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                     maxPreviewHeight = MAX_PREVIEW_HEIGHT;
                 }
 
+
                 // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
                 // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
                 // garbage capture data.
@@ -441,6 +457,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
 
                 // We fit the aspect ratio of TextureView to the size of preview we picked.
                 int orientation = getResources().getConfiguration().orientation;
+
                 if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
                     mTextureView.setAspectRatio(
                             mPreviewSize.getWidth(), mPreviewSize.getHeight());
@@ -539,6 +556,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     private void createCameraPreviewSession() {
         try {
             SurfaceTexture texture = mTextureView.getSurfaceTexture();
+
             assert texture != null;
 
             // We configure the size of default buffer to be the size of camera preview we want.
@@ -611,6 +629,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         RectF bufferRect = new RectF(0, 0, mPreviewSize.getHeight(), mPreviewSize.getWidth());
         float centerX = viewRect.centerX();
         float centerY = viewRect.centerY();
+
         if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
             bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY());
             matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL);
@@ -697,9 +716,11 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session,
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
-                    showMessage("Saved: " + mFile);
+                    showMessage("Saved: " + mFile.getAbsolutePath());
+                    AppLogger.i(String.valueOf(mFile.exists()));
                     AppLogger.d(TAG + mFile.toString());
-                    unlockFocus();
+                    startActivity(CropActivity.newIntent(MainActivity.this));
+                    //unlockFocus();
                 }
             };
 
@@ -770,9 +791,15 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
          */
         private final File mFile;
 
-        ImageSaver(Image image, File file) {
+        private int mHeight;
+
+        private int mWidth;
+
+        ImageSaver(Image image, File file, int height, int width) {
             mImage = image;
             mFile = file;
+            mHeight = height;
+            mWidth = width;
         }
 
         @Override
@@ -782,34 +809,27 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
             buffer.get(bytes);
             FileOutputStream output = null;
             try {
-                output = new FileOutputStream(mFile);
+                if(!mFile.exists()){
+                    AppLogger.i("created: "+String.valueOf(mFile.mkdir()));
+                }
+                File f = new File(mFile, "img.jpg");
+                if(f.exists())
+                    AppLogger.i("deleted: "+ String.valueOf(f.delete()));
+                output = new FileOutputStream(f);
                 output.write(bytes);
             } catch (IOException e) {
-                e.printStackTrace();
+                AppLogger.e(e.getLocalizedMessage());
             } finally {
                 mImage.close();
                 if (null != output) {
                     try {
                         output.close();
+                        AppLogger.i(String.valueOf(mFile.exists()));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        AppLogger.e(e.getLocalizedMessage());
                     }
                 }
             }
-        }
-
-    }
-
-    /**
-     * Compares two {@code Size}s based on their areas.
-     */
-    static class CompareSizesByArea implements Comparator<Size> {
-
-        @Override
-        public int compare(Size lhs, Size rhs) {
-            // We cast here to ensure the multiplications won't overflow
-            return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
-                    (long) rhs.getWidth() * rhs.getHeight());
         }
 
     }
@@ -841,7 +861,12 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         mMainViewModel.setNavigator(this);
         mMainBinding.setViewModel(mMainViewModel);
         checkPermission();
+        if (!OpenCVLoader.initDebug()) {
+            AppLogger.i(TAG + ": loading opencv error, exit");
+            finish();
+        }
         mTextureView = mMainBinding.surface;
+        mFile = new File(Environment.getExternalStorageDirectory() + "/capture");
     }
 
 

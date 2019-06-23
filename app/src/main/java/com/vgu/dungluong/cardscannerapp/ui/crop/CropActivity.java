@@ -2,7 +2,10 @@ package com.vgu.dungluong.cardscannerapp.ui.crop;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Environment;
 import android.widget.ImageView;
 
 import com.vgu.dungluong.cardscannerapp.BR;
@@ -11,6 +14,9 @@ import com.vgu.dungluong.cardscannerapp.ViewModelProviderFactory;
 import com.vgu.dungluong.cardscannerapp.databinding.ActivityCropBinding;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseActivity;
 import com.vgu.dungluong.cardscannerapp.ui.view.PaperRectangle;
+import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
+
+import java.io.File;
 
 import javax.inject.Inject;
 
@@ -64,6 +70,13 @@ public class CropActivity extends BaseActivity<ActivityCropBinding, CropViewMode
 
     private void setUp() {
         mCropViewModel.prepareImage();
+        File imgFile = new File(Environment.getExternalStorageDirectory() + "/capture/img.jpg");
+        if(imgFile.exists()){
+            Bitmap bm = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            mCropBinding.card.setImageBitmap(bm);
+        }else{
+            AppLogger.e("File not found!");
+        }
     }
 
     @Override

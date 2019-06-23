@@ -19,7 +19,8 @@
         tools:replace="android:allowBackup">
 
         <activity
-            android:name=".ui.main.MainActivity">
+            android:name=".ui.main.MainActivity"
+            android:screenOrientation="portrait">
 
             <intent-filter>
 

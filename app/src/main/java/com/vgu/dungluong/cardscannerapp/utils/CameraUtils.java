@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.hardware.Camera;
+import android.util.Size;
 import android.view.SurfaceHolder;
 import android.view.ViewGroup;
 
@@ -28,5 +29,19 @@ public class CameraUtils {
 
     public static Camera.Size getMaxResolution(Camera.Parameters parameters){
         return parameters.getSupportedPreviewSizes().stream().max(Comparator.comparing(size -> size.width)).orElse(null);
+    }
+
+    /**
+     * Compares two sizes based on their areas.
+     */
+    public static class CompareSizesByArea implements Comparator<Size> {
+
+        @Override
+        public int compare(Size lhs, Size rhs) {
+            // We cast here to ensure the multiplications won't overflow
+            return Long.signum((long) lhs.getWidth() * lhs.getHeight() -
+                    (long) rhs.getWidth() * rhs.getHeight());
+        }
+
     }
 }
