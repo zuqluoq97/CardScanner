@@ -101,4 +101,18 @@ public class AppDataManager implements DataManager{
         }
         return Observable.just(img);
     }
+
+    @Override
+    public Observable<Boolean>  handleTakenPictureByte2(byte[] bytes, int previewHeight, int previewWidth) {
+        AppLogger.i("Preview size " + previewHeight + " " + previewWidth);
+        Mat mat = new Mat(new Size((double) previewWidth, (double) previewHeight),  CvType.CV_8U);
+        mat.put(0, 0, bytes);
+        Mat pic = Imgcodecs.imdecode(mat, -1);
+        Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE);
+        mat.release();
+        SourceManager.getInstance().setCorners(processPicture(pic));
+        Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA);
+        SourceManager.getInstance().setPic(pic);
+        return Observable.just(true);
+    }
 }

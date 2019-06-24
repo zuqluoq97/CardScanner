@@ -20,7 +20,7 @@ public interface MainNavigator {
 //
     void onShutButtonClick();
 //
-//    void openCropActivity();
+    void openCropActivity();
 
 
 }

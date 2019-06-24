@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
@@ -152,6 +153,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     // Size of camera preview
     private Size mPreviewSize;
 
+    private int[] mCroppedSurfaceIndex;
+
     //is called when camera changes its state.
     private final CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
 
@@ -201,7 +204,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         @Override
         public void onImageAvailable(ImageReader reader) {
             AppLogger.i(reader.getHeight() + " " + reader.getWidth());
-            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile, reader.getHeight(), reader.getWidth()));
+            mBackgroundHandler.post(new ImageSaver(reader.acquireNextImage(), mFile));
+            mMainViewModel.handlePictureTaken(new byte[reader.acquireNextImage().getPlanes()[0].getBuffer().remaining()], mPreviewSize.getHeight(), mPreviewSize.getWidth());
         }
 
     };
@@ -719,7 +723,13 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                     showMessage("Saved: " + mFile.getAbsolutePath());
                     AppLogger.i(String.valueOf(mFile.exists()));
                     AppLogger.d(TAG + mFile.toString());
-                    startActivity(CropActivity.newIntent(MainActivity.this));
+//                    intent.putExtra("previewHeight", mPreviewSize.getHeight());
+//                    intent.putExtra("previewWidth", mPreviewSize.getWidth());
+//                    intent.putExtra("left", mCroppedSurfaceIndex[0]);
+//                    intent.putExtra("top", mCroppedSurfaceIndex[1]);
+//                    intent.putExtra("width", mCroppedSurfaceIndex[2]);
+//                    intent.putExtra("height", mCroppedSurfaceIndex[3]);
+                  //  startActivity(intent);
                     //unlockFocus();
                 }
             };
@@ -779,6 +789,11 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         takePicture();
     }
 
+    @Override
+    public void openCropActivity() {
+        startActivity(CropActivity.newIntent(MainActivity.this));
+    }
+
 
     private static class ImageSaver implements Runnable {
 
@@ -791,15 +806,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
          */
         private final File mFile;
 
-        private int mHeight;
-
-        private int mWidth;
-
-        ImageSaver(Image image, File file, int height, int width) {
+        ImageSaver(Image image, File file) {
             mImage = image;
             mFile = file;
-            mHeight = height;
-            mWidth = width;
         }
 
         @Override
@@ -858,6 +867,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mMainBinding = getViewDataBinding();
+        mCroppedSurfaceIndex = new int[4];
         mMainViewModel.setNavigator(this);
         mMainBinding.setViewModel(mMainViewModel);
         checkPermission();
@@ -866,9 +876,21 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
             finish();
         }
         mTextureView = mMainBinding.surface;
+
         mFile = new File(Environment.getExternalStorageDirectory() + "/capture");
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        Rect rectf = new Rect();
+        mMainBinding.croppedSurface.getGlobalVisibleRect(rectf);
+        AppLogger.i(rectf.left + " " + rectf.top + " " + rectf.right + " " + rectf.bottom + " " + rectf.width() + " " + rectf.height());
+        mCroppedSurfaceIndex[0] = rectf.left;
+        mCroppedSurfaceIndex[1] = rectf.top;
+        mCroppedSurfaceIndex[2] = rectf.width();
+        mCroppedSurfaceIndex[3] = rectf.height();
+    }
 
     /**
      * Callback received when a permissions request has been completed

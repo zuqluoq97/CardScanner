@@ -1,5 +1,5 @@
-set(pathToProject G:/ProjectAndroid/CardScanner)
-set(pathToOpenCV G:/Software/opencv/opencv-4.1.0-android-sdk)
+set(pathToProject "D:/Software/01 Android Studio/CardScanner")
+set(pathToOpenCV D:/UserProfile/Downloads/OpenCV-android-sdk)
 
 
 # For more information about using CMake with Android Studio, read the
@@ -62,4 +62,4 @@ target_link_libraries( # Specifies the target library.
                    lib_opencv
                    # Links the target library to the log library
                    # included in the NDK.
-                   $\{log-lib} )
+                   ${log-lib} )

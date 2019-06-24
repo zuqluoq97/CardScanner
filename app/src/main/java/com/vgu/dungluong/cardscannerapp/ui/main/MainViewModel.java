@@ -35,6 +35,21 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
         //setIsLoading(true);
         getNavigator().onShutButtonClick();
     }
+
+    public void handlePictureTaken(byte[] bytes, int previewHeight, int previewWidth){
+        getCompositeDisposable().add(getDataManager()
+                .handleTakenPictureByte2(bytes, previewHeight, previewWidth)
+                .subscribeOn(getSchedulerProvider().io())
+                .observeOn(getSchedulerProvider().ui())
+                .subscribe(result -> {
+                    setIsLoading(false);
+                    AppLogger.i(result.toString());
+                    getNavigator().openCropActivity();
+                }, throwable -> {
+                    setIsLoading(false);
+                    AppLogger.e(throwable.getLocalizedMessage());
+                }));
+    }
 //
 //    public void handlePictureTaken(byte[] bytes, Camera camera){
 //        getCompositeDisposable().add(getDataManager()

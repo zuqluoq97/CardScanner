@@ -16,4 +16,6 @@ public interface DataManager extends PermissionHelper {
     Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera);
 
     Observable<Mat> handlePictureFrame(byte[] bytes, Camera camera);
+
+    Observable<Boolean> handleTakenPictureByte2(byte[] bytes, int previewHeight, int previewWidth);
 }

@@ -2,6 +2,8 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.util.Size;
@@ -43,5 +45,12 @@ public class CameraUtils {
                     (long) rhs.getWidth() * rhs.getHeight());
         }
 
+    }
+
+    public static Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
     }
 }
