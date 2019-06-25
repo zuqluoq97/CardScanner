@@ -26,17 +26,13 @@
             app:layout_constraintHeight_percent="0.7"
             android:elevation="1dp"/>
 
-        <com.vgu.dungluong.cardscannerapp.ui.view.AutoFitTextureView
+        <com.vgu.dungluong.cardscannerapp.ui.view.PreviewSurfaceView
             android:id="@+id/surface"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/captureSectionRelativeLayout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-        <com.vgu.dungluong.cardscannerapp.ui.view.PaperRectangle
-            android:id="@+id/paper_rect"
+        <com.vgu.dungluong.cardscannerapp.ui.view.DrawingView
+            android:id="@+id/focusView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/colorTransparent" />

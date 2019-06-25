@@ -32,13 +32,13 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
     }
 
     public void shut(){
-        //setIsLoading(true);
+        setIsLoading(true);
         getNavigator().onShutButtonClick();
     }
 
-    public void handlePictureTaken(byte[] bytes, int previewHeight, int previewWidth){
+    public void handlePictureTaken(byte[] bytes, Camera camera){
         getCompositeDisposable().add(getDataManager()
-                .handleTakenPictureByte2(bytes, previewHeight, previewWidth)
+                .handleTakenPictureByte(bytes, camera)
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(result -> {
@@ -50,22 +50,7 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
                     AppLogger.e(throwable.getLocalizedMessage());
                 }));
     }
-//
-//    public void handlePictureTaken(byte[] bytes, Camera camera){
-//        getCompositeDisposable().add(getDataManager()
-//                .handleTakenPictureByte(bytes, camera)
-//                .subscribeOn(getSchedulerProvider().io())
-//                .observeOn(getSchedulerProvider().ui())
-//                .subscribe(result -> {
-//                    setIsLoading(false);
-//                    AppLogger.i(result.toString());
-//                    getNavigator().openCropActivity();
-//                }, throwable -> {
-//                    setIsLoading(false);
-//                    AppLogger.e(throwable.getLocalizedMessage());
-//                }));
-//    }
-//
+
 //    public void handlePreviewFrame(byte[] bytes, Camera camera){
 //        setIsLoading(true);
 //        getCompositeDisposable().add(getDataManager()
@@ -81,7 +66,7 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
 //                    AppLogger.e(throwable.getLocalizedMessage());
 //                }));
 //    }
-//
+
 //    private void handleMat(Mat img){
 //        getCompositeDisposable().add(Observable.create((ObservableOnSubscribe<Corners>) emitter -> {
 //            Corners corner = PaperProcessor.processPicture(img);
@@ -98,7 +83,6 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
 //                    AppLogger.i(corner.toString());
 //                    getNavigator().getPaperRect().onCornersDetected(corner);
 //                }, throwable -> {
-//                    AppLogger.i(throwable.getLocalizedMessage());
 //                    getNavigator().getPaperRect().onConrnersNotDetected();
 //                }));
 //    }

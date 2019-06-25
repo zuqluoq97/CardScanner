@@ -68,10 +68,12 @@ public class AppDataManager implements DataManager{
         Mat mat = new Mat(new Size(pictureSize.width != 0 ? pictureSize.width : 1920.0,
                 pictureSize.height != 0 ? pictureSize.height : 1080.0),  CvType.CV_8U);
         mat.put(0, 0, bytes);
+        AppLogger.i(mat.toString());
         Mat pic = Imgcodecs.imdecode(mat, -1);
         Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE);
         mat.release();
         SourceManager.getInstance().setCorners(processPicture(pic));
+        AppLogger.i(pic.toString());
         Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA);
         SourceManager.getInstance().setPic(pic);
         return Observable.just(true);
@@ -107,10 +109,15 @@ public class AppDataManager implements DataManager{
         AppLogger.i("Preview size " + previewHeight + " " + previewWidth);
         Mat mat = new Mat(new Size((double) previewWidth, (double) previewHeight),  CvType.CV_8U);
         mat.put(0, 0, bytes);
+        AppLogger.i(mat.toString());
+        // Read an image from a buffer in memory
         Mat pic = Imgcodecs.imdecode(mat, -1);
+        // Rotate Matrix pic itself 90 degree
         Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE);
         mat.release();
         SourceManager.getInstance().setCorners(processPicture(pic));
+        AppLogger.i(pic.toString());
+        // Converts an image from RGB to BGRA
         Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA);
         SourceManager.getInstance().setPic(pic);
         return Observable.just(true);
