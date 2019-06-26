@@ -11,9 +11,12 @@ import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -38,7 +41,7 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
 
     public void handlePictureTaken(byte[] bytes, Camera camera){
         getCompositeDisposable().add(getDataManager()
-                .handleTakenPictureByte(bytes, camera)
+                .handleTakenPictureByte(bytes, camera, findCropCoordinate(camera))
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(result -> {
@@ -49,6 +52,22 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
                     setIsLoading(false);
                     AppLogger.e(throwable.getLocalizedMessage());
                 }));
+    }
+
+    private List<Point> findCropCoordinate(Camera camera){
+        int[] locations = new int[2];
+        Camera.Size pictureSize = camera.getParameters().getPictureSize();
+        getNavigator().getCroppedView().getLocationInWindow(locations);
+        AppLogger.i(Arrays.toString(locations));
+        float cropWidthRatio = (float) 14 / 3;
+        float cropHeightRatio = (float) 14 / 3;
+        AppLogger.i(pictureSize.width + " " + pictureSize.height);
+        float scaleViewHeight = (float) pictureSize.width / getNavigator().getSurfaceView().getHeight();
+        float scaleViewWidth = (float) pictureSize.height / getNavigator().getSurfaceView().getWidth();
+        return Arrays.asList(new Point(locations[0] * scaleViewWidth, locations[1] * scaleViewHeight),
+                new Point(locations[0] * cropWidthRatio * scaleViewWidth, locations[1] * scaleViewHeight),
+                new Point(locations[0] * cropWidthRatio * scaleViewWidth, locations[1] * cropHeightRatio * scaleViewHeight),
+                new Point(locations[0] * scaleViewWidth, locations[1] * cropHeightRatio * scaleViewHeight));
     }
 
 //    public void handlePreviewFrame(byte[] bytes, Camera camera){

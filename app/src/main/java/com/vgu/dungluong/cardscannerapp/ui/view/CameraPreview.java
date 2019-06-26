@@ -7,6 +7,8 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.media.MediaActionSound;
+import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.ViewGroup;
@@ -17,6 +19,8 @@ import com.vgu.dungluong.cardscannerapp.utils.CameraUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +36,8 @@ public class CameraPreview implements SurfaceHolder.Callback {
     private final static String TAG = "CameraPreview";
 
     private MainActivity mMainActivity;
+
+    private boolean mFocusAreaSupported, mMeteringAreaSupported;
 
     public CameraPreview(MainActivity mainActivity) {
         mMainActivity = mainActivity;
@@ -61,21 +67,23 @@ public class CameraPreview implements SurfaceHolder.Callback {
      *
      * @param - Rect - new area for auto focus
      */
-    public void doTouchFocus(final Rect tfocusRect) {
+    public void doTouchFocus(final Rect tfocusRect, final Rect tMeteringRect) {
         AppLogger.i(TAG + ": TouchFocus");
         try {
-            final List<Camera.Area> focusList = new ArrayList<>();
-
-            Camera.Area focusArea = new Camera.Area(tfocusRect, 1000);
-            focusList.add(focusArea);
-
+            // cancel auto focus
+            mCamera.cancelAutoFocus();
             Camera.Parameters para = mCamera.getParameters();
-            para.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO);
-            para.setFocusAreas(focusList);
-            para.setMeteringAreas(focusList);
-            mCamera.setParameters(para);
-
-            mCamera.autoFocus(myAutoFocusCallback);
+            para.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+            AppLogger.i(mFocusAreaSupported + " " + mMeteringAreaSupported);
+            List<String> supportedFocusModes = para.getSupportedFocusModes();
+            if (supportedFocusModes != null && supportedFocusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                if (mFocusAreaSupported)
+                    para.setMeteringAreas(Collections.singletonList(new Camera.Area(tfocusRect, 1000)));
+                if (mMeteringAreaSupported)
+                    para.setMeteringAreas(Collections.singletonList(new Camera.Area(tMeteringRect, 1000)));
+                mCamera.setParameters(para);
+                mCamera.autoFocus(myAutoFocusCallback);
+            }
         } catch (Exception e) {
             AppLogger.e(e.getLocalizedMessage());
             AppLogger.e(TAG +  ": Unable to autofocus");
@@ -86,16 +94,20 @@ public class CameraPreview implements SurfaceHolder.Callback {
     /**
      * AutoFocus callback
      */
-    private Camera.AutoFocusCallback myAutoFocusCallback = new Camera.AutoFocusCallback(){
-
-        @Override
-        public void onAutoFocus(boolean arg0, Camera arg1) {
-            if (arg0){
-                AppLogger.i("cancleautofocus");
+    private Camera.AutoFocusCallback myAutoFocusCallback = (arg0, arg1) -> {
+            AppLogger.i(String.format("Auto focus success=%s. Focus mode: '%s'. Focused on: %s",
+                    arg0,
+                    arg1.getParameters().getFocusMode(),
+                    arg1.getParameters().getFocusAreas().get(0).rect.toString()));
+            Camera.Parameters param = mCamera.getParameters();
+            new Handler().postDelayed(() -> {
+                AppLogger.i("Turn on continous picture mode");
                 mCamera.cancelAutoFocus();
-            }
-        }
+                param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                mCamera.setParameters(param);
+            }, 3000);
     };
+
 
     public void initCam(){
         try{
@@ -146,15 +158,17 @@ public class CameraPreview implements SurfaceHolder.Callback {
                 }else{
                     param.setPictureSize(pictureSize.width, pictureSize.height);
                 }
-//                param.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-//                PackageManager pm = mMainActivity.getPackageManager();
-//                if(pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS)){
-//                    param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-//                    AppLogger.i(TAG + ": Enabling autofocus");
-//                }else {
-//                    AppLogger.i(TAG + ": Auto focus not available");
-//                }
+                PackageManager pm = mMainActivity.getPackageManager();
+                if(pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS)){
+                    param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                    AppLogger.i(TAG + ": Enabling autofocus");
+                }else {
+                    AppLogger.i(TAG + ": Auto focus not available");
+                }
                 param.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+
+                if(param.getMaxNumFocusAreas() > 0) mFocusAreaSupported = true;
+                if(param.getMaxNumMeteringAreas() > 0) mMeteringAreaSupported = true;
                 mCamera.setParameters(param);
                 mCamera.setDisplayOrientation(90);
             }

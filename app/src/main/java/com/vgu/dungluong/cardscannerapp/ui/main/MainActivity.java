@@ -9,11 +9,13 @@ import android.hardware.Camera;
 import android.media.MediaActionSound;
 import android.os.Bundle;
 
+import android.os.Handler;
 import android.text.format.DateUtils;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.ViewGroup;
 
 import com.vgu.dungluong.cardscannerapp.BR;
@@ -104,6 +106,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
             AppLogger.i(TAG + ": loading opencv error, exit");
             exit();
         }
+
         mPreviewSurfaceView = getSurfaceView();
         mPreviewSurfaceView.getHolder().addCallback(mCameraPreview);
         mPreviewSurfaceView.setListener(mCameraPreview);
@@ -129,6 +132,11 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     @Override
     public DrawingView getFocusView() {
         return mMainBinding.focusView;
+    }
+
+    @Override
+    public View getCroppedView() {
+        return mMainBinding.croppedSurface;
     }
 
     @Override

@@ -5,6 +5,9 @@ import android.hardware.Camera;
 import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
 
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
+
+import java.util.List;
 
 import io.reactivex.Observable;
 
@@ -13,7 +16,7 @@ import io.reactivex.Observable;
  */
 public interface DataManager extends PermissionHelper {
 
-    Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera);
+    Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera, List<Point> cropCoordinates);
 
     Observable<Mat> handlePictureFrame(byte[] bytes, Camera camera);
 

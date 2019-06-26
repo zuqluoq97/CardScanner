@@ -67,7 +67,10 @@ public class PaperProcessor {
         src_mat.put(0, 0, tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y);
         dst_mat.put(0, 0, 0.0D, 0.0D, dw, 0.0D, dw, dh, 0.0D, dh);
 
+        // Calculate a perspective transform from four pairs of the corresponding points
         Mat m = Imgproc.getPerspectiveTransform(src_mat, dst_mat);
+
+        // Applies a perspective transformation to an image
         Imgproc.warpPerspective(picture, croppedPic, m, croppedPic.size());
         m.release();
         src_mat.release();
