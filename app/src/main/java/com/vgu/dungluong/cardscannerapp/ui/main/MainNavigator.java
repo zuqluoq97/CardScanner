@@ -27,4 +27,8 @@ public interface MainNavigator {
 
     void openCropActivity();
 
+    int getTopOffSet();
+
+    void changeColorIcon(boolean isBackColor);
+
 }

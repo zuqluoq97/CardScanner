@@ -3,6 +3,7 @@ package com.vgu.dungluong.cardscannerapp.di.builder;
 import com.vgu.dungluong.cardscannerapp.ui.crop.CropActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivityModule;
+import com.vgu.dungluong.cardscannerapp.ui.result.ResultActivity;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -18,4 +19,8 @@ public abstract class ActivityBuilder {
 
     @ContributesAndroidInjector
     abstract CropActivity bindCropActivity();
+
+
+    @ContributesAndroidInjector
+    abstract ResultActivity bindResultActivity();
 }

@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
+        <import type="android.view.View"/>
         <variable
             name="viewModel"
             type="com.vgu.dungluong.cardscannerapp.ui.main.MainViewModel"/>
@@ -25,7 +26,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHeight_percent="0.7"
             app:layout_constraintWidth_percent="0.7"
-            app:layout_constraintVertical_bias="0.5"
+            app:layout_constraintVertical_bias="0.3"
             android:elevation="1dp"/>
 
         <com.vgu.dungluong.cardscannerapp.ui.view.PreviewSurfaceView
@@ -54,9 +55,45 @@
                 android:layout_centerInParent="true"
                 android:background="?android:attr/selectableItemBackground"
                 app:srcCompat="@drawable/ic_rec"
+                android:clickable="@{!viewModel.isLoading}"
                 android:onClick="@{() -> viewModel.shut()}"
                 tools:ignore="ContentDescription" />
+
+            <View
+                android:id="@+id/blackCardBackground"
+                android:layout_width="34dp"
+                android:layout_height="26dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="23dp"
+                android:background="@drawable/black_card_bg"
+                android:visibility="gone"
+                tools:ignore="ContentDescription" />
+
+            <ImageView
+                android:id="@+id/blackCard"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="24dp"
+                android:clickable="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.changeBlackCardScanState()}"
+                tools:ignore="ContentDescription" />
+
         </RelativeLayout>
+
+        <androidx.core.widget.ContentLoadingProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/captureSectionRelativeLayout"
+            android:elevation="11dp"
+            android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

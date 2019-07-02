@@ -1,6 +1,5 @@
 package com.vgu.dungluong.cardscannerapp.ui.view;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -8,16 +7,14 @@ import android.graphics.Color;
 import android.graphics.CornerPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PathEffect;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 
-import com.vgu.dungluong.cardscannerapp.model.local.Corners;
+import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
+import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
@@ -25,8 +22,6 @@ import org.opencv.core.Size;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-
-import kotlin.collections.CollectionsKt;
 
 /**
  * Created by Dung Luong on 19/06/2019
@@ -119,28 +114,26 @@ public class PaperRectangle extends View {
 
     public void onCorners2Crop(@Nullable Corners corners, @Nullable Size size) {
         cropMode = true;
+
+        int space = 30;
+        tl = new Point(space,  space);
+        tr = new Point(getWidth() - space, space);
+        br = new Point(getWidth() - space, getHeight() - space);
+        bl = new Point( space, getHeight() - space);
+
         if(corners != null){
-            if(corners.getCorners() != null){
+            if(corners.getCorners() != null) {
                 tl = corners.getCorners().get(0);
                 tr = corners.getCorners().get(1);
                 br = corners.getCorners().get(2);
                 bl = corners.getCorners().get(3);
-            }else{
-                tl = sm.getDefaultTl();
-                tr = sm.getDefaultTr();
-                br = sm.getDefaultBr();
-                bl = sm.getDefaultBl();
+                if (size != null) {
+                    ratioX = size.width / this.getWidth();
+                    ratioY = size.height / this.getHeight();
+                }
+                resize();
             }
         }
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        ((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int statusBarHeight = getStatusBarHeight(getContext());
-        if(size != null){
-            ratioX = size.width / displayMetrics.widthPixels;
-            ratioY = size.height / displayMetrics.heightPixels;
-        }
-        resize();
         movePoints();
     }
 
@@ -203,6 +196,14 @@ public class PaperRectangle extends View {
     }
 
     private void movePoints() {
+        AppLogger.i("tl: " + tl.x + " " + tl.y);
+        AppLogger.i("tl: " + tl.x + " " + tl.y);
+        AppLogger.i("tr: " + tr.x + " " + tr.y);
+        AppLogger.i("tr: " + tr.x + " " + tr.y);
+        AppLogger.i("br: " + br.x + " " + br.y);
+        AppLogger.i("br: " + br.x + " " + br.y);
+        AppLogger.i("bl: " + bl.x + " " + bl.y);
+        AppLogger.i("bl: " + bl.x + " " + bl.y);
         this.path.reset();
         this.path.moveTo((float)this.tl.x, (float)this.tl.y);
         this.path.lineTo((float)this.tr.x, (float)this.tr.y);

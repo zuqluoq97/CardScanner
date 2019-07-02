@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.mikepenz.iconics.context.IconicsContextWrapper;
 import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;

@@ -1,8 +1,9 @@
 package com.vgu.dungluong.cardscannerapp;
 
-import com.vgu.dungluong.cardscannerapp.di.DataManager;
+import com.vgu.dungluong.cardscannerapp.data.DataManager;
 import com.vgu.dungluong.cardscannerapp.ui.crop.CropViewModel;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainViewModel;
+import com.vgu.dungluong.cardscannerapp.ui.result.ResultViewModel;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import javax.inject.Inject;
@@ -37,6 +38,8 @@ public class ViewModelProviderFactory extends ViewModelProvider.NewInstanceFacto
             return (T) new MainViewModel(mDataManager, mSchedulerProvider);
         } else if (modelClass.isAssignableFrom(CropViewModel.class)){
             return (T) new CropViewModel(mDataManager, mSchedulerProvider);
+        } else if (modelClass.isAssignableFrom(ResultViewModel.class)){
+            return (T) new ResultViewModel(mDataManager, mSchedulerProvider);
         }
 
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass);

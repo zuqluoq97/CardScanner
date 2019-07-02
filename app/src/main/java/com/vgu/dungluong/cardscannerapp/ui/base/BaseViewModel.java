@@ -1,6 +1,6 @@
 package com.vgu.dungluong.cardscannerapp.ui.base;
 
-import com.vgu.dungluong.cardscannerapp.di.DataManager;
+import com.vgu.dungluong.cardscannerapp.data.DataManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import java.lang.ref.WeakReference;

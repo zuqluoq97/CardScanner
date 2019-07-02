@@ -10,6 +10,8 @@ dependencies {
 
     // Fonts & icon
     implementation deps.calligraphy
+    implementation deps.icon
+    implementation deps.font_awesome
 
     // Network
     implementation deps.android_network

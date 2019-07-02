@@ -27,6 +27,8 @@ versions.rxandroid = '2.1.1'
 versions.lifecycle = '2.1.0-alpha03'
 versions.tesstwo = '9.0.0'
 versions.image_cropper = '2.8.0'
+versions.icon = '4.0.0'
+versions.font_awesome = '5.3.1.2-kotlin@aar'
 
 // Third party dependencies
 versions.calligraphy = '2.2.0'
@@ -77,6 +79,10 @@ deps.logger = "com.jakewharton.timber:timber:$versions.timber"
 deps.tesstwo = "com.rmtheis:tess-two:$versions.tesstwo"
 
 deps.image_cropper = "com.theartofdev.edmodo:android-image-cropper:$versions.image_cropper"
+
+deps.icon = "com.mikepenz:iconics-core:$versions.icon"
+
+deps.font_awesome = "com.mikepenz:fontawesome-typeface:$versions.font_awesome"
 
 def dagger = [:]
 dagger.main = "com.google.dagger:dagger:$versions.dagger2"

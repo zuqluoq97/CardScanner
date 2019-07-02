@@ -3,6 +3,7 @@ package com.vgu.dungluong.cardscannerapp.ui.main;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -11,6 +12,7 @@ import android.os.Bundle;
 
 import android.os.Handler;
 import android.text.format.DateUtils;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -18,6 +20,11 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mikepenz.iconics.IconicsColor;
+import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.iconics.IconicsSize;
+import com.mikepenz.iconics.context.IconicsLayoutInflater;
+import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome;
 import com.vgu.dungluong.cardscannerapp.BR;
 import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.ViewModelProviderFactory;
@@ -44,6 +51,7 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import androidx.core.view.LayoutInflaterCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.CODE_PERMISSIONS_REQUEST;
@@ -92,6 +100,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        LayoutInflaterCompat.setFactory(getLayoutInflater(), new IconicsLayoutInflater(getDelegate()));
         super.onCreate(savedInstanceState);
         mMainBinding = getViewDataBinding();
         mMainViewModel.setNavigator(this);
@@ -112,6 +121,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         mPreviewSurfaceView.setListener(mCameraPreview);
         mDrawingView = getFocusView();
         mPreviewSurfaceView.setDrawingView(mDrawingView);
+
     }
 
     @Override
@@ -147,6 +157,33 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     @Override
     public void openCropActivity() {
         startActivity(CropActivity.newIntent(MainActivity.this));
+    }
+
+    /*
+    Get height of status bar/ notification bar
+     */
+    @Override
+    public int getTopOffSet() {
+        DisplayMetrics dm = new DisplayMetrics();
+        this.getWindowManager().getDefaultDisplay().getMetrics(dm);
+        return dm.heightPixels - getSurfaceView().getMeasuredHeight();
+    }
+
+    @Override
+    public void changeColorIcon(boolean isBlackColor) {
+        if(isBlackColor){
+            mMainBinding.blackCard.setImageDrawable(new IconicsDrawable(this)
+                    .icon(FontAwesome.Icon.faw_address_card1)
+                    .color(IconicsColor.colorInt(getColor(R.color.black)))
+                    .size(IconicsSize.dp(32)));
+            mMainBinding.blackCardBackground.setVisibility(View.VISIBLE);
+        }else{
+            mMainBinding.blackCard.setImageDrawable(new IconicsDrawable(this)
+                    .icon(FontAwesome.Icon.faw_address_card1)
+                    .color(IconicsColor.colorInt(getColor(R.color.white)))
+                    .size(IconicsSize.dp(32)));
+            mMainBinding.blackCardBackground.setVisibility(View.GONE);
+        }
     }
 
     @Override

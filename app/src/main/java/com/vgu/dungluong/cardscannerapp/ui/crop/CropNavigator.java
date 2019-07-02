@@ -15,9 +15,9 @@ public interface CropNavigator {
 
     ImageView getCroppedPaper();
 
+    int getTopOffSet();
+
     PaperRectangle getPaperRect();
 
-    void onCropButtonClick();
-
-    void onEnhanceButtonClick();
+    void openResultActivity();
 }

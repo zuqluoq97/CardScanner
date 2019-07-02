@@ -95,17 +95,16 @@ public class CameraPreview implements SurfaceHolder.Callback {
      * AutoFocus callback
      */
     private Camera.AutoFocusCallback myAutoFocusCallback = (arg0, arg1) -> {
-            AppLogger.i(String.format("Auto focus success=%s. Focus mode: '%s'. Focused on: %s",
-                    arg0,
-                    arg1.getParameters().getFocusMode(),
-                    arg1.getParameters().getFocusAreas().get(0).rect.toString()));
+
             Camera.Parameters param = mCamera.getParameters();
             new Handler().postDelayed(() -> {
-                AppLogger.i("Turn on continous picture mode");
-                mCamera.cancelAutoFocus();
-                param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-                mCamera.setParameters(param);
-            }, 3000);
+                if(mCamera != null) {
+                    AppLogger.i("Turn on continous picture mode");
+                    mCamera.cancelAutoFocus();
+                    param.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                    mCamera.setParameters(param);
+                }
+            }, 5000);
     };
 
 

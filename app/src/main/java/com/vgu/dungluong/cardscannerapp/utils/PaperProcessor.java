@@ -2,7 +2,7 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.graphics.Bitmap;
 
-import com.vgu.dungluong.cardscannerapp.model.local.Corners;
+import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 
 import org.jetbrains.annotations.NotNull;
 import org.opencv.android.Utils;
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import androidx.annotation.Nullable;
@@ -36,13 +35,11 @@ public class PaperProcessor {
     }
 
     @Nullable
-    public static Corners processPicture(Mat previewFrame){
-        return getCorners(findContours(previewFrame), previewFrame.size());
+    public static Corners processPicture(Mat previewFrame, boolean isBlackScan){
+        return getCorners(findContours(previewFrame, isBlackScan), previewFrame.size());
     }
 
     public static Mat cropPicture(Mat picture, List<Point> pts){
-
-        pts.forEach(point -> AppLogger.i(TAG + " point: " + point.toString()));
         Point tl = pts.get(0);
         Point tr = pts.get(1);
         Point br = pts.get(2);
@@ -92,32 +89,35 @@ public class PaperProcessor {
         return result;
     }
 
-    private static List<MatOfPoint> findContours(Mat src){
-        Mat grayImage;
-        Mat cannedImage;
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9.0, 9.0));
-        Mat dilate;
+    private static List<MatOfPoint> findContours(Mat src, boolean isBlackScan) {
         Size size = new Size(src.size().width, src.size().height);
-        grayImage = new Mat(size, CvType.CV_8UC4);
-        cannedImage = new Mat(size, CvType.CV_8UC1);
-        dilate = new Mat(size, CvType.CV_8UC1);
+        Mat gray = new Mat(size, CvType.CV_8UC1);
 
-        Imgproc.cvtColor(src, grayImage, Imgproc.COLOR_RGBA2GRAY);
-        Imgproc.GaussianBlur(grayImage, grayImage, new Size(5.0, 5.0), 0.0);
-        Imgproc.threshold(grayImage, grayImage, 20.0, 255.0, Imgproc.THRESH_TRIANGLE);
-        Imgproc.Canny(grayImage, cannedImage, 75.0, 200.0);
-        Imgproc.dilate(cannedImage, dilate, kernel);
-        List<MatOfPoint> contours = new ArrayList<>();
+        // Edge detection with canny
+//        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
+//        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0);
+//        Imgproc.Canny(gray, gray, 30, 90, 3, true);
+//        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9,9));
+//
+//        Imgproc.dilate(gray, gray, kernel, new Point(-1, -1), 10);
+//        Imgproc.erode(gray, gray, kernel, new Point(-1, -1), 10);
+
+        // Edge detection with threshold
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY, 4);
+        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0);
+        Imgproc.threshold(gray, gray, 150, 255,
+                (isBlackScan ? Imgproc.THRESH_BINARY_INV  : Imgproc.THRESH_BINARY) + Imgproc.THRESH_OTSU);
+
+        // ---------------- find card contour ---------------------
+        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
+
         Mat hierarchy = new Mat();
-        Imgproc.findContours(dilate, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
-        contours =  contours.stream()
+
+        Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+
+        contours = contours.stream()
                 .sorted((p1, p2) -> Double.compare(Imgproc.contourArea(p2), Imgproc.contourArea(p1)))
                 .collect(Collectors.toList());
-        hierarchy.release();
-        grayImage.release();
-        cannedImage.release();
-        kernel.release();
-        dilate.release();
         return contours;
     }
 
@@ -146,6 +146,7 @@ public class PaperProcessor {
                 List<Point> points = Arrays.asList(approx.toArray());
                 if(points.size() == 4){
                     List<Point> foundPoints = sortPoints(points);
+                    AppLogger.i(foundPoints.toString());
                     return new Corners(foundPoints, size);
                 }
             }
@@ -162,7 +163,6 @@ public class PaperProcessor {
     }
 
     private static boolean insideArea(List<Point> rp, Size size) {
-
         int width = (int)size.width;
         int height = (int)size.height;
         int baseHeightMeasure = height / 8;

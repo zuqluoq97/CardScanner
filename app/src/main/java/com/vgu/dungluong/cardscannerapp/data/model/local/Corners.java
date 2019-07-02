@@ -1,4 +1,4 @@
-package com.vgu.dungluong.cardscannerapp.model.local;
+package com.vgu.dungluong.cardscannerapp.data.model.local;
 
 import org.opencv.core.Point;
 import org.opencv.core.Size;
