@@ -79,10 +79,6 @@ public class CropActivity extends BaseActivity<ActivityCropBinding, CropViewMode
         mCropViewModel.prepareImage();
     }
 
-    @Override
-    public ImageView getCard() {
-        return mCropBinding.card;
-    }
 
     @Override
     public ImageView getCroppedPaper() {

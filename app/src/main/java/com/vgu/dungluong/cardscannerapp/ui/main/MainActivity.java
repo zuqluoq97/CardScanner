@@ -78,6 +78,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
 
     private DrawingView mDrawingView;
 
+    private static long mBackPressResponseTime;
+
     @Override
     public int getBindingVariable() {
         return BR.viewModel;
@@ -232,5 +234,16 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
                         .setPositiveButton(android.R.string.yes, ((dialog, which) -> restart())).show();
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(mBackPressResponseTime + 2000 > System.currentTimeMillis()){
+            super.onBackPressed();
+            finish();
+        }else{
+            CommonUtils.showQuickToast(this, getString(R.string.double_to_exit));
+        }
+        mBackPressResponseTime = System.currentTimeMillis();
     }
 }

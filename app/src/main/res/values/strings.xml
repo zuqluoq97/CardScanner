@@ -8,7 +8,7 @@
 
     <!-- button title -->
     <string name="confirm_title">Confirm</string>
-    <string name="extract_title">Get Information</string>
+    <string name="crop_title">Crop</string>
 
     <!-- app message -->
     <string name="double_to_exit">Press Back again to exit!</string>

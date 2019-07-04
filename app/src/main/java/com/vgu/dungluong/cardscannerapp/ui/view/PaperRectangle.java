@@ -197,12 +197,8 @@ public class PaperRectangle extends View {
 
     private void movePoints() {
         AppLogger.i("tl: " + tl.x + " " + tl.y);
-        AppLogger.i("tl: " + tl.x + " " + tl.y);
-        AppLogger.i("tr: " + tr.x + " " + tr.y);
         AppLogger.i("tr: " + tr.x + " " + tr.y);
         AppLogger.i("br: " + br.x + " " + br.y);
-        AppLogger.i("br: " + br.x + " " + br.y);
-        AppLogger.i("bl: " + bl.x + " " + bl.y);
         AppLogger.i("bl: " + bl.x + " " + bl.y);
         this.path.reset();
         this.path.moveTo((float)this.tl.x, (float)this.tl.y);

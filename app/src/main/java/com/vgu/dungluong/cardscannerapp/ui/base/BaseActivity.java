@@ -60,8 +60,6 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseView
      */
     public abstract V getViewModel();
 
-    private static long mBackPressResponseTime;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         performDependencyInjection();
@@ -163,17 +161,6 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseView
                 PERMISSIONS,
                 CODE_PERMISSIONS_REQUEST);
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(mBackPressResponseTime + 2000 > System.currentTimeMillis()){
-            super.onBackPressed();
-            finish();
-        }else{
-            CommonUtils.showQuickToast(this, getString(R.string.double_to_exit));
-        }
-        mBackPressResponseTime = System.currentTimeMillis();
     }
 
     public void requestFocus(View view){

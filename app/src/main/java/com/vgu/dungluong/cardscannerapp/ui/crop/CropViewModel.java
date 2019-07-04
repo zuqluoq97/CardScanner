@@ -25,12 +25,6 @@ public class CropViewModel extends BaseViewModel<CropNavigator> {
 
     private Corners mCorners;
 
-    private Mat mCroppedPicture;
-
-    private Mat mEnhanedPicture;
-
-    private Mat mCroppedBitmap;
-
     public CropViewModel(DataManager dataManager, SchedulerProvider schedulerProvider) {
         super(dataManager, schedulerProvider);
         mPicture = SourceManager.getInstance().getPic();

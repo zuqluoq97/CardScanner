@@ -11,8 +11,6 @@ import com.vgu.dungluong.cardscannerapp.ui.view.PaperRectangle;
  */
 public interface CropNavigator {
 
-    ImageView getCard();
-
     ImageView getCroppedPaper();
 
     int getTopOffSet();

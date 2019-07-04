@@ -3,6 +3,7 @@ package com.vgu.dungluong.cardscannerapp.ui.result;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.widget.ImageView;
 
 import com.mikepenz.iconics.context.IconicsLayoutInflater;
@@ -69,8 +70,15 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
         setUp();
     }
 
-    private void setUp() {
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
         mResultViewModel.displayCardImage();
+    }
+
+    private void setUp() {
+        new Handler().postDelayed(() ->
+        mResultViewModel.displayCardImage(), 1000);
     }
 
     @Override
