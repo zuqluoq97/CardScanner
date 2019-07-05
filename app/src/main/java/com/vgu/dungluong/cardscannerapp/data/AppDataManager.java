@@ -7,7 +7,7 @@ import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.data.preference.PreferenceHelper;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
-import com.vgu.dungluong.cardscannerapp.utils.PaperProcessor;
+import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 
 import org.opencv.core.Core;
@@ -25,7 +25,7 @@ import javax.inject.Singleton;
 
 import io.reactivex.Observable;
 
-import static com.vgu.dungluong.cardscannerapp.utils.PaperProcessor.processPicture;
+import static com.vgu.dungluong.cardscannerapp.utils.CardProcessor.processPicture;
 
 /**
  * Created by Dung Luong on 17/06/2019
@@ -60,12 +60,13 @@ public class AppDataManager implements DataManager{
         // Rean an image from a buffer in memory
         Mat pic = Imgcodecs.imdecode(mat, -1);
         Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE);
-        pic = PaperProcessor.cropPicture(pic, cropCoordinates);
+        pic = CardProcessor.cropPicture(pic, cropCoordinates);
         mat.release();
         Corners corners = processPicture(pic, getScanBlackCardState());
         SourceManager.getInstance().setCorners(corners);
         Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA);
         SourceManager.getInstance().setPic(pic);
+
         return Observable.just(true);
     }
 

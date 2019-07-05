@@ -77,8 +77,7 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
     }
 
     private void setUp() {
-        new Handler().postDelayed(() ->
-        mResultViewModel.displayCardImage(), 1000);
+
     }
 
     @Override

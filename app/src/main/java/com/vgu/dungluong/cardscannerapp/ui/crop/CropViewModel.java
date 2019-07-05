@@ -6,15 +6,12 @@ import android.os.Handler;
 import com.vgu.dungluong.cardscannerapp.data.DataManager;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseViewModel;
-import com.vgu.dungluong.cardscannerapp.utils.CameraUtils;
-import com.vgu.dungluong.cardscannerapp.utils.PaperProcessor;
+import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-
-import java.util.Objects;
 
 /**
  * Created by Dung Luong on 19/06/2019
@@ -46,7 +43,7 @@ public class CropViewModel extends BaseViewModel<CropNavigator> {
 
     public void crop(){
         setIsLoading(true);
-        mPicture = PaperProcessor.cropPicture(mPicture, getNavigator().getPaperRect().getCorners2Crop());
+        mPicture = CardProcessor.cropPicture(mPicture, getNavigator().getPaperRect().getCorners2Crop());
         SourceManager.getInstance().setPic(mPicture);
         setIsLoading(false);
         getNavigator().openResultActivity();

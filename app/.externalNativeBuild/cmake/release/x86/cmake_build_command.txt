@@ -1,15 +1,15 @@
-Executable : G:\newAndroid\sdk\cmake\3.6.4111459\bin\cmake.exe
+Executable : C:\Users\ltdung\AppData\Local\Android\Sdk\cmake\3.6.4111459\bin\cmake.exe
 arguments : 
--HG:\ProjectAndroid\CardScanner\app
--BG:\ProjectAndroid\CardScanner\app\.externalNativeBuild\cmake\release\x86
+-HD:\Software\01 Android Studio\CardScanner\app
+-BD:\Software\01 Android Studio\CardScanner\app\.externalNativeBuild\cmake\release\x86
 -DANDROID_ABI=x86
 -DANDROID_PLATFORM=android-24
--DCMAKE_LIBRARY_OUTPUT_DIRECTORY=G:\ProjectAndroid\CardScanner\app\build\intermediates\cmake\release\obj\x86
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\Software\01 Android Studio\CardScanner\app\build\intermediates\cmake\release\obj\x86
 -DCMAKE_BUILD_TYPE=Release
--DANDROID_NDK=G:\newAndroid\sdk\ndk-bundle
+-DANDROID_NDK=C:\Users\ltdung\AppData\Local\Android\Sdk\ndk-bundle
 -DCMAKE_CXX_FLAGS=-frtti -fexceptions
--DCMAKE_TOOLCHAIN_FILE=G:\newAndroid\sdk\ndk-bundle\build\cmake\android.toolchain.cmake
--DCMAKE_MAKE_PROGRAM=G:\newAndroid\sdk\cmake\3.6.4111459\bin\ninja.exe
+-DCMAKE_TOOLCHAIN_FILE=C:\Users\ltdung\AppData\Local\Android\Sdk\ndk-bundle\build\cmake\android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=C:\Users\ltdung\AppData\Local\Android\Sdk\cmake\3.6.4111459\bin\ninja.exe
 -GAndroid Gradle - Ninja
 jvmArgs : 
 

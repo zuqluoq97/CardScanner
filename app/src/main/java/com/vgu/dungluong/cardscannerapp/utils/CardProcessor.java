@@ -2,6 +2,7 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.graphics.Bitmap;
 
+import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 
 import org.jetbrains.annotations.NotNull;
@@ -13,8 +14,10 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
+import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -26,14 +29,21 @@ import java.util.stream.Collectors;
 import androidx.annotation.Nullable;
 import kotlin.jvm.internal.Intrinsics;
 
+import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
+import static org.opencv.imgproc.Imgproc.COLOR_BGRA2GRAY;
+import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
+import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
+import static org.opencv.imgproc.Imgproc.THRESH_OTSU;
+import static org.opencv.imgproc.Imgproc.cvtColor;
+
 /**
  * Created by Dung Luong on 19/06/2019
  */
-public class PaperProcessor {
+public class CardProcessor {
 
-    public static final String TAG = "PaperProcessor";
+    public static final String TAG = "CardProcessor";
 
-    private PaperProcessor(){
+    private CardProcessor(){
 
     }
 
@@ -61,7 +71,7 @@ public class PaperProcessor {
         double dh = Math.max(heightA, heightB);
         int maxHeight = (int)dh;
 
-        Mat croppedPic = new Mat(maxHeight, maxWidth, CvType.CV_8UC4);
+        Mat croppedPic = new Mat(maxHeight, maxWidth, CvType.CV_8U);
 
         Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
         Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
@@ -97,7 +107,7 @@ public class PaperProcessor {
 
     private static List<MatOfPoint> findContours(Mat src, boolean isBlackScan) {
         Size size = new Size(src.size().width, src.size().height);
-        Mat gray = new Mat(size, CvType.CV_8UC1);
+        Mat gray = new Mat(size, CvType.CV_8U);
 
         // Edge detection with canny
 //        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
@@ -109,10 +119,10 @@ public class PaperProcessor {
 //        Imgproc.erode(gray, gray, kernel, new Point(-1, -1), 10);
 
         // Edge detection with threshold
-        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY, 4);
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY, 4);
         Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0);
         Imgproc.threshold(gray, gray, 0, 255,
-                (isBlackScan ? Imgproc.THRESH_BINARY_INV  : Imgproc.THRESH_BINARY) + Imgproc.THRESH_OTSU);
+                (isBlackScan ? Imgproc.THRESH_BINARY_INV  : THRESH_BINARY) + Imgproc.THRESH_OTSU);
 
 
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9,9));
@@ -163,6 +173,7 @@ public class PaperProcessor {
         AppLogger.i(new Point(maxRect.x + maxRect.width, maxRect.y).toString());
         AppLogger.i(new Point(maxRect.x + maxRect.width, maxRect.y + maxRect.height).toString());
         AppLogger.i(new Point(maxRect.x, maxRect.y + maxRect.height).toString());
+
         return new Corners(cardEdges.size() == 4
                 ? cardEdges
                 : Arrays.asList(new Point(maxRect.x, maxRect.y),
@@ -195,8 +206,22 @@ public class PaperProcessor {
                 && rp.get(3).x <= leftPos && rp.get(3).y >= bottomPos;
     }
 
-    public static void rotate(Mat mat, int rotateType){
-        if(rotateType == 1) Core.rotate(mat, mat, Core.ROTATE_90_CLOCKWISE);
-        else Core.rotate(mat, mat, Core.ROTATE_90_COUNTERCLOCKWISE);
+    public static void textSkewCorrection(Mat img, boolean isBlackScan){
+        Mat gray = new Mat();
+        cvtColor(img, gray, Imgproc.COLOR_BGRA2GRAY);
+        Core.bitwise_not(gray, gray);
+        Imgproc.threshold(gray, gray, 0, 255, (isBlackScan ? Imgproc.THRESH_BINARY_INV  : THRESH_BINARY) + Imgproc.THRESH_OTSU);
+        Mat lines = new Mat();
+        Imgproc.HoughLinesP(gray, lines, 1, Math.PI / 180, 100, gray.width() / 2.f, 20);
+        double angle = 0.;
+        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
+        for(int i = 0; i<lines.height(); i++){
+            for(int j = 0; j<lines.width();j++){
+                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
+            }
+        }
+        angle /= lines.size().area();
+        angle = angle * 180 / Math.PI;
+        AppLogger.i(String.valueOf(angle));
     }
 }
