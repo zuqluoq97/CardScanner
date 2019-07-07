@@ -1,6 +1,7 @@
 package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.Manifest;
+import android.os.Environment;
 import android.util.SparseIntArray;
 import android.view.Surface;
 
@@ -30,5 +31,9 @@ public class AppConstants {
     public static final double CANNY_SIGMA = 0.33;
 
     public static final String PREF_NAME = "CARD_SCANNER";
+
+    public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/TesseractSample/";
+    public static final String TESSDATA = "tessdata";
+    public static final String LANG = "vie";
 
 }

@@ -1,7 +1,9 @@
 package com.vgu.dungluong.cardscannerapp.data;
 
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 
+import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.preference.PreferenceHelper;
 
@@ -18,4 +20,5 @@ public interface DataManager extends PermissionHelper, PreferenceHelper {
 
     Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera, List<Point> cropCoordinates);
 
+    Observable<String> doTesseract(Bitmap bitmap, TessBaseAPI tessBaseAPI);
 }

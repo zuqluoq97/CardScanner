@@ -1,5 +1,10 @@
 package com.vgu.dungluong.cardscannerapp.ui.result;
 
+import android.util.Log;
+
+import com.googlecode.tesseract.android.TessBaseAPI;
+import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
+
 import dagger.Module;
 import dagger.Provides;
 
@@ -8,5 +13,4 @@ import dagger.Provides;
  */
 @Module
 public class ResultActivityModule {
-
 }

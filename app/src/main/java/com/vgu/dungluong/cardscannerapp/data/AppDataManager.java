@@ -1,8 +1,10 @@
 package com.vgu.dungluong.cardscannerapp.data;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 
+import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.data.preference.PreferenceHelper;
@@ -54,7 +56,7 @@ public class AppDataManager implements DataManager{
         AppLogger.i("Picture size " + pictureSize.toString());
 
         Mat mat = new Mat(new Size(pictureSize.width != 0 ? pictureSize.width : 1920.0,
-                pictureSize.height != 0 ? pictureSize.height : 1080.0),  CvType.CV_8U);
+                pictureSize.height != 0 ? pictureSize.height : 1080.0),  CvType.CV_8UC1);
         mat.put(0, 0, bytes);
 
         // Rean an image from a buffer in memory
@@ -68,6 +70,15 @@ public class AppDataManager implements DataManager{
         SourceManager.getInstance().setPic(pic);
 
         return Observable.just(true);
+    }
+
+    @Override
+    public Observable<String> doTesseract(Bitmap bitmap, TessBaseAPI tessBaseAPI) {
+        String result;
+        tessBaseAPI.setImage(bitmap);
+        result = tessBaseAPI.getUTF8Text();
+        tessBaseAPI.end();
+        return Observable.just(result);
     }
 
     @Override

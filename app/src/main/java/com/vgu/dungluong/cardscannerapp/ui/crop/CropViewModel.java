@@ -12,6 +12,7 @@ import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 /**
  * Created by Dung Luong on 19/06/2019
@@ -45,7 +46,6 @@ public class CropViewModel extends BaseViewModel<CropNavigator> {
         setIsLoading(true);
         mPicture = CardProcessor.cropPicture(mPicture, getNavigator().getPaperRect().getCorners2Crop());
         SourceManager.getInstance().setPic(mPicture);
-        setIsLoading(false);
         getNavigator().openResultActivity();
     }
 }

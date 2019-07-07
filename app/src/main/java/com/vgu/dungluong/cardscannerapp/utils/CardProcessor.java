@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import androidx.annotation.Nullable;
+import androidx.databinding.ObservableBoolean;
+import io.reactivex.Observable;
 import kotlin.jvm.internal.Intrinsics;
 
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
@@ -71,7 +73,7 @@ public class CardProcessor {
         double dh = Math.max(heightA, heightB);
         int maxHeight = (int)dh;
 
-        Mat croppedPic = new Mat(maxHeight, maxWidth, CvType.CV_8U);
+        Mat croppedPic = new Mat(maxHeight, maxWidth, CvType.CV_8UC1);
 
         Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
         Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
@@ -107,7 +109,7 @@ public class CardProcessor {
 
     private static List<MatOfPoint> findContours(Mat src, boolean isBlackScan) {
         Size size = new Size(src.size().width, src.size().height);
-        Mat gray = new Mat(size, CvType.CV_8U);
+        Mat gray = new Mat(size, CvType.CV_8UC1);
 
         // Edge detection with canny
 //        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
@@ -206,13 +208,12 @@ public class CardProcessor {
                 && rp.get(3).x <= leftPos && rp.get(3).y >= bottomPos;
     }
 
-    public static void textSkewCorrection(Mat img, boolean isBlackScan){
-        Mat gray = new Mat();
-        cvtColor(img, gray, Imgproc.COLOR_BGRA2GRAY);
-        Core.bitwise_not(gray, gray);
-        Imgproc.threshold(gray, gray, 0, 255, (isBlackScan ? Imgproc.THRESH_BINARY_INV  : THRESH_BINARY) + Imgproc.THRESH_OTSU);
+    public static Observable<Boolean> textSkewCorrection(Mat img, boolean isBlackScan){
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
+        Core.bitwise_not(img, img);
+        Imgproc.threshold(img, img, 0, 255, (isBlackScan ? Imgproc.THRESH_BINARY_INV  : THRESH_BINARY) + Imgproc.THRESH_OTSU);
         Mat lines = new Mat();
-        Imgproc.HoughLinesP(gray, lines, 1, Math.PI / 180, 100, gray.width() / 2.f, 20);
+        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
         double angle = 0.;
         AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
         for(int i = 0; i<lines.height(); i++){
@@ -220,8 +221,28 @@ public class CardProcessor {
                 angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
             }
         }
+
         angle /= lines.size().area();
         angle = angle * 180 / Math.PI;
         AppLogger.i(String.valueOf(angle));
+
+        if(!Double.isNaN(angle)){
+            Mat white = new Mat(img.size(), CvType.CV_8UC1);
+            Core.findNonZero(img, white);
+            MatOfPoint points = new MatOfPoint(white);
+            MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
+            RotatedRect box = Imgproc.minAreaRect(points2f);
+            AppLogger.i(String.valueOf(box.angle));
+            if(box.angle != 0.0){
+                return Observable.just(deSkew(img, angle, box));
+            }
+        }
+        return Observable.just(false);
+    }
+
+    private static boolean deSkew(Mat img, double angle, RotatedRect box){
+        Mat rotMat = Imgproc.getRotationMatrix2D(box.center, angle, 1);
+        Imgproc.warpAffine(img, img, rotMat, img.size(), INTER_CUBIC);
+        return true;
     }
 }
