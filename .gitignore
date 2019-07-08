@@ -10,8 +10,6 @@ gen/
 generated/
 finalOutput/
 projectFilesBackup/
-.externalNativeBuild
-app/CMakeLists.txt
 build.xml
 
 # Local configuration file (sdk path, etc)
@@ -46,3 +44,6 @@ target/
 .DS_Store
 .gradle/4.6/fileContent/fileContent.lock
 sh.exe.stackdump
+
+.externalNativeBuild
+app/CMakeLists.txt

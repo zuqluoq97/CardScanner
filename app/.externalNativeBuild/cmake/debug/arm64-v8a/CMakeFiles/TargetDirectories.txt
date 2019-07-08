@@ -1,3 +1,0 @@
-G:/ProjectAndroid/CardScanner/app/.externalNativeBuild/cmake/debug/arm64-v8a/CMakeFiles/native-lib.dir
-G:/ProjectAndroid/CardScanner/app/.externalNativeBuild/cmake/debug/arm64-v8a/CMakeFiles/edit_cache.dir
-G:/ProjectAndroid/CardScanner/app/.externalNativeBuild/cmake/debug/arm64-v8a/CMakeFiles/rebuild_cache.dir
