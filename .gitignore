@@ -10,7 +10,8 @@ gen/
 generated/
 finalOutput/
 projectFilesBackup/
-
+.externalNativeBuild
+app/CMakeLists.txt
 build.xml
 
 # Local configuration file (sdk path, etc)
