@@ -18,8 +18,7 @@
         tools:ignore="GoogleAppIndexingWarning, HardcodedDebugMode"
         tools:replace="android:allowBackup">
 
-        <activity
-            android:name=".ui.main.MainActivity"
+        <activity android:name=".ui.splash.SplashActivity"
             android:screenOrientation="portrait">
 
             <intent-filter>
@@ -31,6 +30,10 @@
             </intent-filter>
 
         </activity>
+
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:screenOrientation="portrait"/>
 
         <activity android:name=".ui.crop.CropActivity"/>
 

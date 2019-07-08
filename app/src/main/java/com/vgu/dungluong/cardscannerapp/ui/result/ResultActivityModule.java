@@ -13,4 +13,12 @@ import dagger.Provides;
  */
 @Module
 public class ResultActivityModule {
+
+    @Provides
+    TessBaseAPI provideTessBaseAPI(){
+        TessBaseAPI tessBaseAPI = new TessBaseAPI();
+        tessBaseAPI.init(AppConstants.DATA_PATH, AppConstants.LANG);
+        //tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAáÁàÀạẠãÃảẢăĂắẮằẰặẶẵẴẳẲâÂấẤầẦậẬẫẪẩẨbBcCdDđĐeEéÉèÈẹẸẽẼẻẺêÊếẾềỀệỆễỄểỂfFgGhHiIíÍìÌịỊĩĨỉỈjJkKlLmMnNoOóÓòÒọỌõÕỏỎôÔốỐồỒộỘỗỖổỔơƠớỚờỜợỢỡỠởỞpPqQrRsStTuUúÚùÙụỤũŨủỦưƯứỨừỪựỰữỮửỬvVxXyYýÝỳỲỵỴỹỸỷỶwWzZ123456789',.@-:/ ");
+        return tessBaseAPI;
+    }
 }

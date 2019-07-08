@@ -17,6 +17,4 @@ public interface ResultNavigator {
     void showMessage(String mess);
 
     TessBaseAPI getTesseractApi();
-
-    void prepareTesseract();
 }

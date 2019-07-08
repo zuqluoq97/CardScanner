@@ -4,6 +4,7 @@ import com.vgu.dungluong.cardscannerapp.data.DataManager;
 import com.vgu.dungluong.cardscannerapp.ui.crop.CropViewModel;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainViewModel;
 import com.vgu.dungluong.cardscannerapp.ui.result.ResultViewModel;
+import com.vgu.dungluong.cardscannerapp.ui.splash.SplashViewModel;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import javax.inject.Inject;
@@ -34,7 +35,9 @@ public class ViewModelProviderFactory extends ViewModelProvider.NewInstanceFacto
     @SuppressWarnings({"unchecked"})
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass){
-        if(modelClass.isAssignableFrom(MainViewModel.class)){
+        if(modelClass.isAssignableFrom(SplashViewModel.class)){
+            return (T) new SplashViewModel(mDataManager, mSchedulerProvider);
+        } else if (modelClass.isAssignableFrom(MainViewModel.class)){
             return (T) new MainViewModel(mDataManager, mSchedulerProvider);
         } else if (modelClass.isAssignableFrom(CropViewModel.class)){
             return (T) new CropViewModel(mDataManager, mSchedulerProvider);

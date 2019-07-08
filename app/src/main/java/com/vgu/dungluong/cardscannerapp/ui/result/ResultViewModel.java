@@ -53,14 +53,14 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
         int cardHeight = getNavigator().getCardImageView().getWidth() * mCardPicture.height() / mCardPicture.width();
         Bitmap bitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
-
         Utils.matToBitmap(mCardPicture, bitmap, true);
-        getNavigator().getCardImageView().setImageBitmap(Bitmap.createScaledBitmap(bitmap,
-                getNavigator().getCardImageView().getWidth(), cardHeight, false));
 
         if(mIsOCRSucceed.get()){
             tesseract(bitmap);
         }
+
+        getNavigator().getCardImageView().setImageBitmap(Bitmap.createScaledBitmap(bitmap,
+                getNavigator().getCardImageView().getWidth(), cardHeight, false));
 
     }
 
@@ -88,12 +88,12 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     }
 
     public void tesseract(Bitmap bitmap){
-        getNavigator().prepareTesseract();
         getCompositeDisposable().add(getDataManager()
                 .doTesseract(bitmap, getNavigator().getTesseractApi())
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(result -> {
+                    setIsOCRSucceed(false);
                     setIsLoading(false);
                     getNavigator().showMessage("OCR success");
                     mResultString.set(result);

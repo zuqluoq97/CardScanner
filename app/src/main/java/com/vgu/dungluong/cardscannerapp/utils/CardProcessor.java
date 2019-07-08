@@ -95,12 +95,12 @@ public class CardProcessor {
     }
 
     @NotNull
-    public static final Bitmap enhancePicture(@Nullable Bitmap src) {
+    public static final Bitmap enhancePicture(Bitmap src) {
         Mat src_mat = new Mat();
         Utils.bitmapToMat(src, src_mat);
         Imgproc.cvtColor(src_mat, src_mat, 11);
         Imgproc.adaptiveThreshold(src_mat, src_mat, 255.0D, 0, 0, 15, 15.0D);
-        Bitmap result = Bitmap.createBitmap(src != null ? src.getWidth() : 1080, src != null ? src.getHeight() : 1920, Bitmap.Config.RGB_565);
+        Bitmap result = Bitmap.createBitmap(src.getWidth(), src.getHeight(), Bitmap.Config.RGB_565);
         Utils.matToBitmap(src_mat, result, true);
         src_mat.release();
         Intrinsics.checkExpressionValueIsNotNull(result, "result");
@@ -233,7 +233,7 @@ public class CardProcessor {
             MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
             RotatedRect box = Imgproc.minAreaRect(points2f);
             AppLogger.i(String.valueOf(box.angle));
-            if(box.angle != 0.0){
+            if(box.angle != 0.0 && box.angle != -90.0 && box.angle == 90.0){
                 return Observable.just(deSkew(img, angle, box));
             }
         }
