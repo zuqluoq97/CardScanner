@@ -10,6 +10,8 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfFloat;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
@@ -22,6 +24,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -124,27 +127,35 @@ public class CardProcessor {
 //        Imgproc.erode(gray, gray, kernel, new Point(-1, -1), 10);
 
         // Edge detection with threshold
+        Mat hsv = new Mat();
+        Imgproc.cvtColor(src, hsv, Imgproc.COLOR_RGB2HSV_FULL, 4);
+        List<Mat> hsvChannels = new ArrayList<>();
+        Core.split(hsv, hsvChannels);
+        AppLogger.i(hsvChannels.get(2).dump());
+
         Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY, 4);
         Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0);
 
+        double med = median(gray);
+        Imgproc.threshold(gray, gray, med, 255,
+                (isBlackScan ? Imgproc.THRESH_BINARY_INV : THRESH_BINARY));
 
-        Imgproc.threshold(gray, gray, 0, 255,
-                (isBlackScan ? Imgproc.THRESH_BINARY_INV : THRESH_BINARY) + Imgproc.THRESH_OTSU);
+//        AppLogger.i(String.valueOf(thresh));
 
+        //Imgproc.Canny(gray, gray, Math.min(0, (1.0 - AppConstants.CANNY_SIGMA) * med), Math.max(255, 1.0 + AppConstants.CANNY_SIGMA * med));
+//        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(9,9));
+//        Imgproc.dilate(gray, gray, kernel, new Point(-1, -1), 1);
 
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9,9));
-        Imgproc.erode(gray, gray, kernel, new Point(-1, -1), 1);
         // ---------------- find card contour ---------------------
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 
-        Mat hierarchy = new Mat();
-
-        Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-
-
-        contours = contours.stream()
-                .sorted((p1, p2) -> Double.compare(Imgproc.contourArea(p2), Imgproc.contourArea(p1)))
-                .collect(Collectors.toList());
+//        Mat hierarchy = new Mat();
+//
+//        Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+        SourceManager.getInstance().setPic(gray);
+//        contours = contours.stream()
+//                .sorted((p1, p2) -> Double.compare(Imgproc.contourArea(p2), Imgproc.contourArea(p1)))
+//                .collect(Collectors.toList());
 
         return contours;
     }
@@ -265,5 +276,28 @@ public class CardProcessor {
         Mat rotMat = Imgproc.getRotationMatrix2D(box.center, angle, 1);
         Imgproc.warpAffine(img, img, rotMat, img.size(), INTER_CUBIC);
         return true;
+    }
+
+    private static double median(Mat channel){
+        double m = (double) (channel.cols() * channel.rows()) / 2;
+        AppLogger.i(String.valueOf(m));
+        int bin = 0;
+        double med = -1.0;
+        MatOfFloat ranges = new MatOfFloat(0f, 256f);
+        MatOfInt histSize = new MatOfInt(256);
+        AppLogger.i(histSize.cols() + " " + histSize.rows() + " " + histSize.channels());
+        Mat hist = new Mat();
+        Imgproc.calcHist(Collections.singletonList(channel), new MatOfInt(0), new Mat(), hist, histSize, ranges, false);
+        AppLogger.i(hist.cols() + " " + hist.rows());
+        for(int i = 0; i < hist.rows() && med < 0.0; i++){
+            for(int j = 0; j < hist.cols(); j++){
+                bin += Math.round(hist.get(i, j)[0]);
+                if(bin > m && med < 0.0){
+                    med = i;
+                }
+            }
+        }
+        AppLogger.i("med:"+med);
+        return med;
     }
 }

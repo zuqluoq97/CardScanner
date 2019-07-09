@@ -46,3 +46,4 @@ target/
 sh.exe.stackdump
 
 .externalNativeBuild
+app/CMakeLists.txt
