@@ -31,9 +31,12 @@ import androidx.databinding.ObservableBoolean;
 import io.reactivex.Observable;
 import kotlin.jvm.internal.Intrinsics;
 
+import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C;
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
 import static org.opencv.imgproc.Imgproc.COLOR_BGRA2GRAY;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
+import static org.opencv.imgproc.Imgproc.MORPH_CLOSE;
+import static org.opencv.imgproc.Imgproc.MORPH_OPEN;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 import static org.opencv.imgproc.Imgproc.THRESH_OTSU;
 import static org.opencv.imgproc.Imgproc.cvtColor;
@@ -123,8 +126,10 @@ public class CardProcessor {
         // Edge detection with threshold
         Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY, 4);
         Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0);
+
+
         Imgproc.threshold(gray, gray, 0, 255,
-                (isBlackScan ? Imgproc.THRESH_BINARY_INV  : THRESH_BINARY) + Imgproc.THRESH_OTSU);
+                (isBlackScan ? Imgproc.THRESH_BINARY_INV : THRESH_BINARY) + Imgproc.THRESH_OTSU);
 
 
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9,9));
@@ -135,6 +140,7 @@ public class CardProcessor {
         Mat hierarchy = new Mat();
 
         Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+
 
         contours = contours.stream()
                 .sorted((p1, p2) -> Double.compare(Imgproc.contourArea(p2), Imgproc.contourArea(p1)))
@@ -210,8 +216,23 @@ public class CardProcessor {
 
     public static Observable<Boolean> textSkewCorrection(Mat img, boolean isBlackScan){
         Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
-        Core.bitwise_not(img, img);
-        Imgproc.threshold(img, img, 0, 255, (isBlackScan ? Imgproc.THRESH_BINARY_INV  : THRESH_BINARY) + Imgproc.THRESH_OTSU);
+        Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(30,30));
+        Mat closed = new Mat();
+        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
+
+        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
+        Core.divide(img, closed, img, 1, CvType.CV_32F);
+        Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
+        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
+        Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV+Imgproc.THRESH_OTSU);
+
+        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
+        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2));
+        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
+        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
+        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
+
         Mat lines = new Mat();
         Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
         double angle = 0.;

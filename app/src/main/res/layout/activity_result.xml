@@ -10,75 +10,78 @@
             type="com.vgu.dungluong.cardscannerapp.ui.result.ResultViewModel"/>
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/white_bg">
-
-        <ImageView
-            android:id="@+id/cardImageView"
+        android:layout_height="wrap_content">
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:ignore="ContentDescription" />
+            android:orientation="vertical"
+            android:background="@color/white_bg">
 
-        <ImageView
-            android:id="@+id/rotateButton"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_centerInParent="true"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintEnd_toEndOf="@+id/cardImageView"
-            app:layout_constraintBottom_toBottomOf="@+id/cardImageView"
-            app:srcCompat="@drawable/ic_rotate"
-            android:clickable="@{!viewModel.isLoading}"
-            android:onClick="@{() -> viewModel.rotate()}"
-            android:visibility="@{viewModel.isOCRSucceed ? View.GONE : View.VISIBLE}"
-            tools:ignore="ContentDescription"
-            android:background="?android:attr/selectableItemBackground"/>
+            <ImageView
+                android:id="@+id/cardImageView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:ignore="ContentDescription" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/ocrButton"
-            style="@style/Button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="@string/ocr_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardImageView"
-            android:visibility="@{viewModel.isOCRSucceed ? View.GONE : View.VISIBLE}"
-            android:enabled="@{!viewModel.isLoading}"
-            android:onClick="@{() -> viewModel.ocr()}"/>
+            <ImageView
+                android:id="@+id/rotateButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_centerInParent="true"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintEnd_toEndOf="@+id/cardImageView"
+                app:layout_constraintBottom_toBottomOf="@+id/cardImageView"
+                app:srcCompat="@drawable/ic_rotate"
+                android:clickable="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.rotate()}"
+                android:visibility="@{viewModel.isOCRSucceed ? View.GONE : View.VISIBLE}"
+                tools:ignore="ContentDescription"
+                android:background="?android:attr/selectableItemBackground"/>
 
-        <androidx.core.widget.ContentLoadingProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:elevation="11dp"
-            android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ocrButton"
+                style="@style/Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/ocr_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardImageView"
+                android:visibility="@{viewModel.isOCRSucceed ? View.GONE : View.VISIBLE}"
+                android:enabled="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.ocr()}"/>
 
-        <TextView
-            android:id="@+id/ocrResult"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@id/ocrButton"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="@{viewModel.resultString}"
-            android:textColor="@color/black"/>
+            <androidx.core.widget.ContentLoadingProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:elevation="11dp"
+                android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/ocrResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toBottomOf="@id/ocrButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:text="@{viewModel.resultString}"
+                android:textColor="@color/black"/>
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
 
 
 </layout>

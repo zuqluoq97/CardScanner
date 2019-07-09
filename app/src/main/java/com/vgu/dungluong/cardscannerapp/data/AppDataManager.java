@@ -53,7 +53,7 @@ public class AppDataManager implements DataManager{
     @Override
     public Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera, List<Point> cropCoordinates) {
         Camera.Size pictureSize = camera.getParameters().getPictureSize();
-        AppLogger.i("Picture size " + pictureSize.toString());
+        AppLogger.i("Picture size " + pictureSize.height + " " + pictureSize.width);
 
         Mat mat = new Mat(new Size(pictureSize.width != 0 ? pictureSize.width : 1920.0,
                 pictureSize.height != 0 ? pictureSize.height : 1080.0),  CvType.CV_8UC1);
@@ -77,6 +77,7 @@ public class AppDataManager implements DataManager{
         String result;
         tessBaseAPI.setImage(bitmap);
         result = tessBaseAPI.getUTF8Text();
+        AppLogger.i(result);
         tessBaseAPI.end();
         return Observable.just(result);
     }
