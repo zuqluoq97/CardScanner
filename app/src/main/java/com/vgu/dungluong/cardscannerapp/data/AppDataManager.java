@@ -67,7 +67,7 @@ public class AppDataManager implements DataManager{
         Corners corners = processPicture(pic, getScanBlackCardState());
         SourceManager.getInstance().setCorners(corners);
         Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA);
-        //SourceManager.getInstance().setPic(pic);
+//        SourceManager.getInstance().setPic(pic);
 
         return Observable.just(true);
     }

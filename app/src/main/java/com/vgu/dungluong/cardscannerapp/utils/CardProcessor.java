@@ -20,12 +20,14 @@ import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -115,7 +117,7 @@ public class CardProcessor {
 
     private static List<MatOfPoint> findContours(Mat src, boolean isBlackScan) {
         Size size = new Size(src.size().width, src.size().height);
-        Mat gray = new Mat(size, CvType.CV_8UC1);
+        Mat gray = new Mat(size, CvType.CV_8UC3);
 
         // Edge detection with canny
 //        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
@@ -127,38 +129,35 @@ public class CardProcessor {
 //        Imgproc.erode(gray, gray, kernel, new Point(-1, -1), 10);
 
         // Edge detection with threshold
-        Mat hsv = new Mat();
-        Imgproc.cvtColor(src, hsv, Imgproc.COLOR_RGB2HSV_FULL, 4);
-        List<Mat> hsvChannels = new ArrayList<>();
-        Core.split(hsv, hsvChannels);
-        AppLogger.i(hsvChannels.get(2).dump());
-
-        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY, 4);
-        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0);
-
-        double med = median(gray);
-        Imgproc.threshold(gray, gray, med, 255,
-                (isBlackScan ? Imgproc.THRESH_BINARY_INV : THRESH_BINARY));
-
-//        AppLogger.i(String.valueOf(thresh));
-
-        //Imgproc.Canny(gray, gray, Math.min(0, (1.0 - AppConstants.CANNY_SIGMA) * med), Math.max(255, 1.0 + AppConstants.CANNY_SIGMA * med));
-//        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(9,9));
-//        Imgproc.dilate(gray, gray, kernel, new Point(-1, -1), 1);
+        Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY);
+        CLAHE clahe = Imgproc.createCLAHE();
+        clahe.setClipLimit(6.0);
+        clahe.apply(gray, gray);
+        Imgproc.GaussianBlur(gray, gray, new Size(11, 11), 0);
+//        double med = median(gray);
+        Imgproc.threshold(gray, gray, 0, 255,
+                (isBlackScan ? Imgproc.THRESH_BINARY_INV : THRESH_BINARY) + THRESH_OTSU);
+        //SourceManager.getInstance().setPic(gray);
+//        Imgproc.Canny(gray, gray, Math.min(0, (1.0 - AppConstants.CANNY_SIGMA) * med), Math.max(255, 1.0 + AppConstants.CANNY_SIGMA * med));
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
+        Imgproc.morphologyEx(gray, gray, MORPH_CLOSE, kernel, new Point(-1, -1), 1);
+        Imgproc.erode(gray, gray, kernel, new Point(-1, -1), 15);
+        SourceManager.getInstance().setPic(gray);
 
         // ---------------- find card contour ---------------------
         List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
 
-//        Mat hierarchy = new Mat();
-//
-//        Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-        SourceManager.getInstance().setPic(gray);
-//        contours = contours.stream()
-//                .sorted((p1, p2) -> Double.compare(Imgproc.contourArea(p2), Imgproc.contourArea(p1)))
-//                .collect(Collectors.toList());
+        Mat hierarchy = new Mat();
+
+        Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+
+        contours = contours.stream()
+                .sorted((p1, p2) -> Double.compare(Imgproc.contourArea(p2), Imgproc.contourArea(p1)))
+                .collect(Collectors.toList());
 
         return contours;
     }
+
 
     private static Corners getCorners(List<MatOfPoint> contours, Size size, Mat src){
         List<Rect> contourRects = new ArrayList<>();
@@ -179,23 +178,21 @@ public class CardProcessor {
                 isFound = true;
             }
             MatOfPoint2f approx = new MatOfPoint2f();
-            Imgproc.approxPolyDP(c2f, approx, 0.15 * peri, true);
+            Imgproc.approxPolyDP(c2f, approx, 0.01 * peri, true);
             MatOfPoint points = new MatOfPoint(approx.toArray());
             Rect rect = Imgproc.boundingRect(points);
             contourRects.add(rect);
+            Imgproc.rectangle(src, new Point(rect.x,rect.y), new Point(rect.x+rect.width,rect.y+rect.height), new Scalar(255,0,255), 3);
         }
 
         Rect maxRect = contourRects.stream().max(Comparator.comparing(rect -> rect.width * rect.height)).orElse(new Rect());
-        //Imgproc.rectangle(src, new Point(maxRect.x,maxRect.y), new Point(maxRect.x+maxRect.width,maxRect.y+maxRect.height), new Scalar(255,0,255), 3);
         AppLogger.i(cardEdges.toString());
         AppLogger.i(new Point(maxRect.x, maxRect.y).toString());
         AppLogger.i(new Point(maxRect.x + maxRect.width, maxRect.y).toString());
         AppLogger.i(new Point(maxRect.x + maxRect.width, maxRect.y + maxRect.height).toString());
         AppLogger.i(new Point(maxRect.x, maxRect.y + maxRect.height).toString());
 
-        return new Corners(cardEdges.size() == 4
-                ? cardEdges
-                : Arrays.asList(new Point(maxRect.x, maxRect.y),
+        return new Corners(Arrays.asList(new Point(maxRect.x, maxRect.y),
                 new Point(maxRect.x + maxRect.width, maxRect.y),
                 new Point(maxRect.x + maxRect.width, maxRect.y + maxRect.height),
                 new Point(maxRect.x, maxRect.y + maxRect.height)) , size);
