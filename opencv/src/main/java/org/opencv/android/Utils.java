@@ -63,7 +63,7 @@ public class Utils {
         }
         is.close();
 
-        Mat encoded = new Mat(1, os.size(), CvType.CV_8UC1);
+        Mat encoded = new Mat(1, os.size(), CvType.CV_8UC3);
         encoded.put(0, 0, os.toByteArray());
         os.close();
 
