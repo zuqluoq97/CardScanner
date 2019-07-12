@@ -48,11 +48,14 @@ import static org.opencv.imgproc.Imgproc.COLOR_BGR2Lab;
 import static org.opencv.imgproc.Imgproc.COLOR_BGRA2GRAY;
 import static org.opencv.imgproc.Imgproc.COLOR_GRAY2BGRA;
 import static org.opencv.imgproc.Imgproc.COLOR_Lab2BGR;
+import static org.opencv.imgproc.Imgproc.COLOR_RGB2GRAY;
+import static org.opencv.imgproc.Imgproc.COLOR_RGBA2GRAY;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.MORPH_CLOSE;
 import static org.opencv.imgproc.Imgproc.MORPH_ELLIPSE;
 import static org.opencv.imgproc.Imgproc.MORPH_GRADIENT;
 import static org.opencv.imgproc.Imgproc.MORPH_OPEN;
+import static org.opencv.imgproc.Imgproc.MORPH_RECT;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY_INV;
 import static org.opencv.imgproc.Imgproc.THRESH_OTSU;
@@ -178,40 +181,47 @@ public class CardProcessor {
         // Imgproc.threshold(gray, gray, 0, 255, Imgproc.THRESH_BINARY_INV+Imgproc.THRESH_OTSU);
 
         Mat morph = src.clone();
+        Imgproc.cvtColor(morph, morph, COLOR_RGBA2GRAY);
         Imgproc.resize(morph, morph, size);
-        cvtColor(morph, morph, Imgproc.COLOR_BGRA2GRAY);
-        CLAHE clahe = Imgproc.createCLAHE();
-        clahe.setClipLimit(2.0);
-        clahe.apply(morph, morph);
-        cvtColor(morph, morph, COLOR_GRAY2BGRA);
+
         Imgproc.GaussianBlur(morph, morph, new Size(5, 5), 0);
-        for (int r = 1; r < 4; r++) {
-            Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(2 * r + 1, 2 * r + 1));
-            Imgproc.morphologyEx(morph, morph, MORPH_CLOSE, kernel);
-            Imgproc.morphologyEx(morph, morph, MORPH_OPEN, kernel);
-        }
+//
+//        for (int r = 1; r < 4; r++) {
+//            Mat kernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(2 * r + 1, 2 * r + 1));
+//            Imgproc.dilate(morph, morph, kernel);
+//            Imgproc.erode(morph, morph, kernel);
+//        }
 
-        Mat mgrad = new Mat();
-        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(3, 3));
-        Imgproc.morphologyEx(morph, mgrad, MORPH_GRADIENT, kernel);
+        Mat kernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(3, 3));
+        Imgproc.dilate(morph, morph, kernel, new Point(-1, -1), 5);
+        SourceManager.getInstance().setPic(morph);
 
-        List<Mat> channels = new ArrayList<>();
-        Mat merge = new Mat();
-        Core.split(mgrad, channels);
-        Imgproc.threshold(channels.get(0), channels.get(0), 0, 255, THRESH_BINARY + THRESH_OTSU);
-        Imgproc.threshold(channels.get(1), channels.get(1), 0, 255, THRESH_BINARY + THRESH_OTSU);
-        Imgproc.threshold(channels.get(2), channels.get(2), 0, 255, THRESH_BINARY + THRESH_OTSU);
-        Core.merge(channels, merge);
+//        Mat mgrad = new Mat();
+//        Mat kernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(5, 5));
+//        Imgproc.morphologyEx(morph, mgrad, MORPH_GRADIENT, kernel);
+//
+//        List<Mat> channels = new ArrayList<>();
+//        Mat merge = new Mat();
+//        Core.split(mgrad, channels);
+//        Imgproc.threshold(channels.get(0), channels.get(0), 0, 255, THRESH_BINARY + THRESH_OTSU);
+//        Imgproc.threshold(channels.get(1), channels.get(1), 0, 255, THRESH_BINARY + THRESH_OTSU);
+//        Imgproc.threshold(channels.get(2), channels.get(2), 0, 255, THRESH_BINARY + THRESH_OTSU);
+//        Core.merge(channels, merge);
 
-        double med = median(merge);
-        Imgproc.Canny(merge, gray, Math.min(0, (1.0 - AppConstants.CANNY_SIGMA) * med), Math.max(255, 1.0 + AppConstants.CANNY_SIGMA * med));
-        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(3, 3));
-        Imgproc.morphologyEx(gray, gray, MORPH_CLOSE, kernel1,new Point(-1, -1), 1);
 
+//
+//        double med = median(morph);
+//        Imgproc.Canny(morph, morph, 15, 45, 3);
+//
+//
+//        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(3, 3));
+//        Imgproc.morphologyEx(morph, morph, MORPH_CLOSE, kernel1,new Point(-1, -1), 3);
+
+//
         Mat lines = new Mat();
-
-        List<Pair<Pair<Point, Point>, Double>> longesHorizontal = new ArrayList<>();
-        List<Pair<Pair<Point, Point>, Double>> longestVertical = new ArrayList<>();
+//
+//        List<Pair<Pair<Point, Point>, Double>> longesHorizontal = new ArrayList<>();
+//        List<Pair<Pair<Point, Point>, Double>> longestVertical = new ArrayList<>();
 //
 //        for (int i = 0; i < lines.rows(); i++) {
 //            double data[] = lines.get(i, 0);
@@ -235,8 +245,8 @@ public class CardProcessor {
 //
 //        }
 
-        longestVertical = longestVertical.stream().sorted((p1, p2) -> Double.compare(p1.getSecond(), p2.getSecond())).collect(Collectors.toList());
-        longesHorizontal = longesHorizontal.stream().sorted(Comparator.comparing(Pair<Pair<Point, Point>, Double>::getSecond)).collect(Collectors.toList());
+//        longestVertical = longestVertical.stream().sorted((p1, p2) -> Double.compare(p1.getSecond(), p2.getSecond())).collect(Collectors.toList());
+//        longesHorizontal = longesHorizontal.stream().sorted(Comparator.comparing(Pair<Pair<Point, Point>, Double>::getSecond)).collect(Collectors.toList());
 
         for (int i = 0; i < 2; i++) {
 //            Pair<Pair<Point, Point>, Double> pair = longestVertical.get(i);
@@ -251,11 +261,12 @@ public class CardProcessor {
 
         Mat hierarchy = new Mat();
 
-        Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+//        Imgproc.findContours(morph, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
 
-        Imgproc.HoughLines(gray, lines, 1, Math.PI / 180, 120, 10, 20);
+        Imgproc.HoughLines(morph, lines, 1, Math.PI / 180, 100, 10, 20);
 
         mergeLine(lines, src, size);
+
 
         contours = contours.stream()
                 .sorted((p1, p2) -> Double.compare(Imgproc.contourArea(p2), Imgproc.contourArea(p1)))
@@ -428,6 +439,7 @@ public class CardProcessor {
                 }
             }
         }
+
         similarLine.forEach((key, value) -> {
             AppLogger.i(key + " " + value.toString());
         });
@@ -469,9 +481,9 @@ public class CardProcessor {
                 double sinTheta = Math.sin(theta1);
                 double x0 = cosTheta * rho1;
                 double y0 = sinTheta * rho1;
-                Point pt1 = new Point((x0 + size1.width * (-sinTheta)) * 4, (y0 + size1.height * cosTheta) * 4);
-                Point pt2 = new Point((x0 - size1.width * (-sinTheta)) * 4, (y0 - size1.height * cosTheta) * 4);
-                Imgproc.line(src, pt1, pt2, new Scalar(0, 0, 255), 2);
+                Point pt1 = new Point((x0 + 1000 * (-sinTheta)) * 4, (y0 + 1000 * cosTheta) * 4);
+                Point pt2 = new Point((x0 - 1000 * (-sinTheta)) * 4, (y0 - 1000 * cosTheta) * 4);
+                Imgproc.line(src, pt1, pt2, new Scalar(0, 0, 255), 3);
                 longest.add(new Pair<>(new Pair<>(pt1, pt2), distance2Points(pt1, pt2)));
             }
         }
