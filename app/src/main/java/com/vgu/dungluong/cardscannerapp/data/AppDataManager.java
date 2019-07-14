@@ -64,10 +64,10 @@ public class AppDataManager implements DataManager{
         Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE);
         pic = CardProcessor.cropPicture(pic, cropCoordinates);
         mat.release();
-        Corners corners = processPicture(pic, getScanBlackCardState());
+        // Set corners && picture
+        Corners corners = processPicture(pic);
         SourceManager.getInstance().setCorners(corners);
         Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGRA);
-
         SourceManager.getInstance().setPic(pic);
 
         return Observable.just(true);

@@ -13,6 +13,7 @@ import android.view.View;
 
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
+import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 
 import org.jetbrains.annotations.Nullable;

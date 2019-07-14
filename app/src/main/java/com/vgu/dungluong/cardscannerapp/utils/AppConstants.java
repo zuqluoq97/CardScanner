@@ -36,4 +36,6 @@ public class AppConstants {
     public static final String TESSDATA = "tessdata";
     public static final String LANG = "vie";
 
+    public static final double EPISILON = 1E-8;
+
 }

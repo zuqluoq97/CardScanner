@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 import androidx.annotation.Nullable;
 import androidx.databinding.ObservableBoolean;
@@ -75,12 +76,13 @@ public class CardProcessor {
     }
 
     @Nullable
-    public static Corners processPicture(Mat previewFrame, boolean isBlackScan) {
-        return getCorners(findContours(previewFrame, isBlackScan), previewFrame.size(), previewFrame);
+    public static Corners processPicture(Mat previewFrame) {
+        return findContours(previewFrame);
     }
 
+    // Crop picture based on 4 corners
     public static Mat cropPicture(Mat picture, List<Point> pts) {
-        pts = sortPoints(pts);
+        //pts = sortPoints(pts);
         Point tl = pts.get(0);
         Point tr = pts.get(1);
         Point br = pts.get(2);
@@ -132,211 +134,139 @@ public class CardProcessor {
         return result;
     }
 
-    private static List<MatOfPoint> findContours(Mat src, boolean isBlackScan) {
+    private static Corners findContours(Mat src) {
         double coeff = 0.25;
-        Size size = new Size(src.size().width * coeff, src.size().height * coeff);
-        Mat gray = new Mat(size, CvType.CV_8UC1);
-        // Edge detection with canny
-//        Imgproc.cvtColor(src, gray, Imgproc.COLOR_BGR2GRAY);
-//        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0);
-//        Imgproc.Canny(gray, gray, 30, 90, 3, true);
-//        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(9,9));
-//
-//        Imgproc.dilate(gray, gray, kernel, new Point(-1, -1), 10);
-//        Imgproc.erode(gray, gray, kernel, new Point(-1, -1), 10);
+        // Down sample
+        Size croppedSize = new Size(src.size().width * coeff, src.size().height * coeff);
+        Mat resizeMat = src.clone();
+        Imgproc.resize(resizeMat, resizeMat, croppedSize);
 
-        // Edge detection with threshold
-        //   Imgproc.cvtColor(src, gray, Imgproc.COLOR_RGB2GRAY);
-//        CLAHE clahe = Imgproc.createCLAHE();
-//        clahe.setClipLimit(6.0);
-//        clahe.apply(gray, gray);
-        //     Imgproc.blur(gray, gray, new Size(5, 5));
+        Mat canny = new Mat(croppedSize, CvType.CV_8UC1);
 
-//        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(30,30));
-//        Mat closed = new Mat();
-//        Imgproc.morphologyEx(gray, closed, Imgproc.MORPH_CLOSE, kernel);
-//
-//        gray.convertTo(gray, CvType.CV_32F); // divide requires floating-point
-//        Core.divide(gray, closed, gray, 1, CvType.CV_32F);
-//        Core.normalize(gray, gray, 0, 255, Core.NORM_MINMAX);
-//        gray.convertTo(gray, CvType.CV_8UC1); // convert back to unsigned int
-
-//        Imgproc.GaussianBlur(gray, gray, new Size(5, 5), 0);
-        //   Imgproc.adaptiveThreshold(gray, gray, 255.0, ADAPTIVE_THRESH_GAUSSIAN_C, THRESH_BINARY, 11, 2);
-//        Imgproc.threshold(gray, gray, 0, 255, Imgproc.THRESH_BINARY+Imgproc.THRESH_OTSU);
-//        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
-//        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2));
-//        Imgproc.morphologyEx(gray, gray, MORPH_CLOSE, kernel1);
-//        Imgproc.morphologyEx(gray, gray, MORPH_OPEN, kernel2);
-
-        //  double med = median(gray);
-//        Imgproc.threshold(gray, gray, 0, 255,
-//                (isBlackScan ? Imgproc.THRESH_BINARY_INV : THRESH_BINARY) + THRESH_OTSU);
-
-        //Imgproc.Canny(gray, gray, Math.min(0, (1.0 - AppConstants.CANNY_SIGMA) * med), Math.max(255, 1.0 + AppConstants.CANNY_SIGMA * med));
-//        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2));
-//
-//        Imgproc.morphologyEx(gray, gray,MORPH_OPEN, kernel);
-
-        // Imgproc.threshold(gray, gray, 0, 255, Imgproc.THRESH_BINARY_INV+Imgproc.THRESH_OTSU);
-
-        Mat morph = src.clone();
-        Imgproc.cvtColor(morph, morph, COLOR_RGBA2GRAY);
-        Imgproc.resize(morph, morph, size);
-
-        Imgproc.GaussianBlur(morph, morph, new Size(5, 5), 0);
-//
-//        for (int r = 1; r < 4; r++) {
-//            Mat kernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(2 * r + 1, 2 * r + 1));
-//            Imgproc.dilate(morph, morph, kernel);
-//            Imgproc.erode(morph, morph, kernel);
-//        }
-
-        Mat kernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(3, 3));
-        Imgproc.dilate(morph, morph, kernel, new Point(-1, -1), 5);
-        SourceManager.getInstance().setPic(morph);
-
-//        Mat mgrad = new Mat();
-//        Mat kernel = Imgproc.getStructuringElement(MORPH_RECT, new Size(5, 5));
-//        Imgproc.morphologyEx(morph, mgrad, MORPH_GRADIENT, kernel);
-//
-//        List<Mat> channels = new ArrayList<>();
-//        Mat merge = new Mat();
-//        Core.split(mgrad, channels);
-//        Imgproc.threshold(channels.get(0), channels.get(0), 0, 255, THRESH_BINARY + THRESH_OTSU);
-//        Imgproc.threshold(channels.get(1), channels.get(1), 0, 255, THRESH_BINARY + THRESH_OTSU);
-//        Imgproc.threshold(channels.get(2), channels.get(2), 0, 255, THRESH_BINARY + THRESH_OTSU);
-//        Core.merge(channels, merge);
-
-
-//
-//        double med = median(morph);
-//        Imgproc.Canny(morph, morph, 15, 45, 3);
-//
-//
-//        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_CROSS, new Size(3, 3));
-//        Imgproc.morphologyEx(morph, morph, MORPH_CLOSE, kernel1,new Point(-1, -1), 3);
-
-//
+        // Do contour detection
+        Imgproc.Canny(resizeMat, canny, 30, 90, 3);
         Mat lines = new Mat();
-//
-//        List<Pair<Pair<Point, Point>, Double>> longesHorizontal = new ArrayList<>();
-//        List<Pair<Pair<Point, Point>, Double>> longestVertical = new ArrayList<>();
-//
-//        for (int i = 0; i < lines.rows(); i++) {
-//            double data[] = lines.get(i, 0);
-//            double rho1 = data[0];
-//            double theta1 = data[1];
-//            AppLogger.i(Arrays.toString(data));
-//            double cosTheta = Math.cos(theta1);
-//            double sinTheta = Math.sin(theta1);
-//            double x0 = cosTheta * rho1;
-//            double y0 = sinTheta * rho1;
-//            Point pt1 = new Point((x0 + size.width * (-sinTheta)) * 4, (y0 + size.height * cosTheta) * 4);
-//            Point pt2 = new Point((x0 - size.width * (-sinTheta)) * 4, (y0 - size.height * cosTheta) * 4);
-//            Imgproc.line(src, pt1, pt2, new Scalar(0, 0, 255), 2);
-//            if (theta1 > 3) {
-//
-//                longestVertical.add(new Pair<>(new Pair<>(pt1, pt2), distance2Points(pt1, pt2)));
-//            } else {
-//
-//                longesHorizontal.add(new Pair<>(new Pair<>(pt1, pt2), distance2Points(pt1, pt2)));
-//            }
-//
-//        }
 
-//        longestVertical = longestVertical.stream().sorted((p1, p2) -> Double.compare(p1.getSecond(), p2.getSecond())).collect(Collectors.toList());
-//        longesHorizontal = longesHorizontal.stream().sorted(Comparator.comparing(Pair<Pair<Point, Point>, Double>::getSecond)).collect(Collectors.toList());
+        // Do hough transform
+        Imgproc.HoughLinesP(canny, lines, 1, Math.PI / 180, 70, 15, 10);
+        AppLogger.i("Number of lines: " + lines.rows());
 
-        for (int i = 0; i < 2; i++) {
-//            Pair<Pair<Point, Point>, Double> pair = longestVertical.get(i);
-//            Pair<Point, Point> vertical = pair.getFirst();
-//            Imgproc.line(src, vertical.getFirst(), vertical.getSecond(), new Scalar(0, 0, 255), 2);
-//            Pair<Pair<Point, Point>, Double> pair2 = longesHorizontal.get(i);
-//            Pair<Point, Point> horizontal = pair2.getFirst();
-//            Imgproc.line(src, horizontal.getFirst(), horizontal.getSecond(), new Scalar(225, 0, 225), 2);
-        }
-        // ---------------- find card contour ---------------------
-        List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
-
-        Mat hierarchy = new Mat();
-
-//        Imgproc.findContours(morph, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-
-        Imgproc.HoughLines(morph, lines, 1, Math.PI / 180, 100, 10, 20);
-
-        mergeLine(lines, src, size);
-
-
-        contours = contours.stream()
-                .sorted((p1, p2) -> Double.compare(Imgproc.contourArea(p2), Imgproc.contourArea(p1)))
-                .collect(Collectors.toList());
-
-        return contours;
-    }
-
-
-    private static Corners getCorners(List<MatOfPoint> contours, Size size, Mat src) {
-        List<Rect> contourRects = new ArrayList<>();
-        List<Point> cardEdges = new ArrayList<>();
-        boolean isFound = false;
-        for (int i = 0; i < contours.size(); i++) {
-
-            MatOfPoint2f c2f = new MatOfPoint2f(contours.get(i).toArray());
-            double peri = Imgproc.arcLength(c2f, true);
-            MatOfPoint2f approx2 = new MatOfPoint2f();
-            Imgproc.approxPolyDP(c2f, approx2, 0.02 * peri, true);
-
-            if (Arrays.asList(approx2.toArray()).size() == 4 && i < 4 && !isFound) {
-                cardEdges.addAll(sortPoints(Arrays.asList(approx2.toArray()))
-                        .stream()
-                        .distinct()
-                        .collect(Collectors.toList()));
-                isFound = true;
-            }
-            MatOfPoint2f approx = new MatOfPoint2f();
-            Imgproc.approxPolyDP(c2f, approx, 0.15 * peri, true);
-            MatOfPoint points = new MatOfPoint(approx.toArray());
-            Rect rect = Imgproc.boundingRect(points);
-            contourRects.add(rect);
-            Imgproc.rectangle(src, new Point(rect.x * 4, rect.y * 4), new Point((rect.x + rect.width) * 4, (rect.y + rect.height) * 4), new Scalar(255, 0, 255), 3);
-        }
-
-        Rect maxRect = contourRects.stream().max(Comparator.comparing(rect -> rect.width * rect.height)).orElse(new Rect());
-        AppLogger.i(cardEdges.toString());
-        AppLogger.i(new Point(maxRect.x, maxRect.y).toString());
-        AppLogger.i(new Point(maxRect.x + maxRect.width, maxRect.y).toString());
-        AppLogger.i(new Point(maxRect.x + maxRect.width, maxRect.y + maxRect.height).toString());
-        AppLogger.i(new Point(maxRect.x, maxRect.y + maxRect.height).toString());
-
-        return new Corners(Arrays.asList(new Point(maxRect.x * 4, maxRect.y * 4),
-                new Point((maxRect.x + maxRect.width) * 4, maxRect.y * 4),
-                new Point((maxRect.x + maxRect.width) * 4, (maxRect.y + maxRect.height) * 4),
-                new Point(maxRect.x * 4, (maxRect.y + maxRect.height) * 4)), size);
+        return findEdges(lines, croppedSize, src, 1 / coeff);
     }
 
     private static List<Point> sortPoints(List<Point> points) {
+        AppLogger.i(String.valueOf(points.size()));
+//        List<Point> maxTl = points.stream().sorted(Comparator.comparing(tl -> tl.x + tl.y)).collect(Collectors.toList());
+//        List<Point> maxTr = points.stream().sorted((tr1, tr2) -> Double.compare(tr2.x - tr2.y, tr1.x - tr1.y)).collect(Collectors.toList());
+//        List<Point> maxBr = points.stream().sorted((br1, br2) -> Double.compare(br2.x + br2.y, br1.x + br1.y)).collect(Collectors.toList());
+//        List<Point> maxBl = points.stream().sorted(Comparator.comparing(bl -> bl.x - bl.y)).collect(Collectors.toList());
+
+//        for(int i = 0; i < 20; i++) {
+//            Imgproc.circle(img, maxTl.get(i), 10, new Scalar(180, 0, 180), 10);
+//        }
+//        List<Point> p0s = new ArrayList<>();
+//        List<Point> p1s = new ArrayList<>();
+//        List<Point> p2s = new ArrayList<>();
+//        List<Point> p3s = new ArrayList<>();
+//
+//        int iteration = points.size() / 4;
+//        for(int i = 0; i < iteration; i++){
+//            for(int j = 0; j < iteration; j++){
+//                for(int k = 0; k < iteration; k++){
+//                    for(int l = 0; l < iteration; l++){
+//                        double angle1 = angle(maxTr.get(j), maxTl.get(i), maxBr.get(k));
+//                        double angle2 = angle(maxBr.get(k), maxTr.get(j), maxBl.get(l));
+//                        double angle3 = angle(maxBl.get(l), maxBr.get(k), maxTl.get(i));
+//                        double angle4 = angle(maxTl.get(i), maxBl.get(l), maxTr.get(j));
+//                        if((angle1 > 88.9 && angle1 < 91.1)
+//                                && (angle2 > 88.9 && angle2 < 91.1)
+//                                && (angle3 > 88.9 && angle3 < 91.1)
+//                                && (angle4 > 88.9 && angle4 < 91.1)){
+//                            double ratio = distance2Points(maxTr.get(i), maxBr.get(i)) / distance2Points(maxTl.get(i), maxTr.get(i));
+//
+//                            if(ratio > 1.5 && ratio < 1.8){
+//                                p0s.add(maxTl.get(i));
+//                                p1s.add(maxTr.get(j));
+//                                p2s.add(maxBr.get(k));
+//                                p3s.add(maxBl.get(l));
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
         Point p0 = points.stream().min(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
         Point p1 = points.stream().max(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
         Point p2 = points.stream().max(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
         Point p3 = points.stream().min(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
+//        double angle1 = angle(p0, p3, p1);
+//        double angle2 = angle(p1, p0, p2);
+//        double angle3 = angle(p2, p1, p3);
+//        double angle4 = angle(p3, p0, p2);
+//        double edge[] = new double[4];
+//        double ratio[] = new double[4];
+//        // Try to estimate width and height of card
+//        if(isRightAngle(angle1)){
+//            edge[0] = distance2Points(p3, p0);
+//            edge[1] = distance2Points(p0, p1);
+//            ratio[0] = edge[0] / edge[1];
+//        }
+//        if(isRightAngle(angle2)){
+//            edge[1] = distance2Points(p0, p1);
+//            edge[2] = distance2Points(p1, p2);
+//            ratio[1] = edge[2] / edge[1];
+//        }
+//        if(isRightAngle(angle3)){
+//            edge[2] = distance2Points(p1, p2);
+//            edge[3] = distance2Points(p2, p3);
+//            ratio[2] = edge[2] / edge[3];
+//        }
+//        if(isRightAngle(angle4)){
+//            edge[3] = distance2Points(p2, p3);
+//            edge[0] = distance2Points(p3, p0);
+//            ratio[3] = edge[0] / edge[3];
+//        }
+//
+//        List<Double> ratioList = DoubleStream.of(ratio).boxed().collect(Collectors.toList());
+//        int index = ratioList.indexOf(ratioList.stream().filter(r -> r != 0).min(Comparator.comparing(r -> r - 1.65)).orElse(0.0));
+//        double height = 0.0;
+//        double width = 0.0;
+//
+//        switch (index){
+//            case 0:
+//                height = edge[0];
+//                width = edge[1];
+//                break;
+//            case 1:
+//                height = edge[2];
+//                width = edge[1];
+//                break;
+//            case 2:
+//                height = edge[2];
+//                width = edge[3];
+//                break;
+//            case 3:
+//                height = edge[0];
+//                width = edge[3];
+//                break;
+//        }
+//
+//        AppLogger.i(height + " " + width);
+//        if(height != 0 && width != 0){
+//            if(height / width > 1.7){
+//                if(height /  1.65 > img.size().width){
+//                    height = width * 1.65;
+//                } else width = height / 1.65;
+//            }
+//            else if(height / width < 1.6){
+//                if(width * 1.65 > img.size().height){
+//                    width = height / 1.65;
+//                } else height = width * 1.65;
+//            }
+//        }
+//        AppLogger.i(height + " " + width);
         return Arrays.asList(p0, p1, p2, p3);
-    }
-
-    private static boolean insideArea(List<Point> rp, Size size) {
-        int width = (int) size.width;
-        int height = (int) size.height;
-        int baseHeightMeasure = height / 8;
-        int baseWidthMeasure = width / 8;
-        int bottomPos = height / 2 + baseHeightMeasure;
-        int topPos = height / 2 - baseHeightMeasure;
-        int leftPos = width / 2 - baseWidthMeasure;
-        int rightPos = width / 2 + baseWidthMeasure;
-
-        return rp.get(0).x <= leftPos && rp.get(0).y <= topPos
-                && rp.get(1).x >= rightPos && rp.get(1).y <= topPos
-                && rp.get(2).x >= rightPos && rp.get(2).y >= bottomPos
-                && rp.get(3).x <= leftPos && rp.get(3).y >= bottomPos;
     }
 
     public static Observable<Boolean> textSkewCorrection(Mat img, boolean isBlackScan) {
@@ -392,115 +322,93 @@ public class CardProcessor {
         return true;
     }
 
-    private static double median(Mat channel) {
-        double m = (double) (channel.cols() * channel.rows()) / 2;
-        AppLogger.i(String.valueOf(m));
-        int bin = 0;
-        double med = -1.0;
-        MatOfFloat ranges = new MatOfFloat(0f, 256f);
-        MatOfInt histSize = new MatOfInt(256);
-        AppLogger.i(histSize.cols() + " " + histSize.rows() + " " + histSize.channels());
-        Mat hist = new Mat();
-        Imgproc.calcHist(Collections.singletonList(channel), new MatOfInt(0), new Mat(), hist, histSize, ranges, false);
-        AppLogger.i(hist.cols() + " " + hist.rows());
-        for (int i = 0; i < hist.rows() && med < 0.0; i++) {
-            for (int j = 0; j < hist.cols(); j++) {
-                bin += Math.round(hist.get(i, j)[0]);
-                if (bin > m && med < 0.0) {
-                    med = i;
+    // Find 4 edges based on the line of hough transform
+    private static Corners findEdges(Mat lines, Size croppedSize, Mat img, double cropScale) {
+        List<Point> points = new ArrayList<>();
+        List<Point> intersections = new ArrayList<>();
+        for (int i = 0; i < lines.rows(); i++) {
+            double[] val = lines.get(i, 0);
+            // find y = a x + c
+            double a;
+            double c;
+            double D = val[0] - val[2];
+            double Da = val[1] - val[3];
+            double Dc = val[0]*val[3] - val[1]*val[2];
+            // Extend the line
+            if(D != 0) {
+                a = Da / D;
+                c = Dc / D;
+                double x1 = -croppedSize.width;
+                double x2 = croppedSize.width;
+                double y1 = a * x1 + c;
+                double y2 = a * x2 + c;
+                points.add(new Point(x1, y1));
+                points.add(new Point(x2, y2));
+                //Imgproc.line(img, new Point(x1 * cropScale, y1 * cropScale), new Point(x2 * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
+            }else{
+                double y1 = -croppedSize.height;
+                double y2 = croppedSize.height;
+                points.add(new Point(val[0], y1));
+                points.add(new Point(val[2], y2));
+                //Imgproc.line(img, new Point(val[0] * cropScale, y1 * cropScale), new Point(val[2] * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
+            }
+        }
+
+        // Get all the intersection points
+        for(int i = 0; i < points.size() - 2; i += 2){
+            for(int j = i; j < points.size(); j += 2){
+                Point intersection = intersection(points.get(i), points.get(i+1), points.get(j), points.get(j+1), croppedSize, cropScale);
+                if(intersection != null){
+                    intersections.add(intersection);
                 }
             }
         }
-        AppLogger.i("med:" + med);
-        return med;
+
+        AppLogger.i("number of intersections:" + String.valueOf(intersections.size()));
+        // Select 4 edges
+        return new Corners(sortPoints(intersections), new Size(croppedSize.width * cropScale, croppedSize.height * cropScale));
+    }
+
+    // Find intersection point between lines
+    private static Point intersection(Point o1, Point p1, Point o2, Point p2, Size size, double cropScale) {
+        Point x = new Point(o2.x - o1.x, o2.y - o1.y);
+        Point d1 = new Point(p1.x - o1.x, p1.y - o1.y);
+        Point d2 = new Point(p2.x - o2.x, p2.y - o2.y);
+        double cross = d1.x * d2.y - d1.y * d2.x;
+
+        // Parallel line
+        if (Math.abs(cross) < AppConstants.EPISILON)
+            return null;
+
+        double t1 = (x.x * d2.y - x.y * d2.x) / cross;
+        Point intersect = new Point(o1.x + d1.x * t1, o1.y + d1.y * t1);
+        // Intersect over the area
+        if (intersect.x > 0 && intersect.y > 0 && intersect.x <= size.width && intersect.y <= size.height) {
+            double angle = angle(intersect, o1, o2);
+            // Choose intersection that has value near 90 degree
+            if (isRightAngle(angle)) return new Point((Math.floor(intersect.x * 1000)) * cropScale / 1000, (Math.floor(intersect.y * 1000)) * cropScale / 1000);
+            else return null;
+        } else {
+            return null;
+        }
     }
 
     private static double distance2Points(Point a, Point b) {
-        return Math.sqrt(Math.pow((a.x - b.y), 2.0) + Math.pow((b.x - b.y), 2.0));
+        return Math.sqrt(Math.pow((a.x - b.x), 2.0) + Math.pow((a.y - b.y), 2.0));
     }
 
-    private static void mergeLine(Mat lines, Mat src, Size size1) {
-        int rhoThreshold = 30;
-        double thetaThreshold = 0.1;
-        AppLogger.i(lines.cols() + " " + lines.rows());
-        Map<Integer, List<Integer>> similarLine = new HashMap<>();
-        List<Boolean> lineFlags = new ArrayList<>();
-        for (int i = 0; i < lines.rows(); i++) {
-            similarLine.put(i, new ArrayList<>());
-            lineFlags.add(true);
-            for (int j = 0; j < lines.rows(); j++) {
-                if (i == j) continue;
-                double rhoI = lines.get(i, 0)[0];
-                double thetaI = lines.get(i, 0)[1];
-                double rhoJ = lines.get(j, 0)[0];
-                double thetaJ = lines.get(j, 0)[1];
-                if (Math.abs(rhoI - rhoJ) < rhoThreshold && Math.abs(thetaI - thetaJ) < thetaThreshold) {
-                    similarLine.get(i).add(j);
-                }
-            }
-        }
-
-        similarLine.forEach((key, value) -> {
-            AppLogger.i(key + " " + value.toString());
-        });
-
-        List<List<Integer>> size = new ArrayList<>(similarLine.values());
-        List<Integer> indices = size.stream()
-                .sorted(Comparator.comparing(List::size))
-                .map(list -> getKey(similarLine, list))
-                .collect(Collectors.toList());
-
-
-        for (int i = 0; i < lines.rows() - 1; i++) {
-            if (!lineFlags.get(indices.get(i))) continue;
-            for (int j = i + 1; j < lines.rows(); j++) {
-                if (!lineFlags.get(indices.get(j))) continue;
-                double rhoI = lines.get(i, 0)[0];
-                double thetaI = lines.get(i, 0)[1];
-                double rhoJ = lines.get(j, 0)[0];
-                double thetaJ = lines.get(j, 0)[1];
-                if (Math.abs(rhoI - rhoJ) < rhoThreshold && Math.abs(thetaI - thetaJ) < thetaThreshold) {
-                    lineFlags.set(indices.get(j), false);
-                }
-            }
-        }
-
-        AppLogger.i(String.valueOf(indices.size()));
-        AppLogger.i(String.valueOf(lineFlags.size()));
-        AppLogger.i("Number of hough lines: " + lines.rows());
-        AppLogger.i(lineFlags.toString());
-        List<Pair<Pair<Point, Point>, Double>> longest = new ArrayList<>();
-        for (int i = 0; i < lines.rows(); i++) {
-            if (lineFlags.get(i)) {
-                AppLogger.i("true");
-                double data[] = lines.get(i, 0);
-                double rho1 = data[0];
-                double theta1 = data[1];
-                AppLogger.i(Arrays.toString(data));
-                double cosTheta = Math.cos(theta1);
-                double sinTheta = Math.sin(theta1);
-                double x0 = cosTheta * rho1;
-                double y0 = sinTheta * rho1;
-                Point pt1 = new Point((x0 + 1000 * (-sinTheta)) * 4, (y0 + 1000 * cosTheta) * 4);
-                Point pt2 = new Point((x0 - 1000 * (-sinTheta)) * 4, (y0 - 1000 * cosTheta) * 4);
-                Imgproc.line(src, pt1, pt2, new Scalar(0, 0, 255), 3);
-                longest.add(new Pair<>(new Pair<>(pt1, pt2), distance2Points(pt1, pt2)));
-            }
-        }
-        longest = longest.stream().sorted((p1, p2) -> Double.compare(p1.getSecond(), p2.getSecond())).collect(Collectors.toList());
-//        for (int i = 0; i < 8; i++) {
-//            Pair<Pair<Point, Point>, Double> pair = longest.get(i);
-//            Pair<Point, Point> line = pair.getFirst();
-//            Imgproc.line(src, line.getFirst(), line.getSecond(), new Scalar(0, 0, 255), 2);
-//        }
+    private static boolean isRightAngle(double angle){
+        return (angle > 88.9 && angle < 91.1);
     }
 
-    public static <K, V> K getKey(Map<K, V> map, V value) {
-        for (Map.Entry<K, V> entry : map.entrySet()) {
-            if (entry.getValue().equals(value)) {
-                return entry.getKey();
-            }
-        }
-        return null;
+    // Find angle of two lines that are intersected
+    private static double angle(Point p1, Point p2, Point p3){
+        double dx21 = p2.x - p1.x;
+        double dx31 = p3.x - p1.x;
+        double dy21 = p2.y - p1.y;
+        double dy31 = p3.y - p1.y;
+        double m12 = Math.sqrt(dx21 * dx21 + dy21 * dy21);
+        double m13 = Math.sqrt(dx31 * dx31 + dy31 * dy31);
+        return (Math.acos((dx21*dx31 + dy21*dy31) / (m12 * m13)) * 180.0) / Math.PI;
     }
 }

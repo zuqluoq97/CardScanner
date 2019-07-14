@@ -13,6 +13,8 @@ import org.opencv.core.Point;
 import java.util.Arrays;
 import java.util.List;
 
+import io.reactivex.Scheduler;
+
 /**
  * Created by Dung Luong on 17/06/2019
  */
