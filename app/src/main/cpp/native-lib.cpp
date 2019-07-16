@@ -1,5 +1,4 @@
 //
-// Created by Dung Luong on 17/06/2019.
+// Created by Dung Luong on 15/07/2019.
 //
-#include <jni.h>
-#include <string>
+

@@ -74,11 +74,19 @@ public class AppDataManager implements DataManager{
     }
 
     @Override
-    public Observable<String> doTesseract(Bitmap bitmap, TessBaseAPI tessBaseAPI) {
-        String result;
-        tessBaseAPI.setImage(bitmap);
-        result = tessBaseAPI.getUTF8Text();
-        AppLogger.i(result);
+    public Observable<String> doTesseract(List<Bitmap> bitmap, TessBaseAPI tessBaseAPI) {
+        String result = "";
+        for(int i =0; i < bitmap.size(); i++){
+            Bitmap bm = bitmap.get(i);
+            tessBaseAPI.setImage(bm);
+            result += tessBaseAPI.getUTF8Text();
+        }
+
+        String hocr = tessBaseAPI.getHOCRText(0);
+        String boxText = tessBaseAPI.getBoxText(0);
+//        AppLogger.i(hocr);
+//        AppLogger.i(boxText);
+//        AppLogger.i(result);
         tessBaseAPI.end();
         return Observable.just(result);
     }

@@ -1,6 +1,7 @@
 package com.vgu.dungluong.cardscannerapp.ui.result;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.vgu.dungluong.cardscannerapp.data.DataManager;
@@ -21,6 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import androidx.databinding.ObservableBoolean;
@@ -39,10 +42,15 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
     private ObservableField<String> mResultString;
 
+    private List<Bitmap> bm;
+
+    private int idx = 0;
+
     public ResultViewModel(DataManager dataManager, SchedulerProvider schedulerProvider) {
         super(dataManager, schedulerProvider);
         mIsOCRSucceed = new ObservableBoolean(false);
         mResultString = new ObservableField<>("");
+        bm = new ArrayList<>();
         mCardPicture = SourceManager.getInstance().getPic();
         AppLogger.i(mCardPicture.height() + " " + mCardPicture.width());
         if(Objects.requireNonNull(mCardPicture).height() > mCardPicture.width())
@@ -55,13 +63,22 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         Bitmap bitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
         Utils.matToBitmap(mCardPicture, bitmap, true);
 
-        if(mIsOCRSucceed.get()){
-            tesseract(bitmap);
-        }
+//        if(mIsOCRSucceed.get()){
+//            tesseract(bitmap);
+//        }
 
         getNavigator().getCardImageView().setImageBitmap(Bitmap.createScaledBitmap(bitmap,
                 getNavigator().getCardImageView().getWidth(), cardHeight, false));
 
+    }
+
+    public void next(){
+        displayNextImage(bm.get(idx));
+        idx ++;
+    }
+
+    public void displayNextImage(Bitmap bm){
+        getNavigator().getCardImageView().setImageBitmap(bm);
     }
 
     public void rotate(){
@@ -72,14 +89,16 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     public void ocr(){
         setIsLoading(true);
         getCompositeDisposable().add(CardProcessor
-                .textSkewCorrection(mCardPicture,
-                        getDataManager().getScanBlackCardState())
+                .textSkewCorrection(mCardPicture)
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
-                .subscribe(result -> {
+                .subscribe(bitmaps -> {
                     setIsOCRSucceed(true);
                     getNavigator().showMessage("Pre-image processing success");
-                    displayCardImage();
+                    //displayCardImage();
+
+//                    tesseract(bitmaps);
+//                    bm.addAll(bitmaps);
                 }, throwable -> {
                     getNavigator().handleError(throwable.getLocalizedMessage());
                     setIsLoading(false);
@@ -87,7 +106,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
     }
 
-    public void tesseract(Bitmap bitmap){
+    public void tesseract(List<Bitmap> bitmap){
         getCompositeDisposable().add(getDataManager()
                 .doTesseract(bitmap, getNavigator().getTesseractApi())
                 .subscribeOn(getSchedulerProvider().io())

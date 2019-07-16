@@ -17,8 +17,9 @@ public class ResultActivityModule {
     @Provides
     TessBaseAPI provideTessBaseAPI(){
         TessBaseAPI tessBaseAPI = new TessBaseAPI();
-        tessBaseAPI.init(AppConstants.DATA_PATH, AppConstants.LANG);
-        //tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAáÁàÀạẠãÃảẢăĂắẮằẰặẶẵẴẳẲâÂấẤầẦậẬẫẪẩẨbBcCdDđĐeEéÉèÈẹẸẽẼẻẺêÊếẾềỀệỆễỄểỂfFgGhHiIíÍìÌịỊĩĨỉỈjJkKlLmMnNoOóÓòÒọỌõÕỏỎôÔốỐồỒộỘỗỖổỔơƠớỚờỜợỢỡỠởỞpPqQrRsStTuUúÚùÙụỤũŨủỦưƯứỨừỪựỰữỮửỬvVxXyYýÝỳỲỵỴỹỸỷỶwWzZ123456789',.@-:/ ");
+        tessBaseAPI.init(AppConstants.DATA_PATH, AppConstants.LANG, TessBaseAPI.OEM_TESSERACT_ONLY);
+//        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM0123456789+-.:@()");
+//        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, "aAáÁàÀạẠãÃảẢăĂắẮằẰặẶẵẴẳẲâÂấẤầẦậẬẫẪẩẨbBcCdDđĐeEéÉèÈẹẸẽẼẻẺêÊếẾềỀệỆễỄểỂfFgGhHiIíÍìÌịỊĩĨỉỈjJkKlLmMnNoOóÓòÒọỌõÕỏỎôÔốỐồỒộỘỗỖổỔơƠớỚờỜợỢỡỠởỞpPqQrRsStTuUúÚùÙụỤũŨủỦưƯứỨừỪựỰữỮửỬvVxXyYýÝỳỲỵỴỹỸỷỶwWzZ123456789',.@-:/()");
         return tessBaseAPI;
     }
 }

@@ -32,9 +32,11 @@ public class AppConstants {
 
     public static final String PREF_NAME = "CARD_SCANNER";
 
-    public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/TesseractSample/";
+    public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/TesseractModel/";
+    public static final String EASTMODEL = "model";
     public static final String TESSDATA = "tessdata";
     public static final String LANG = "vie";
+    public static final String EAST = "/frozen_east_text_detection.pb";
 
     public static final double EPISILON = 1E-8;
 

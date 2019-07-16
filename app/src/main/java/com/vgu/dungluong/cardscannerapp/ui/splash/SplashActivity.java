@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
 
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.DATA_PATH;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.EASTMODEL;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.TESSDATA;
 
 /**
@@ -83,11 +84,13 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
     public void prepareTesseract() {
         try {
             prepareDirectory(DATA_PATH + TESSDATA);
+            prepareDirectory(DATA_PATH + EASTMODEL);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         copyTessDataFiles(TESSDATA);
+        copyTessDataFiles(EASTMODEL);
     }
 
     /**
@@ -118,7 +121,7 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
             String fileList[] = getAssets().list(path);
 
             for (String fileName : fileList) {
-
+                AppLogger.i(fileName);
                 // open file within the assets folder
                 // if it is not already there copy it to the sdcard
                 String pathToDataFile = DATA_PATH + path + "/" + fileName;

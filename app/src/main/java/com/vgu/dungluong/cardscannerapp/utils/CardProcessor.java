@@ -2,6 +2,7 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.graphics.Bitmap;
 
+import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 
@@ -21,6 +22,7 @@ import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.core.TermCriteria;
+import org.opencv.dnn.Dnn;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
@@ -42,6 +44,7 @@ import io.reactivex.Observable;
 import kotlin.Pair;
 import kotlin.jvm.internal.Intrinsics;
 
+import static org.opencv.core.CvType.CV_8UC1;
 import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C;
 import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_MEAN_C;
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
@@ -51,16 +54,20 @@ import static org.opencv.imgproc.Imgproc.COLOR_GRAY2BGRA;
 import static org.opencv.imgproc.Imgproc.COLOR_Lab2BGR;
 import static org.opencv.imgproc.Imgproc.COLOR_RGB2GRAY;
 import static org.opencv.imgproc.Imgproc.COLOR_RGBA2GRAY;
+import static org.opencv.imgproc.Imgproc.FILLED;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import static org.opencv.imgproc.Imgproc.MORPH_CLOSE;
 import static org.opencv.imgproc.Imgproc.MORPH_ELLIPSE;
 import static org.opencv.imgproc.Imgproc.MORPH_GRADIENT;
 import static org.opencv.imgproc.Imgproc.MORPH_OPEN;
 import static org.opencv.imgproc.Imgproc.MORPH_RECT;
+import static org.opencv.imgproc.Imgproc.RETR_CCOMP;
+import static org.opencv.imgproc.Imgproc.RETR_EXTERNAL;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY_INV;
 import static org.opencv.imgproc.Imgproc.THRESH_OTSU;
 import static org.opencv.imgproc.Imgproc.cvtColor;
+import static org.opencv.imgproc.Imgproc.getStructuringElement;
 import static org.opencv.imgproc.Imgproc.line;
 import static org.opencv.imgproc.Imgproc.warpPerspective;
 
@@ -100,7 +107,7 @@ public class CardProcessor {
         double dh = Math.max(heightA, heightB);
         int maxHeight = (int) dh;
 
-        Mat croppedPic = new Mat(maxHeight, maxWidth, CvType.CV_8UC1);
+        Mat croppedPic = new Mat(maxHeight, maxWidth, CV_8UC1);
 
         Mat src_mat = new Mat(4, 1, CvType.CV_32FC2);
         Mat dst_mat = new Mat(4, 1, CvType.CV_32FC2);
@@ -141,7 +148,7 @@ public class CardProcessor {
         Mat resizeMat = src.clone();
         Imgproc.resize(resizeMat, resizeMat, croppedSize);
 
-        Mat canny = new Mat(croppedSize, CvType.CV_8UC1);
+        Mat canny = new Mat(croppedSize, CV_8UC1);
 
         // Do contour detection
         Imgproc.Canny(resizeMat, canny, 30, 90, 3);
@@ -269,51 +276,74 @@ public class CardProcessor {
         return Arrays.asList(p0, p1, p2, p3);
     }
 
-    public static Observable<Boolean> textSkewCorrection(Mat img, boolean isBlackScan) {
-        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
-        Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
-        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(30, 30));
-        Mat closed = new Mat();
-        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
+    public static Observable<List<Bitmap>> textSkewCorrection(Mat img) {
+        //Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
+        EastTextDetectorUtils.test(img);
+//        List<Rect> textBounds = detectLetters(img);
+        List<Bitmap> bms = new ArrayList<>();
+//        for(int i = 0; i < textBounds.size(); i++){
+//            Mat clone = img.clone();
+//            Rect rect = textBounds.get(i);
+//            AppLogger.i(rect.x + " " + rect.y + " " + rect.width + " " + rect.height);
+//            Bitmap bitmap = Bitmap.createBitmap(rect.width, rect.height, Bitmap.Config.ARGB_8888);
+//            Utils.matToBitmap(cropPicture(clone, Arrays.asList(new Point(rect.x, rect.y),
+//                    new Point(rect.x + rect.width, rect.y),
+//                    new Point(rect.x + rect.width, rect.y + rect.height),
+//                    new Point(rect.x, rect.y + rect.height))), bitmap, true);
+//            bms.add(bitmap);
+//        }
+//        for(int i = 0; i < textBounds.size(); i++){
+//            Rect textBound = textBounds.get(i);
+//            Imgproc.rectangle(img, new Point(textBound.x, textBound.y),
+//                    new Point(textBound.width, textBound.height),
+//                    new Scalar(0, 255, 0), 3, 8, 0);
+//        }
+        //Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
+        //Core.bitwise_not(img, img);
+        //Imgproc.Canny(img, img, 30, 90);
 
-        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
-        Core.divide(img, closed, img, 1, CvType.CV_32F);
-        Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
-        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
-        Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
+//        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(30, 30));
+//        Mat closed = new Mat();
+//        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
 
-        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
-        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
-        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
-        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
-
-        Mat lines = new Mat();
-        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
-        double angle = 0.;
-        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
-        for (int i = 0; i < lines.height(); i++) {
-            for (int j = 0; j < lines.width(); j++) {
-                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
-            }
-        }
-
-        angle /= lines.size().area();
-        angle = angle * 180 / Math.PI;
-        AppLogger.i(String.valueOf(angle));
-
-        if (!Double.isNaN(angle)) {
-            Mat white = new Mat(img.size(), CvType.CV_8UC1);
-            Core.findNonZero(img, white);
-            MatOfPoint points = new MatOfPoint(white);
-            MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
-            RotatedRect box = Imgproc.minAreaRect(points2f);
-            AppLogger.i(String.valueOf(box.angle));
-            if (box.angle != 0.0 && box.angle != -90.0 && box.angle == 90.0) {
-                return Observable.just(deSkew(img, angle, box));
-            }
-        }
-        return Observable.just(false);
+//        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
+//        Core.divide(img, closed, img, 1, CvType.CV_32F);
+        //Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
+//        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
+       // Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
+//
+//        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+//        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+//        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
+//        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
+//        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
+//
+//        Mat lines = new Mat();
+//        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 180, 100, 10, 20);
+//        double angle = 0.;
+//        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
+//        for (int i = 0; i < lines.height(); i++) {
+//            for (int j = 0; j < lines.width(); j++) {
+//                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
+//            }
+//        }
+//
+//        angle /= lines.size().area();
+//        angle = angle * 180 / Math.PI;
+//        AppLogger.i(String.valueOf(angle));
+//
+//        if (!Double.isNaN(angle)) {
+//            Mat white = new Mat(img.size(), CvType.CV_8UC1);
+//            Core.findNonZero(img, white);
+//            MatOfPoint points = new MatOfPoint(white);
+//            MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
+//            RotatedRect box = Imgproc.minAreaRect(points2f);
+//            AppLogger.i(String.valueOf(box.angle));
+//            if (box.angle != 0.0 && box.angle != -90.0 && box.angle == 90.0) {
+//                return Observable.just(deSkew(img, angle, box));
+//            }
+//        }
+        return Observable.just(bms);
     }
 
     private static boolean deSkew(Mat img, double angle, RotatedRect box) {
@@ -363,7 +393,6 @@ public class CardProcessor {
                 }
             }
         }
-
         AppLogger.i("number of intersections:" + String.valueOf(intersections.size()));
         // Select 4 edges
         return new Corners(sortPoints(intersections), new Size(croppedSize.width * cropScale, croppedSize.height * cropScale));
@@ -411,4 +440,86 @@ public class CardProcessor {
         double m13 = Math.sqrt(dx31 * dx31 + dy31 * dy31);
         return (Math.acos((dx21*dx31 + dy21*dy31) / (m12 * m13)) * 180.0) / Math.PI;
     }
+
+    public static List<Rect> detectLetters(Mat img){
+//        List<Rect> boundRects = new ArrayList<>();
+//        Mat imgGray = new Mat();
+//        Mat imgSobel = new Mat();
+//        Mat imgThreshold = new Mat();
+//        Mat element = new Mat();
+//        Imgproc.cvtColor(img, imgGray, Imgproc.COLOR_BGRA2GRAY);
+//        Imgproc.Sobel(imgGray, imgSobel, CvType.CV_8U, 1, 0, 3, 1, 0, Core.BORDER_DEFAULT);
+//        Imgproc.threshold(imgSobel, imgThreshold, 0, 255, THRESH_BINARY + THRESH_OTSU);
+//        element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(17, 3));
+//        Imgproc.morphologyEx(imgThreshold, imgThreshold, Imgproc.MORPH_CLOSE, element);
+//        List<MatOfPoint> contours = new ArrayList<>();
+//        Mat hierarchy = new Mat();
+//        Imgproc.findContours(imgThreshold, contours, hierarchy, RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+//        for(int i = 0; i < contours.size(); i++){
+//            if(contours.get(i).size().area() > 100){
+//                MatOfPoint2f c2f = new MatOfPoint2f(contours.get(i).toArray());
+//                double peri = Imgproc.arcLength(c2f, true);
+//                MatOfPoint2f approx = new MatOfPoint2f();
+//                Imgproc.approxPolyDP(c2f, approx, 3, true);
+//                MatOfPoint points = new MatOfPoint(approx.toArray());
+//                Rect rect = Imgproc.boundingRect(points);
+//                if(rect.width > rect.height){
+//                    boundRects.add(rect);
+//                }
+//            }
+//        }
+//        return boundRects;
+
+        List<Rect> rects = new ArrayList<>();
+        // Down sample
+        Mat rgb = new Mat();
+        Imgproc.pyrDown(img, rgb);
+        Imgproc.pyrDown(rgb, rgb);
+        Mat small = new Mat();
+
+        // Gray scale
+        Imgproc.cvtColor(rgb, small, Imgproc.COLOR_BGRA2GRAY);
+
+        // Morphological gradient
+        Mat grad = new Mat();
+        Mat morphologyKernel = getStructuringElement(MORPH_ELLIPSE, new Size(3, 3));
+        Imgproc.morphologyEx(small, grad, MORPH_GRADIENT, morphologyKernel);
+
+        // Binarize
+        Mat bin = new Mat();
+        Imgproc.threshold(grad, bin, 0, 255, THRESH_BINARY + THRESH_OTSU);
+
+        // Connect horizontally oriented regions
+        Mat connected = new Mat();
+        morphologyKernel = getStructuringElement(MORPH_RECT, new Size(9, 1));
+        Imgproc.morphologyEx(bin, connected, MORPH_CLOSE, morphologyKernel);
+
+        // Find contours
+        Mat mask = new Mat(bin.size(), CV_8UC1);
+        List<MatOfPoint> contours = new ArrayList<>();
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(connected, contours, hierarchy, RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0));
+
+        for(int idx = 0; idx >= 0; idx = (int) hierarchy.get(0, idx)[0]){
+            Rect rect = Imgproc.boundingRect(contours.get(idx));
+            AppLogger.i(rect.x + " " + rect.y + " " + rect.width + " " + rect.height);
+            Mat maskROI = new Mat(mask, rect);
+            maskROI.setTo(new Scalar(0, 0, 0));
+            Imgproc.drawContours(mask, contours, idx, new Scalar(255, 255, 255), FILLED);
+
+            // ratio of non-zero pixels in the filled region
+            double r = Core.countNonZero(maskROI) / (rect.area());
+            if(r > 0.25 // assume at least 45% of the area is filled if it contains text
+                    && (rect.height > 8 && rect.width > 8)){ /* constraints on region size
+                                                            these two conditions alone are not very robust. better to use something
+                                                            like the number of significant peaks in a horizontal projection as a third condition */
+                double ratio = img.size().height / rgb.size().height;
+                rects.add(new Rect((int)(rect.x * ratio), (int) (rect.y * ratio), (int) (rect.width * ratio), (int) (rect.height * ratio)));
+                //Imgproc.rectangle(img, new Rect((int)(rect.x * ratio), (int) (rect.y * ratio), (int) (rect.width * ratio), (int) (rect.height * ratio)), new Scalar(0, 255, 0), 2);
+            }
+        }
+        return rects;
+    }
+
+
 }

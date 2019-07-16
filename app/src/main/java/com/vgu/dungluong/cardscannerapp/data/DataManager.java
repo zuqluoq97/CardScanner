@@ -20,5 +20,5 @@ public interface DataManager extends PermissionHelper, PreferenceHelper {
 
     Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera, List<Point> cropCoordinates);
 
-    Observable<String> doTesseract(Bitmap bitmap, TessBaseAPI tessBaseAPI);
+    Observable<String> doTesseract(List<Bitmap> bitmap, TessBaseAPI tessBaseAPI);
 }
