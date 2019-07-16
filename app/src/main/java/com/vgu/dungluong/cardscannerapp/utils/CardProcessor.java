@@ -135,12 +135,11 @@ public class CardProcessor {
     }
 
     private static Corners findContours(Mat src) {
-        double coeff = 0.25;
+        double coeff = 0.1;
         // Down sample
         Size croppedSize = new Size(src.size().width * coeff, src.size().height * coeff);
         Mat resizeMat = src.clone();
         Imgproc.resize(resizeMat, resizeMat, croppedSize);
-
         Mat canny = new Mat(croppedSize, CvType.CV_8UC1);
 
         // Do contour detection
@@ -148,124 +147,59 @@ public class CardProcessor {
         Mat lines = new Mat();
 
         // Do hough transform
-        Imgproc.HoughLinesP(canny, lines, 1, Math.PI / 180, 70, 15, 10);
+        Imgproc.HoughLinesP(canny, lines, 1, Math.PI / 180, 70, 10, 1);
         AppLogger.i("Number of lines: " + lines.rows());
 
         return findEdges(lines, croppedSize, src, 1 / coeff);
     }
 
-    private static List<Point> sortPoints(List<Point> points) {
+    private static List<Point> sortPoints(List<Point> points, Mat img) {
         AppLogger.i(String.valueOf(points.size()));
-//        List<Point> maxTl = points.stream().sorted(Comparator.comparing(tl -> tl.x + tl.y)).collect(Collectors.toList());
-//        List<Point> maxTr = points.stream().sorted((tr1, tr2) -> Double.compare(tr2.x - tr2.y, tr1.x - tr1.y)).collect(Collectors.toList());
-//        List<Point> maxBr = points.stream().sorted((br1, br2) -> Double.compare(br2.x + br2.y, br1.x + br1.y)).collect(Collectors.toList());
-//        List<Point> maxBl = points.stream().sorted(Comparator.comparing(bl -> bl.x - bl.y)).collect(Collectors.toList());
-
-//        for(int i = 0; i < 20; i++) {
-//            Imgproc.circle(img, maxTl.get(i), 10, new Scalar(180, 0, 180), 10);
-//        }
-//        List<Point> p0s = new ArrayList<>();
-//        List<Point> p1s = new ArrayList<>();
-//        List<Point> p2s = new ArrayList<>();
-//        List<Point> p3s = new ArrayList<>();
-//
-//        int iteration = points.size() / 4;
-//        for(int i = 0; i < iteration; i++){
-//            for(int j = 0; j < iteration; j++){
-//                for(int k = 0; k < iteration; k++){
-//                    for(int l = 0; l < iteration; l++){
-//                        double angle1 = angle(maxTr.get(j), maxTl.get(i), maxBr.get(k));
-//                        double angle2 = angle(maxBr.get(k), maxTr.get(j), maxBl.get(l));
-//                        double angle3 = angle(maxBl.get(l), maxBr.get(k), maxTl.get(i));
-//                        double angle4 = angle(maxTl.get(i), maxBl.get(l), maxTr.get(j));
-//                        if((angle1 > 88.9 && angle1 < 91.1)
-//                                && (angle2 > 88.9 && angle2 < 91.1)
-//                                && (angle3 > 88.9 && angle3 < 91.1)
-//                                && (angle4 > 88.9 && angle4 < 91.1)){
-//                            double ratio = distance2Points(maxTr.get(i), maxBr.get(i)) / distance2Points(maxTl.get(i), maxTr.get(i));
-//
-//                            if(ratio > 1.5 && ratio < 1.8){
-//                                p0s.add(maxTl.get(i));
-//                                p1s.add(maxTr.get(j));
-//                                p2s.add(maxBr.get(k));
-//                                p3s.add(maxBl.get(l));
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
+        Point center = new Point(img.size().width / 2, img.size().height / 2);
+        List<Point> maxTl = points.stream().sorted(Comparator.comparing(tl -> tl.x + tl.y)).collect(Collectors.toList());
+        List<Point> maxTr = points.stream().sorted((tr1, tr2) -> Double.compare(tr2.x - tr2.y, tr1.x - tr1.y)).collect(Collectors.toList());
+        List<Point> maxBr = points.stream().sorted((br1, br2) -> Double.compare(br2.x + br2.y, br1.x + br1.y)).collect(Collectors.toList());
+        List<Point> maxBl = points.stream().sorted(Comparator.comparing(bl -> bl.x - bl.y)).collect(Collectors.toList());
 
         Point p0 = points.stream().min(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
         Point p1 = points.stream().max(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
         Point p2 = points.stream().max(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
         Point p3 = points.stream().min(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
-//        double angle1 = angle(p0, p3, p1);
-//        double angle2 = angle(p1, p0, p2);
-//        double angle3 = angle(p2, p1, p3);
-//        double angle4 = angle(p3, p0, p2);
-//        double edge[] = new double[4];
-//        double ratio[] = new double[4];
-//        // Try to estimate width and height of card
-//        if(isRightAngle(angle1)){
-//            edge[0] = distance2Points(p3, p0);
-//            edge[1] = distance2Points(p0, p1);
-//            ratio[0] = edge[0] / edge[1];
-//        }
-//        if(isRightAngle(angle2)){
-//            edge[1] = distance2Points(p0, p1);
-//            edge[2] = distance2Points(p1, p2);
-//            ratio[1] = edge[2] / edge[1];
-//        }
-//        if(isRightAngle(angle3)){
-//            edge[2] = distance2Points(p1, p2);
-//            edge[3] = distance2Points(p2, p3);
-//            ratio[2] = edge[2] / edge[3];
-//        }
-//        if(isRightAngle(angle4)){
-//            edge[3] = distance2Points(p2, p3);
-//            edge[0] = distance2Points(p3, p0);
-//            ratio[3] = edge[0] / edge[3];
-//        }
-//
-//        List<Double> ratioList = DoubleStream.of(ratio).boxed().collect(Collectors.toList());
-//        int index = ratioList.indexOf(ratioList.stream().filter(r -> r != 0).min(Comparator.comparing(r -> r - 1.65)).orElse(0.0));
-//        double height = 0.0;
-//        double width = 0.0;
-//
-//        switch (index){
-//            case 0:
-//                height = edge[0];
-//                width = edge[1];
-//                break;
-//            case 1:
-//                height = edge[2];
-//                width = edge[1];
-//                break;
-//            case 2:
-//                height = edge[2];
-//                width = edge[3];
-//                break;
-//            case 3:
-//                height = edge[0];
-//                width = edge[3];
-//                break;
-//        }
-//
-//        AppLogger.i(height + " " + width);
-//        if(height != 0 && width != 0){
-//            if(height / width > 1.7){
-//                if(height /  1.65 > img.size().width){
-//                    height = width * 1.65;
-//                } else width = height / 1.65;
-//            }
-//            else if(height / width < 1.6){
-//                if(width * 1.65 > img.size().height){
-//                    width = height / 1.65;
-//                } else height = width * 1.65;
-//            }
-//        }
-//        AppLogger.i(height + " " + width);
+
+        int iteration = points.size() / 2;
+        outerLoop:
+        for(int i = 0; i < iteration; i++) {
+            AppLogger.i(String.valueOf(i));
+            for (int j = 0; j < iteration; j++) {
+                for (int k = 0; k < iteration; k++) {
+                    if (!isRightAngle(angle(maxTr.get(j), maxTl.get(i), maxBr.get(k))))
+                        continue ;
+                    for (int l = 0; l < iteration; l++) {
+                        if (!isRightAngle(angle(maxBr.get(k), maxTr.get(j), maxBl.get(l))))
+                            continue;
+                        if (!isRightAngle(angle(maxBl.get(l), maxBr.get(k), maxTl.get(i))))
+                            continue;
+                        if (!isRightAngle(angle(maxTl.get(i), maxBl.get(l), maxTr.get(j))))
+                            continue;
+                        double height = distance2Points(maxTr.get(j), maxBr.get(k));
+                        double width = distance2Points(maxTl.get(i), maxTr.get(j));
+                        double ratio = height / width;
+                        if (ratio > 1.62 && ratio < 1.65) {
+                            AppLogger.i("found");
+                            AppLogger.i(height + " " + width + " " + (img.size().area() / 4));
+                            if(height * width > img.size().area() / 4) {
+                                AppLogger.i(String.valueOf(ratio));
+                                p0 = maxTl.get(i);
+                                p1 = maxTr.get(j);
+                                p2 = maxBr.get(k);
+                                p3 = maxBl.get(l);
+                                break outerLoop;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return Arrays.asList(p0, p1, p2, p3);
     }
 
@@ -328,6 +262,7 @@ public class CardProcessor {
         List<Point> intersections = new ArrayList<>();
         for (int i = 0; i < lines.rows(); i++) {
             double[] val = lines.get(i, 0);
+//            Imgproc.line(img, new Point(val[0] * cropScale, val[1] * cropScale), new Point(val[2] * cropScale, val[3] * cropScale), new Scalar(0, 0, 255), 3);
             // find y = a x + c
             double a;
             double c;
@@ -344,13 +279,13 @@ public class CardProcessor {
                 double y2 = a * x2 + c;
                 points.add(new Point(x1, y1));
                 points.add(new Point(x2, y2));
-                //Imgproc.line(img, new Point(x1 * cropScale, y1 * cropScale), new Point(x2 * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
+                Imgproc.line(img, new Point(x1 * cropScale, y1 * cropScale), new Point(x2 * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
             }else{
                 double y1 = -croppedSize.height;
                 double y2 = croppedSize.height;
                 points.add(new Point(val[0], y1));
                 points.add(new Point(val[2], y2));
-                //Imgproc.line(img, new Point(val[0] * cropScale, y1 * cropScale), new Point(val[2] * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
+                Imgproc.line(img, new Point(val[0] * cropScale, y1 * cropScale), new Point(val[2] * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
             }
         }
 
@@ -366,7 +301,7 @@ public class CardProcessor {
 
         AppLogger.i("number of intersections:" + String.valueOf(intersections.size()));
         // Select 4 edges
-        return new Corners(sortPoints(intersections), new Size(croppedSize.width * cropScale, croppedSize.height * cropScale));
+        return new Corners(sortPoints(intersections, img), new Size(croppedSize.width * cropScale, croppedSize.height * cropScale));
     }
 
     // Find intersection point between lines
