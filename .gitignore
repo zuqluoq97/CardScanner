@@ -47,3 +47,6 @@ sh.exe.stackdump
 
 .externalNativeBuild
 app/CMakeLists.txt
+
+# file orig from merge tool
+.*orig

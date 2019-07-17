@@ -5,6 +5,7 @@ import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfRotatedRect;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -28,7 +29,8 @@ public class EastTextDetectorUtils {
         // This utility class is not publicly instantiable
     }
 
-    public static void test(Mat img){
+    public static List<List<Point>> test(Mat img){
+        List<List<Point>> textBoxCorners = new ArrayList<>();
         float scoreThresh = 0.5f;
         float nmsThresh = 0.4f;
         // Model from https://github.com/argman/EAST
@@ -65,7 +67,7 @@ public class EastTextDetectorUtils {
         // Render detections
         Point ratio = new Point((float)img.cols()/siz.width, (float)img.rows()/siz.height);
         int[] indexes = indices.toArray();
-        for(int i = 0; i<1;++i) {
+        for(int i = 0; i<indexes.length ;++i) {
             RotatedRect rot = boxesArray[indexes[i]];
             Point[] vertices = new Point[4];
             rot.points(vertices);
@@ -73,11 +75,10 @@ public class EastTextDetectorUtils {
                 vertices[j].x *= ratio.x;
                 vertices[j].y *= ratio.y;
             }
-            AppLogger.i(Arrays.toString(vertices));
-            for (int j = 0; j < 4; ++j) {
-                Imgproc.line(img, vertices[j], vertices[(j + 1) % 4], new Scalar(0, 0,255), 3);
-            }
+            List<Point> textBoxCorner = CardProcessor.orderPoints(Arrays.asList(vertices));
+            textBoxCorners.add(textBoxCorner);
         }
+        return textBoxCorners;
     }
 
     private static List<RotatedRect> decode(Mat scores, Mat geometry, List<Float> confidences, float scoreThresh) {

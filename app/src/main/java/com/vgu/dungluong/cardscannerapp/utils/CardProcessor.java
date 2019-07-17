@@ -217,76 +217,82 @@ public class CardProcessor {
         return Arrays.asList(p0, p1, p2, p3);
     }
 
-    public static Observable<Boolean> textSkewCorrection(Mat img, boolean isBlackScan) {
-       Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
-        // Gradient X
-        // Imgproc.Sobel(grayImage, grad_x, ddepth, 1, 0, 3, scale,
-        // this.threshold.getValue(), Core.BORDER_DEFAULT );
-        Mat grad_x = new Mat();
-        Mat abs_grad_x = new Mat();
-        Imgproc.Sobel(img, grad_x, CvType.CV_16S, 1, 0);
-        Core.convertScaleAbs(grad_x, abs_grad_x);
-
-        // Gradient Y
-        // Imgproc.Sobel(grayImage, grad_y, ddepth, 0, 1, 3, scale,
-        // this.threshold.getValue(), Core.BORDER_DEFAULT );
-        Mat grad_y = new Mat();
-        Mat abs_grad_y = new Mat();
-        Imgproc.Sobel(img, grad_y, CvType.CV_16S, 0, 1);
-        Core.convertScaleAbs(grad_y, abs_grad_y);
-
-        // Total Gradient (approximate)
-        Core.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, img);
-        // Core.addWeighted(grad_x, 0.5, grad_y, 0.5, 0, detectedEdges);
-//        Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
-//        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(30, 30));
-//        Mat closed = new Mat();
-//        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
-//
-//        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
-//        Core.divide(img, closed, img, 1, CvType.CV_32F);
-//        Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
-//        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
-//        Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
-//
-//        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-//        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
-//        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
-//        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
-//        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
-//
-//        Mat lines = new Mat();
-//        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
-//        double angle = 0.;
-//        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
-//        for (int i = 0; i < lines.height(); i++) {
-//            for (int j = 0; j < lines.width(); j++) {
-//                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
-//            }
-//        }
-//
-//            }
-//        }
-//        AppLogger.i(height + " " + width);
-        return Arrays.asList(p0, p1, p2, p3);
+    public static List<Point> orderPoints(List<Point> unsortedPoints){
+        return Arrays.asList(unsortedPoints.stream().min(Comparator.comparing(point -> point.x + point.y)).orElse(new Point()),
+                unsortedPoints.stream().max(Comparator.comparing(point -> point.x - point.y)).orElse(new Point()),
+                unsortedPoints.stream().max(Comparator.comparing(point -> point.x + point.y)).orElse(new Point()),
+                unsortedPoints.stream().min(Comparator.comparing(point -> point.x - point.y)).orElse(new Point()));
     }
+
+
+//    public static Observable<Boolean> textSkewCorrection(Mat img, boolean isBlackScan) {
+//       Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
+//        // Gradient X
+//        // Imgproc.Sobel(grayImage, grad_x, ddepth, 1, 0, 3, scale,
+//        // this.threshold.getValue(), Core.BORDER_DEFAULT );
+//        Mat grad_x = new Mat();
+//        Mat abs_grad_x = new Mat();
+//        Imgproc.Sobel(img, grad_x, CvType.CV_16S, 1, 0);
+//        Core.convertScaleAbs(grad_x, abs_grad_x);
+//
+//        // Gradient Y
+//        // Imgproc.Sobel(grayImage, grad_y, ddepth, 0, 1, 3, scale,
+//        // this.threshold.getValue(), Core.BORDER_DEFAULT );
+//        Mat grad_y = new Mat();
+//        Mat abs_grad_y = new Mat();
+//        Imgproc.Sobel(img, grad_y, CvType.CV_16S, 0, 1);
+//        Core.convertScaleAbs(grad_y, abs_grad_y);
+//
+//        // Total Gradient (approximate)
+//        Core.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, img);
+//        // Core.addWeighted(grad_x, 0.5, grad_y, 0.5, 0, detectedEdges);
+////        Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
+////        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(30, 30));
+////        Mat closed = new Mat();
+////        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
+////
+////        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
+////        Core.divide(img, closed, img, 1, CvType.CV_32F);
+////        Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
+////        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
+////        Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
+////
+////        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+////        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+////        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
+////        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
+////        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
+////
+////        Mat lines = new Mat();
+////        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
+////        double angle = 0.;
+////        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
+////        for (int i = 0; i < lines.height(); i++) {
+////            for (int j = 0; j < lines.width(); j++) {
+////                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
+////            }
+////        }
+////
+////            }
+////        }
+////        AppLogger.i(height + " " + width);
+//        return Arrays.asList(p0, p1, p2, p3);
+//    }
 
     public static Observable<List<Bitmap>> textSkewCorrection(Mat img) {
         //Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
-        EastTextDetectorUtils.test(img);
-//        List<Rect> textBounds = detectLetters(img);
+        Mat img2 = img.clone();
+        List<List<Point>> textBoxCorners = EastTextDetectorUtils.test(img);
+
         List<Bitmap> bms = new ArrayList<>();
-//        for(int i = 0; i < textBounds.size(); i++){
-//            Mat clone = img.clone();
-//            Rect rect = textBounds.get(i);
-//            AppLogger.i(rect.x + " " + rect.y + " " + rect.width + " " + rect.height);
-//            Bitmap bitmap = Bitmap.createBitmap(rect.width, rect.height, Bitmap.Config.ARGB_8888);
-//            Utils.matToBitmap(cropPicture(clone, Arrays.asList(new Point(rect.x, rect.y),
-//                    new Point(rect.x + rect.width, rect.y),
-//                    new Point(rect.x + rect.width, rect.y + rect.height),
-//                    new Point(rect.x, rect.y + rect.height))), bitmap, true);
-//            bms.add(bitmap);
-//        }
+        for(int i = 0; i < textBoxCorners.size(); i++){
+            List<Point> textBoxCorner = textBoxCorners.get(i);
+            Mat clone = img2.clone();
+            Mat crop = cropPicture(clone, textBoxCorner);
+            Bitmap bitmap = Bitmap.createBitmap(crop.width(), crop.height(), Bitmap.Config.ARGB_8888);
+            Utils.matToBitmap(crop, bitmap, true);
+            bms.add(bitmap);
+        }
 //        for(int i = 0; i < textBounds.size(); i++){
 //            Rect textBound = textBounds.get(i);
 //            Imgproc.rectangle(img, new Point(textBound.x, textBound.y),

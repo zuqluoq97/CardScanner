@@ -98,8 +98,8 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                     getNavigator().showMessage("Pre-image processing success");
                     //displayCardImage();
 
-//                    tesseract(bitmaps);
-//                    bm.addAll(bitmaps);
+                    tesseract(bitmaps);
+                    bm.addAll(bitmaps);
                 }, throwable -> {
                     getNavigator().handleError(throwable.getLocalizedMessage());
                     setIsLoading(false);
