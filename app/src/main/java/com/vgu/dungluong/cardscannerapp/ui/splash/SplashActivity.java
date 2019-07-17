@@ -24,6 +24,9 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
 
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.DATA_PATH;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.EAST;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.MODEL;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.MODEL_PATH;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.TESSDATA;
 
 /**
@@ -83,11 +86,13 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
     public void prepareTesseract() {
         try {
             prepareDirectory(DATA_PATH + TESSDATA);
+            prepareDirectory(MODEL_PATH + MODEL);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        copyTessDataFiles(TESSDATA);
+        copyDataFiles(DATA_PATH, TESSDATA);
+        copyDataFiles(MODEL_PATH, MODEL);
     }
 
     /**
@@ -113,19 +118,19 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
      *
      * @param path - name of directory with .traineddata files
      */
-    private void copyTessDataFiles(String path) {
+    private void copyDataFiles(String path, String folder) {
         try {
-            String fileList[] = getAssets().list(path);
+            String fileList[] = getAssets().list(folder);
 
             for (String fileName : fileList) {
 
                 // open file within the assets folder
                 // if it is not already there copy it to the sdcard
-                String pathToDataFile = DATA_PATH + path + "/" + fileName;
+                String pathToDataFile = path + folder + "/" + fileName;
 
                 if (!(new File(pathToDataFile)).exists()) {
 
-                    InputStream in = getAssets().open(path + "/" + fileName);
+                    InputStream in = getAssets().open(folder+ "/" + fileName);
 
                     OutputStream out = new FileOutputStream(pathToDataFile);
 

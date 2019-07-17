@@ -147,7 +147,7 @@ public class CardProcessor {
         Mat lines = new Mat();
 
         // Do hough transform
-        Imgproc.HoughLinesP(canny, lines, 1, Math.PI / 180, 70, 10, 1);
+        Imgproc.HoughLinesP(canny, lines, 1, Math.PI / 180, 70, 5, 1);
         AppLogger.i("Number of lines: " + lines.rows());
 
         return findEdges(lines, croppedSize, src, 1 / coeff);
@@ -156,25 +156,32 @@ public class CardProcessor {
     private static List<Point> sortPoints(List<Point> points, Mat img) {
         AppLogger.i(String.valueOf(points.size()));
         Point center = new Point(img.size().width / 2, img.size().height / 2);
-        List<Point> maxTl = points.stream().sorted(Comparator.comparing(tl -> tl.x + tl.y)).collect(Collectors.toList());
-        List<Point> maxTr = points.stream().sorted((tr1, tr2) -> Double.compare(tr2.x - tr2.y, tr1.x - tr1.y)).collect(Collectors.toList());
-        List<Point> maxBr = points.stream().sorted((br1, br2) -> Double.compare(br2.x + br2.y, br1.x + br1.y)).collect(Collectors.toList());
-        List<Point> maxBl = points.stream().sorted(Comparator.comparing(bl -> bl.x - bl.y)).collect(Collectors.toList());
+
+        List<Point> maxTl = new ArrayList<>();
+        List<Point> maxTr = new ArrayList<>();
+        List<Point> maxBr = new ArrayList<>();
+        List<Point> maxBl = new ArrayList<>();
+
+        points.forEach(p -> {
+            if(p.x < center.x && p.y < center.y) maxTl.add(p);
+            if(p.x > center.x && p.y < center.y) maxTr.add(p);
+            if(p.x > center.x && p.y > center.y) maxBr.add(p);
+            if(p.x < center.x && p.y > center.y) maxBl.add(p);
+        });
 
         Point p0 = points.stream().min(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
         Point p1 = points.stream().max(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
         Point p2 = points.stream().max(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
         Point p3 = points.stream().min(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
 
-        int iteration = points.size() / 2;
         outerLoop:
-        for(int i = 0; i < iteration; i++) {
+        for(int i = 0; i < maxTl.size(); i++) {
             AppLogger.i(String.valueOf(i));
-            for (int j = 0; j < iteration; j++) {
-                for (int k = 0; k < iteration; k++) {
+            for (int j = 0; j < maxTr.size(); j++) {
+                for (int k = 0; k < maxBr.size(); k++) {
                     if (!isRightAngle(angle(maxTr.get(j), maxTl.get(i), maxBr.get(k))))
                         continue ;
-                    for (int l = 0; l < iteration; l++) {
+                    for (int l = 0; l < maxBl.size(); l++) {
                         if (!isRightAngle(angle(maxBr.get(k), maxTr.get(j), maxBl.get(l))))
                             continue;
                         if (!isRightAngle(angle(maxBl.get(l), maxBr.get(k), maxTl.get(i))))
@@ -204,49 +211,68 @@ public class CardProcessor {
     }
 
     public static Observable<Boolean> textSkewCorrection(Mat img, boolean isBlackScan) {
-        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
-        Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
-        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(30, 30));
-        Mat closed = new Mat();
-        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
+       Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
+        // Gradient X
+        // Imgproc.Sobel(grayImage, grad_x, ddepth, 1, 0, 3, scale,
+        // this.threshold.getValue(), Core.BORDER_DEFAULT );
+        Mat grad_x = new Mat();
+        Mat abs_grad_x = new Mat();
+        Imgproc.Sobel(img, grad_x, CvType.CV_16S, 1, 0);
+        Core.convertScaleAbs(grad_x, abs_grad_x);
 
-        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
-        Core.divide(img, closed, img, 1, CvType.CV_32F);
-        Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
-        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
-        Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
+        // Gradient Y
+        // Imgproc.Sobel(grayImage, grad_y, ddepth, 0, 1, 3, scale,
+        // this.threshold.getValue(), Core.BORDER_DEFAULT );
+        Mat grad_y = new Mat();
+        Mat abs_grad_y = new Mat();
+        Imgproc.Sobel(img, grad_y, CvType.CV_16S, 0, 1);
+        Core.convertScaleAbs(grad_y, abs_grad_y);
 
-        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
-        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
-        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
-        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
-
-        Mat lines = new Mat();
-        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
-        double angle = 0.;
-        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
-        for (int i = 0; i < lines.height(); i++) {
-            for (int j = 0; j < lines.width(); j++) {
-                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
-            }
-        }
-
-        angle /= lines.size().area();
-        angle = angle * 180 / Math.PI;
-        AppLogger.i(String.valueOf(angle));
-
-        if (!Double.isNaN(angle)) {
-            Mat white = new Mat(img.size(), CvType.CV_8UC1);
-            Core.findNonZero(img, white);
-            MatOfPoint points = new MatOfPoint(white);
-            MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
-            RotatedRect box = Imgproc.minAreaRect(points2f);
-            AppLogger.i(String.valueOf(box.angle));
-            if (box.angle != 0.0 && box.angle != -90.0 && box.angle == 90.0) {
-                return Observable.just(deSkew(img, angle, box));
-            }
-        }
+        // Total Gradient (approximate)
+        Core.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, img);
+        // Core.addWeighted(grad_x, 0.5, grad_y, 0.5, 0, detectedEdges);
+//        Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
+//        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(30, 30));
+//        Mat closed = new Mat();
+//        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
+//
+//        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
+//        Core.divide(img, closed, img, 1, CvType.CV_32F);
+//        Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
+//        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
+//        Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
+//
+//        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+//        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
+//        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
+//        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
+//        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
+//
+//        Mat lines = new Mat();
+//        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
+//        double angle = 0.;
+//        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
+//        for (int i = 0; i < lines.height(); i++) {
+//            for (int j = 0; j < lines.width(); j++) {
+//                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
+//            }
+//        }
+//
+//        angle /= lines.size().area();
+//        angle = angle * 180 / Math.PI;
+//        AppLogger.i(String.valueOf(angle));
+//
+//        if (!Double.isNaN(angle)) {
+//            Mat white = new Mat(img.size(), CvType.CV_8UC1);
+//            Core.findNonZero(img, white);
+//            MatOfPoint points = new MatOfPoint(white);
+//            MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
+//            RotatedRect box = Imgproc.minAreaRect(points2f);
+//            AppLogger.i(String.valueOf(box.angle));
+//            if (box.angle != 0.0 && box.angle != -90.0 && box.angle == 90.0) {
+//                return Observable.just(deSkew(img, angle, box));
+//            }
+//        }
         return Observable.just(false);
     }
 
@@ -279,13 +305,13 @@ public class CardProcessor {
                 double y2 = a * x2 + c;
                 points.add(new Point(x1, y1));
                 points.add(new Point(x2, y2));
-                Imgproc.line(img, new Point(x1 * cropScale, y1 * cropScale), new Point(x2 * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
+               // Imgproc.line(img, new Point(x1 * cropScale, y1 * cropScale), new Point(x2 * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
             }else{
                 double y1 = -croppedSize.height;
                 double y2 = croppedSize.height;
                 points.add(new Point(val[0], y1));
                 points.add(new Point(val[2], y2));
-                Imgproc.line(img, new Point(val[0] * cropScale, y1 * cropScale), new Point(val[2] * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
+               // Imgproc.line(img, new Point(val[0] * cropScale, y1 * cropScale), new Point(val[2] * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
             }
         }
 
@@ -333,7 +359,7 @@ public class CardProcessor {
     }
 
     private static boolean isRightAngle(double angle){
-        return (angle > 88.9 && angle < 91.1);
+        return (angle > 88.5 && angle < 91.5);
     }
 
     // Find angle of two lines that are intersected

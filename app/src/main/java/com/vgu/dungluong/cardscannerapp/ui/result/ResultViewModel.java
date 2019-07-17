@@ -8,6 +8,7 @@ import com.vgu.dungluong.cardscannerapp.ui.base.BaseViewModel;
 import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
+import com.vgu.dungluong.cardscannerapp.utils.EastTextDetectorUtils;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
@@ -70,20 +71,22 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     }
 
     public void ocr(){
-        setIsLoading(true);
-        getCompositeDisposable().add(CardProcessor
-                .textSkewCorrection(mCardPicture,
-                        getDataManager().getScanBlackCardState())
-                .subscribeOn(getSchedulerProvider().io())
-                .observeOn(getSchedulerProvider().ui())
-                .subscribe(result -> {
-                    setIsOCRSucceed(true);
-                    getNavigator().showMessage("Pre-image processing success");
-                    displayCardImage();
-                }, throwable -> {
-                    getNavigator().handleError(throwable.getLocalizedMessage());
-                    setIsLoading(false);
-                }));
+        EastTextDetectorUtils.test(mCardPicture);
+        displayCardImage();
+//        setIsLoading(true);
+//        getCompositeDisposable().add(CardProcessor
+//                .textSkewCorrection(mCardPicture,
+//                        getDataManager().getScanBlackCardState())
+//                .subscribeOn(getSchedulerProvider().io())
+//                .observeOn(getSchedulerProvider().ui())
+//                .subscribe(result -> {
+//                    setIsOCRSucceed(true);
+//                    getNavigator().showMessage("Pre-image processing success");
+//                    displayCardImage();
+//                }, throwable -> {
+//                    getNavigator().handleError(throwable.getLocalizedMessage());
+//                    setIsLoading(false);
+//                }));
 
     }
 
