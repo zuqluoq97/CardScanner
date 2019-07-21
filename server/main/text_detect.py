@@ -8,8 +8,8 @@ import cv2
 import tensorflow as tf
 import math
 # Disable deprecation warning of tensorflow
-import tensorflow.python.util.deprecation as deprecation
-deprecation._PRINT_DEPRECATION_WARNINGS = False
+# import tensorflow.python.util.deprecation as deprecation
+# deprecation._PRINT_DEPRECATION_WARNINGS = False
 
 sys.path.append(os.getcwd())
 from nets import model_train as model
