@@ -1,8 +1,10 @@
 package com.vgu.dungluong.cardscannerapp.utils;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfRotatedRect;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
@@ -31,8 +33,8 @@ public class EastTextDetectorUtils {
 
     public static List<List<Point>> test(Mat img){
         List<List<Point>> textBoxCorners = new ArrayList<>();
-        float scoreThresh = 0.5f;
-        float nmsThresh = 0.4f;
+        float scoreThresh = 0.6f;
+        float nmsThresh = 0.6f;
         // Model from https://github.com/argman/EAST
         // You can find it here : https://github.com/opencv/opencv_extra/blob/master/testdata/dnn/download_models.py#L309
         Net net = Dnn.readNetFromTensorflow(AppConstants.MODEL_PATH + AppConstants.MODEL +  "/" + EAST);
@@ -67,6 +69,7 @@ public class EastTextDetectorUtils {
         // Render detections
         Point ratio = new Point((float)img.cols()/siz.width, (float)img.rows()/siz.height);
         int[] indexes = indices.toArray();
+
         for(int i = 0; i<indexes.length ;++i) {
             RotatedRect rot = boxesArray[indexes[i]];
             Point[] vertices = new Point[4];
@@ -75,9 +78,14 @@ public class EastTextDetectorUtils {
                 vertices[j].x *= ratio.x;
                 vertices[j].y *= ratio.y;
             }
+            MatOfPoint matOfPoint = new MatOfPoint(vertices);
+            Rect rect = Imgproc.boundingRect(matOfPoint);
+            AppLogger.i(rect.x + " " + rect.y + " " + rect.height + "  " + rect.width);
+            Imgproc.rectangle(img, rect, new Scalar(0, 0, 255), 3);
             List<Point> textBoxCorner = CardProcessor.orderPoints(Arrays.asList(vertices));
             textBoxCorners.add(textBoxCorner);
         }
+
         return textBoxCorners;
     }
 

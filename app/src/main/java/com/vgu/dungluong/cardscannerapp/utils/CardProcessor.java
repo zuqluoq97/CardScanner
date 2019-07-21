@@ -293,6 +293,7 @@ public class CardProcessor {
             Utils.matToBitmap(crop, bitmap, true);
             bms.add(bitmap);
         }
+
 //        for(int i = 0; i < textBounds.size(); i++){
 //            Rect textBound = textBounds.get(i);
 //            Imgproc.rectangle(img, new Point(textBound.x, textBound.y),

@@ -2,6 +2,7 @@ package com.vgu.dungluong.cardscannerapp.ui.result;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Image;
 import android.util.Log;
 
 import com.vgu.dungluong.cardscannerapp.data.DataManager;
@@ -16,8 +17,10 @@ import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -89,22 +92,48 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
     public void ocr(){
         setIsLoading(true);
-        getCompositeDisposable().add(CardProcessor
-                .textSkewCorrection(mCardPicture)
+        Bitmap bitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(mCardPicture, bitmap, true);
+
+        OutputStream os;
+        File imgFile = getNavigator().getFileForCropImage();
+        try{
+            os = new FileOutputStream(imgFile);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            os.flush();
+            os.close();
+        }catch (Exception e) {
+            AppLogger.e(e.getLocalizedMessage());
+        }
+
+//        getCompositeDisposable().add(CardProcessor
+//                .textSkewCorrection(mCardPicture)
+//                .subscribeOn(getSchedulerProvider().io())
+//                .observeOn(getSchedulerProvider().ui())
+//                .subscribe(bitmaps -> {
+//                    setIsOCRSucceed(true);
+//                    getNavigator().showMessage("Pre-image processing success");
+//                    displayCardImage();
+//
+////                    tesseract(bitmaps);
+////                    bm.addAll(bitmaps);
+//                }, throwable -> {
+//                    getNavigator().handleError(throwable.getLocalizedMessage());
+//                    setIsLoading(false);
+//                }));
+
+        AppLogger.i(imgFile.getName());
+        getCompositeDisposable().add(getDataManager()
+                .doServerTextDetection(imgFile)
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
-                .subscribe(bitmaps -> {
-                    setIsOCRSucceed(true);
-                    getNavigator().showMessage("Pre-image processing success");
-                    //displayCardImage();
-
-                    tesseract(bitmaps);
-                    bm.addAll(bitmaps);
-                }, throwable -> {
-                    getNavigator().handleError(throwable.getLocalizedMessage());
+                .subscribe(filename ->{
                     setIsLoading(false);
+                    AppLogger.i(filename);
+                }, throwable -> {
+                    setIsLoading(false);
+                    AppLogger.e(throwable.getLocalizedMessage());
                 }));
-
     }
 
     public void tesseract(List<Bitmap> bitmap){

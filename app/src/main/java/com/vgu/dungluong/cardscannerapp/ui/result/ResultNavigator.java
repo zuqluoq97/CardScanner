@@ -5,6 +5,8 @@ import android.widget.TextView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
+import java.io.File;
+
 /**
  * Created by Dung Luong on 02/07/2019
  */
@@ -17,4 +19,6 @@ public interface ResultNavigator {
     void showMessage(String mess);
 
     TessBaseAPI getTesseractApi();
+
+    File getFileForCropImage();
 }

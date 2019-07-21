@@ -115,4 +115,9 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
     public TessBaseAPI getTesseractApi() {
         return mTessBaseAPI;
     }
+
+    @Override
+    public File getFileForCropImage() {
+        return new File(getCacheDir(), "crop.jpg");
+    }
 }

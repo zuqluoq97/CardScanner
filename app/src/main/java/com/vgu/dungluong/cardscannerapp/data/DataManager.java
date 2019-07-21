@@ -6,6 +6,7 @@ import android.hardware.Camera;
 import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.preference.PreferenceHelper;
+import com.vgu.dungluong.cardscannerapp.data.remote.ApiHelper;
 
 import org.opencv.core.Point;
 
@@ -16,7 +17,7 @@ import io.reactivex.Observable;
 /**
  * Created by Dung Luong on 17/06/2019
  */
-public interface DataManager extends PermissionHelper, PreferenceHelper {
+public interface DataManager extends PermissionHelper, PreferenceHelper, ApiHelper {
 
     Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera, List<Point> cropCoordinates);
 

@@ -8,6 +8,7 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.data.preference.PreferenceHelper;
+import com.vgu.dungluong.cardscannerapp.data.remote.ApiHelper;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
@@ -20,12 +21,14 @@ import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import io.reactivex.Observable;
+import io.reactivex.Single;
 
 import static com.vgu.dungluong.cardscannerapp.utils.CardProcessor.processPicture;
 
@@ -41,13 +44,17 @@ public class AppDataManager implements DataManager{
 
     private final PreferenceHelper mPreferenceHelper;
 
+    private final ApiHelper mApiHelper;
+
     @Inject
     public AppDataManager(Context context,
                           PermissionHelper permissionHelper,
-                          PreferenceHelper preferenceHelper){
+                          PreferenceHelper preferenceHelper,
+                          ApiHelper apiHelper){
         this.mContext = context;
         this.mPermissionHelper = permissionHelper;
         this.mPreferenceHelper = preferenceHelper;
+        this.mApiHelper = apiHelper;
     }
 
     @Override
@@ -114,5 +121,10 @@ public class AppDataManager implements DataManager{
     @Override
     public boolean hasWriteExternalStorage() {
         return mPermissionHelper.hasWriteExternalStorage();
+    }
+
+    @Override
+    public Single<String> doServerTextDetection(File imgFile) {
+        return mApiHelper.doServerTextDetection(imgFile);
     }
 }
