@@ -35,10 +35,11 @@ class TextDetect:
         img_size = img.shape
         im_size_min = np.min(img_size[0:2])
         im_size_max = np.max(img_size[0:2])
-        
         im_scale = float(600) / float(im_size_min)
+
         if np.round(im_scale * im_size_max) > 1200:
             im_scale = float(1200) / float(im_size_max)
+            
         new_h = int(img_size[0] * im_scale)
         new_w = int(img_size[1] * im_scale)
         new_h = new_h if new_h // 16 == 0 else (new_h // 16 + 1) * 16
