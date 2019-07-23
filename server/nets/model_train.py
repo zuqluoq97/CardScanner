@@ -21,7 +21,7 @@ def make_var(name, shape, initializer=None):
 
 def Bilstm(net, input_channel, hidden_unit_num, output_channel, scope_name):
     # width--->time step
-    with tf.variable_scope(scope_name) as scope:
+    with tf.variable_scope(scope_name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
         shape = tf.shape(net)
         N, H, W, C = shape[0], shape[1], shape[2], shape[3]
         net = tf.reshape(net, [N * H, W, C])
@@ -47,7 +47,7 @@ def Bilstm(net, input_channel, hidden_unit_num, output_channel, scope_name):
 
 
 def lstm_fc(net, input_channel, output_channel, scope_name):
-    with tf.variable_scope(scope_name) as scope:
+    with tf.variable_scope(scope_name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
         shape = tf.shape(net)
         N, H, W, C = shape[0], shape[1], shape[2], shape[3]
         net = tf.reshape(net, [N * H * W, C])
@@ -87,7 +87,7 @@ def model(image):
 
 
 def anchor_target_layer(cls_pred, bbox, im_info, scope_name):
-    with tf.variable_scope(scope_name) as scope:
+    with tf.variable_scope(scope_name, reuse=tf.compat.v1.AUTO_REUSE) as scope:
         # 'rpn_cls_score', 'gt_boxes', 'im_info'
         rpn_labels, rpn_bbox_targets, rpn_bbox_inside_weights, rpn_bbox_outside_weights = \
             tf.py_func(anchor_target_layer_py,

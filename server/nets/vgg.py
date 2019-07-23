@@ -13,7 +13,7 @@ def vgg_arg_scope(weight_decay=0.0005):
 
 
 def vgg_16(inputs, scope='vgg_16'):
-    with tf.variable_scope(scope, 'vgg_16', [inputs], reuse=tf.AUTO_REUSE) as sc:
+    with tf.variable_scope(scope, 'vgg_16', [inputs], reuse=tf.compat.v1.AUTO_REUSE) as sc:
         with slim.arg_scope([slim.conv2d, slim.fully_connected, slim.max_pool2d]):
             net = slim.repeat(inputs, 2, slim.conv2d, 64, [3, 3], scope='conv1')
             net = slim.max_pool2d(net, [2, 2], scope='pool1')
