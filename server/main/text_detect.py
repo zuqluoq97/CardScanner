@@ -52,9 +52,9 @@ class TextDetect:
             input_image = tf.placeholder(tf.float32, shape=[None, None, None, 3], name='input_image')
             input_im_info = tf.placeholder(tf.float32, shape=[None, 3], name='input_im_info')
 
-            global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
+            self.global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
             bbox_pred, cls_pred, cls_prob = model.model(input_image)
-            variable_averages = tf.train.ExponentialMovingAverage(0.997, global_step)
+            variable_averages = tf.train.ExponentialMovingAverage(0.997, self.global_step)
             saver = tf.train.Saver(variable_averages.variables_to_restore())
             
             with tf.Session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
