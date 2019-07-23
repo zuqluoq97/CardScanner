@@ -39,7 +39,7 @@ class TextDetect:
 
         if np.round(im_scale * im_size_max) > 1200:
             im_scale = float(1200) / float(im_size_max)
-            
+
         new_h = int(img_size[0] * im_scale)
         new_w = int(img_size[1] * im_scale)
         new_h = new_h if new_h // 16 == 0 else (new_h // 16 + 1) * 16
@@ -82,7 +82,6 @@ class TextDetect:
                 textsegs, _ = proposal_layer(cls_prob_val, bbox_pred_val, im_info)
                 scores = textsegs[:, 0]
                 textsegs = textsegs[:, 1:5]
-                
                 textdetector = TextDetector(DETECT_MODE='O')
                 boxes = textdetector.detect(textsegs, scores[:, np.newaxis], img.shape[:2])
                
