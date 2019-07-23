@@ -1,5 +1,5 @@
 from flask import Flask, request, json
-from text_detect import TextDetect
+from main.text_detect import TextDetect
 
 app = Flask(__name__)
 

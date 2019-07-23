@@ -20,7 +20,7 @@ from werkzeug import secure_filename
 tf.app.flags.DEFINE_string('test_data_path', 'data/demo/', '')
 tf.app.flags.DEFINE_string('output_path', 'data/res/', '')
 tf.app.flags.DEFINE_string('gpu', '0', '')
-tf.app.flags.DEFINE_string('checkpoint_path', 'checkpoints_mlt/', '')
+tf.app.flags.DEFINE_string('checkpoint_path', 'main/checkpoints_mlt/', '')
 FLAGS = tf.app.flags.FLAGS
 
 class TextDetect:
