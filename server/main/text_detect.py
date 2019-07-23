@@ -31,6 +31,14 @@ class TextDetect:
         self.img_path = os.path.join(app.root_path, "crop.jpg")
         img_file.save(self.img_path)
 
+    def get_global_step(self):
+        try :
+            tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
+        except:
+            with tf.variable_scope(tf.get_variable_scope(), reuse=True):
+                tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
+
+
     def resize_image(self, img) :
         img_size = img.shape
         im_size_min = np.min(img_size[0:2])
@@ -53,7 +61,7 @@ class TextDetect:
             input_image = tf.placeholder(tf.float32, shape=[None, None, None, 3], name='input_image')
             input_im_info = tf.placeholder(tf.float32, shape=[None, 3], name='input_im_info')
 
-            self.global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
+            self.global_step = self.get_global_step()
             bbox_pred, cls_pred, cls_prob = model.model(input_image)
             variable_averages = tf.train.ExponentialMovingAverage(0.997, self.global_step)
             saver = tf.train.Saver(variable_averages.variables_to_restore())
@@ -82,6 +90,7 @@ class TextDetect:
                 textsegs, _ = proposal_layer(cls_prob_val, bbox_pred_val, im_info)
                 scores = textsegs[:, 0]
                 textsegs = textsegs[:, 1:5]
+                
                 textdetector = TextDetector(DETECT_MODE='O')
                 boxes = textdetector.detect(textsegs, scores[:, np.newaxis], img.shape[:2])
                
