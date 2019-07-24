@@ -32,7 +32,6 @@ class TextDetect:
         img_file.save(self.img_path)
 
     def get_global_step(self):
-        tf.reset_default_graph()
         with tf.variable_scope(tf.get_variable_scope(), reuse=tf.compat.v1.AUTO_REUSE) as scope:
             global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
         return global_step
@@ -55,6 +54,7 @@ class TextDetect:
 
     def find(self):
         os.environ['CUDA_VISIBLE_DEVICES'] = FLAGS.gpu
+        tf.reset_default_graph()
         with tf.get_default_graph().as_default():
             input_image = tf.placeholder(tf.float32, shape=[None, None, None, 3], name='input_image')
             input_im_info = tf.placeholder(tf.float32, shape=[None, 3], name='input_im_info')
