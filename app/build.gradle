@@ -50,6 +50,7 @@ android {
 }
 
 apply from : 'dependencies.gradle'
+
 repositories {
     mavenCentral()
 }

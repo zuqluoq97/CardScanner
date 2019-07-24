@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.hardware.Camera;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
+import com.vgu.dungluong.cardscannerapp.data.model.api.Rects;
 import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.data.preference.PreferenceHelper;
@@ -124,7 +125,7 @@ public class AppDataManager implements DataManager{
     }
 
     @Override
-    public Single<String> doServerTextDetection(File imgFile) {
+    public Single<Rects> doServerTextDetection(File imgFile) {
         return mApiHelper.doServerTextDetection(imgFile);
     }
 }

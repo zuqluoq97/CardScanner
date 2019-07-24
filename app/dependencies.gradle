@@ -47,9 +47,19 @@ dependencies {
     // Tess two library
     implementation deps.tesstwo
 
-    // Image cropper
-    api deps.image_cropper
+    // parser
+    implementation deps.gson
 
+    //Auto value
+    annotationProcessor deps.auto_value.compiler
+    implementation deps.auto_value.annotations
+
+    annotationProcessor deps.auto_value_gson.compiler
+    implementation deps.auto_value_gson.annotations
+    annotationProcessor deps.auto_value.annotations
+
+    annotationProcessor deps.auto_value_parcel.compiler
+    implementation deps.auto_value_parcel.adapter
     // Opencv
     implementation project(path: ':opencv')
 }

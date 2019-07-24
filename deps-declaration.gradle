@@ -20,16 +20,18 @@ versions.androidx_constraintlayout = '2.0.0-alpha3'
 versions.androidx_appcompat = '1.1.0-alpha04'
 versions.androidx_recyclerview = '1.1.0-alpha04'
 
+versions.gson = '2.8.5'
 versions.androidx_room = '2.1.0-alpha04'
 versions.dagger2 = '2.22.1'
 versions.rxjava2 = '2.2.8'
 versions.rxandroid = '2.1.1'
 versions.lifecycle = '2.1.0-alpha03'
 versions.tesstwo = '9.0.0'
-versions.image_cropper = '2.8.0'
 versions.icon = '4.0.0'
 versions.font_awesome = '5.3.1.2-kotlin@aar'
-
+versions.auto_value = '1.6.3'
+versions.auto_value_gson = '0.7.0'
+versions.auto_value_parcel = '0.2.5'
 // Third party dependencies
 versions.calligraphy = '2.2.0'
 versions.rx2_fast_android_networking = '1.0.1'
@@ -78,7 +80,7 @@ deps.logger = "com.jakewharton.timber:timber:$versions.timber"
 
 deps.tesstwo = "com.rmtheis:tess-two:$versions.tesstwo"
 
-deps.image_cropper = "com.theartofdev.edmodo:android-image-cropper:$versions.image_cropper"
+deps.gson = "com.google.code.gson:gson:$versions.gson"
 
 deps.icon = "com.mikepenz:iconics-core:$versions.icon"
 
@@ -95,6 +97,21 @@ def rxjava = [:]
 rxjava.main = "io.reactivex.rxjava2:rxjava:$versions.rxjava2"
 rxjava.android = "io.reactivex.rxjava2:rxandroid:$versions.rxandroid"
 deps.rxjava = rxjava
+
+def auto_value = [:]
+auto_value.annotations = "com.google.auto.value:auto-value-annotations:$versions.auto_value"
+auto_value.compiler = "com.google.auto.value:auto-value:$versions.auto_value"
+deps.auto_value = auto_value
+
+def auto_value_gson = [:]
+auto_value_gson.compiler = "com.ryanharter.auto.value:auto-value-gson:$versions.auto_value_gson"
+auto_value_gson.annotations = "com.ryanharter.auto.value:auto-value-gson-annotations:$versions.auto_value_gson"
+deps.auto_value_gson = auto_value_gson
+
+def auto_value_parcel = [:]
+auto_value_parcel.compiler = "com.ryanharter.auto.value:auto-value-parcel:$versions.auto_value_parcel"
+auto_value_parcel.adapter = "com.ryanharter.auto.value:auto-value-parcel-adapter:$versions.auto_value_parcel"
+deps.auto_value_parcel = auto_value_parcel
 
 ext.deps = deps
 

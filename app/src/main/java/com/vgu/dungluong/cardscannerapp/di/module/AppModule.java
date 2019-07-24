@@ -6,6 +6,7 @@ import android.content.Context;
 import com.androidnetworking.gsonparserfactory.GsonParserFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.vgu.dungluong.cardscannerapp.AutoValueGsonFactory;
 import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.data.permission.AppPermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
@@ -85,10 +86,8 @@ public class AppModule {
     @Provides
     @Singleton
     Gson provideGson(){
-        //return new GsonBuilder().registerTypeAdapterFactory(AutoValueGsonFactory.create()).create();
-        return new GsonBuilder().setLenient().create();
+        return new GsonBuilder().registerTypeAdapterFactory(AutoValueGsonFactory.create()).create();
     }
-
 
     @Provides
     @Singleton

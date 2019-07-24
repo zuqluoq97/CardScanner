@@ -127,9 +127,9 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                 .doServerTextDetection(imgFile)
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
-                .subscribe(filename ->{
+                .subscribe(rects ->{
                     setIsLoading(false);
-                    AppLogger.i(filename);
+                    AppLogger.i(rects.toString());
                 }, throwable -> {
                     setIsLoading(false);
                     AppLogger.e(throwable.getLocalizedMessage());

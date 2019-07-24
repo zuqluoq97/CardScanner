@@ -1,5 +1,7 @@
 package com.vgu.dungluong.cardscannerapp.data.remote;
 
+import com.vgu.dungluong.cardscannerapp.data.model.api.Rects;
+
 import java.io.File;
 
 import io.reactivex.Single;
@@ -9,5 +11,5 @@ import io.reactivex.Single;
  */
 public interface ApiHelper {
 
-    Single<String> doServerTextDetection(File imgFile);
+    Single<Rects> doServerTextDetection(File imgFile);
 }

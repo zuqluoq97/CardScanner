@@ -27,7 +27,6 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.exifinterface.media.ExifInterface;
 import androidx.lifecycle.ViewModelProviders;
 
 /**

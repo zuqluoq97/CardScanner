@@ -2,6 +2,7 @@ package com.vgu.dungluong.cardscannerapp.data.remote;
 
 import com.androidnetworking.common.Priority;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
+import com.vgu.dungluong.cardscannerapp.data.model.api.Rects;
 
 import java.io.File;
 
@@ -21,11 +22,11 @@ public class AppApiHelper implements ApiHelper {
 
 
     @Override
-    public Single<String> doServerTextDetection(File imgFile) {
+    public Single<Rects> doServerTextDetection(File imgFile) {
         return Rx2AndroidNetworking.upload(ApiEndPoint.ENDPOINT_SERVER_TEXT_DETECTION)
                 .addMultipartFile("image", imgFile)
                 .setPriority(Priority.HIGH)
                 .build()
-                .getObjectSingle(String.class);
+                .getObjectSingle(Rects.class);
     }
 }
