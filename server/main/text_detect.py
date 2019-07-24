@@ -32,9 +32,10 @@ class TextDetect:
         img_file.save(self.img_path)
 
     def get_global_step(self):
-            with tf.variable_scope(tf.get_variable_scope(), reuse=tf.compat.v1.AUTO_REUSE) as scope:
-                global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
-            return global_step
+        tf.reset_default_graph()
+        with tf.variable_scope(tf.get_variable_scope(), reuse=tf.compat.v1.AUTO_REUSE) as scope:
+            global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
+        return global_step
 
     def resize_image(self, img) :
         img_size = img.shape
