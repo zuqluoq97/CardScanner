@@ -8,12 +8,14 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.vgu.dungluong.cardscannerapp.AutoValueGsonFactory;
 import com.vgu.dungluong.cardscannerapp.R;
-import com.vgu.dungluong.cardscannerapp.data.permission.AppPermissionHelper;
-import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.locale.AppLocaleHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.locale.LocaleHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.permission.AppPermissionHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.AppDataManager;
 import com.vgu.dungluong.cardscannerapp.data.DataManager;
-import com.vgu.dungluong.cardscannerapp.data.preference.AppPreferenceHelper;
-import com.vgu.dungluong.cardscannerapp.data.preference.PreferenceHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.preference.AppPreferenceHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.preference.PreferenceHelper;
 import com.vgu.dungluong.cardscannerapp.data.remote.ApiHelper;
 import com.vgu.dungluong.cardscannerapp.data.remote.AppApiHelper;
 import com.vgu.dungluong.cardscannerapp.di.PreferenceInfo;
@@ -75,6 +77,12 @@ public class AppModule {
     @Singleton
     ApiHelper provideApiHelper(AppApiHelper appApiHelper){
         return appApiHelper;
+    }
+
+    @Provides
+    @Singleton
+    LocaleHelper provideLocaleHelper(AppLocaleHelper appLocaleHelper){
+        return appLocaleHelper;
     }
 
     @Provides

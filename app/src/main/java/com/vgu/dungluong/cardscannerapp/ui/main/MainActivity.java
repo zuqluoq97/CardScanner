@@ -20,11 +20,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.mikepenz.iconics.IconicsColor;
-import com.mikepenz.iconics.IconicsDrawable;
-import com.mikepenz.iconics.IconicsSize;
-import com.mikepenz.iconics.context.IconicsLayoutInflater;
-import com.mikepenz.iconics.typeface.library.fontawesome.FontAwesome;
 import com.vgu.dungluong.cardscannerapp.BR;
 import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.ViewModelProviderFactory;
@@ -51,6 +46,7 @@ import javax.inject.Inject;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import androidx.core.content.ContextCompat;
 import androidx.core.view.LayoutInflaterCompat;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -102,12 +98,10 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        LayoutInflaterCompat.setFactory(getLayoutInflater(), new IconicsLayoutInflater(getDelegate()));
         super.onCreate(savedInstanceState);
         mMainBinding = getViewDataBinding();
         mMainViewModel.setNavigator(this);
         mMainBinding.setViewModel(mMainViewModel);
-        checkPermission();
 
         setUp();
     }
@@ -172,20 +166,21 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     }
 
     @Override
-    public void changeColorIcon(boolean isBlackColor) {
-        if(isBlackColor){
-            mMainBinding.blackCard.setImageDrawable(new IconicsDrawable(this)
-                    .icon(FontAwesome.Icon.faw_address_card1)
-                    .color(IconicsColor.colorInt(getColor(R.color.black)))
-                    .size(IconicsSize.dp(32)));
-            mMainBinding.blackCardBackground.setVisibility(View.VISIBLE);
+    public void changeLocaleIcon(String locale) {
+        if(locale.equals("vi")){
+            mMainBinding.languageOCR
+                    .setImageDrawable(ContextCompat.getDrawable(this, R.drawable.vietnam_flag));
         }else{
-            mMainBinding.blackCard.setImageDrawable(new IconicsDrawable(this)
-                    .icon(FontAwesome.Icon.faw_address_card1)
-                    .color(IconicsColor.colorInt(getColor(R.color.white)))
-                    .size(IconicsSize.dp(32)));
-            mMainBinding.blackCardBackground.setVisibility(View.GONE);
+            mMainBinding.languageOCR
+                    .setImageDrawable(ContextCompat.getDrawable(this, R.drawable.usa_flag));
         }
+    }
+
+    @Override
+    public void updateLocale(String locale) {
+        getViewModel().getDataManager().setNewLocale(this, locale);
+        showMessage(locale);
+        restart();
     }
 
     @Override
@@ -211,28 +206,6 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
             mCameraPreview.getCamera().stopPreview();
         } else {
             AppLogger.i(TAG + ": camera null");
-        }
-    }
-
-    /**
-     * Callback received when a permissions request has been completed
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if(requestCode == CODE_PERMISSIONS_REQUEST){
-            if(PermissionUtils.verifyPermissions(grantResults)){
-                showMessage(getString(R.string.camera_grant));
-                mCameraPreview.initCam();
-                mCameraPreview.updateCam();
-            } else {
-                CommonUtils.dialogConfiguration(this,
-                        getString(R.string.request_permissions_title),
-                        getString(R.string.permission_not_grant_message),
-                        false)
-                        .setPositiveButton(android.R.string.yes, ((dialog, which) -> restart())).show();
-            }
         }
     }
 

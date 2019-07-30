@@ -7,8 +7,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
-import com.mikepenz.iconics.context.IconicsContextWrapper;
 import com.vgu.dungluong.cardscannerapp.R;
+import com.vgu.dungluong.cardscannerapp.data.local.locale.AppLocaleHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.preference.AppPreferenceHelper;
+import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
 import com.vgu.dungluong.cardscannerapp.utils.PermissionUtils;
@@ -111,7 +113,8 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseView
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(CalligraphyContextWrapper
-                .wrap(base));
+                .wrap(new AppLocaleHelper(new AppPreferenceHelper(base,
+                        AppConstants.PREF_NAME)).setLocale(base)));
     }
 
     public void restart(){
@@ -120,10 +123,11 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseView
         startActivity(intent);
     }
 
-    public void checkPermission() {
+    public boolean checkPermission() {
         if(!mViewModel.haveFullPermissionGained()){
             requestPermissions();
         }
+        return mViewModel.haveFullPermissionGained();
     }
 
     /**

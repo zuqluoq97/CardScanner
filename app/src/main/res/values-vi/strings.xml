@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Card Scanner</string>
+
+    <!-- permission -->
+    <string name="request_permissions_title">Yêu cầu các quyền</string>
+    <string name="request_permissions_content">Quyền sử dụng camera &amp; ghi-đọc bộ nhớ ngoài</string>
+    <string name="permission_not_grant_message">Các quyền không được cấp đầy đủ!</string>
+
+    <!-- button title -->
+    <string name="confirm_title">Xác nhận</string>
+    <string name="crop_title">Cắt</string>
+    <string name="ocr_title">Đọc thông tin</string>
+    <!-- app message -->
+    <string name="double_to_exit">Nhấn phím LÙI lần nữa để thoát!</string>
+    <string name="camera_grant">Quyền sử dụng ảnh được cấp.</string>
+
+</resources>

@@ -1,7 +1,6 @@
 package com.vgu.dungluong.cardscannerapp.ui.result;
 
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 

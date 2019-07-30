@@ -21,6 +21,10 @@ public class Corners {
         this.size = size;
     }
 
+    public Corners(List<Point> corners){
+        this.corners = corners;
+    }
+
     public List<Point> getCorners() {
         return corners;
     }

@@ -23,7 +23,7 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
     public MainViewModel(DataManager dataManager, SchedulerProvider schedulerProvider) {
         super(dataManager, schedulerProvider);
         new Handler().postDelayed(() ->
-                getNavigator().changeColorIcon(getDataManager().getScanBlackCardState()), 500);
+                getNavigator().changeLocaleIcon(getDataManager().getLocale()), 500);
     }
 
     public void shut(){
@@ -31,9 +31,8 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
         getNavigator().onShutButtonClick();
     }
 
-    public void changeBlackCardScanState(){
-        getDataManager().setScanBlackCardState(!getDataManager().getScanBlackCardState());
-        getNavigator().changeColorIcon(getDataManager().getScanBlackCardState());
+    public void changeLanguageOCR(){
+        getNavigator().updateLocale(getDataManager().getLocale().equals("en") ? "vi" : "en");
     }
 
     public void handlePictureTaken(byte[] bytes, Camera camera){

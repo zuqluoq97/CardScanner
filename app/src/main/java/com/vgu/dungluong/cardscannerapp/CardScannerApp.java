@@ -2,10 +2,12 @@ package com.vgu.dungluong.cardscannerapp;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.res.Configuration;
 
 import com.androidnetworking.AndroidNetworking;
 import com.androidnetworking.gsonparserfactory.GsonParserFactory;
 import com.androidnetworking.interceptors.HttpLoggingInterceptor;
+import com.vgu.dungluong.cardscannerapp.data.local.locale.LocaleHelper;
 import com.vgu.dungluong.cardscannerapp.di.component.DaggerAppComponent;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 
@@ -31,6 +33,9 @@ public class CardScannerApp extends Application implements HasActivityInjector {
     @Inject
     GsonParserFactory mGsonParserFactory;
 
+    @Inject
+    LocaleHelper mLocaleHelper;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -54,5 +59,11 @@ public class CardScannerApp extends Application implements HasActivityInjector {
     @Override
     public AndroidInjector<Activity> activityInjector() {
         return mActivityDispatchingAndroidInjector;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mLocaleHelper.setLocale(this);
     }
 }

@@ -2,15 +2,15 @@ package com.vgu.dungluong.cardscannerapp.ui.splash;
 
 import android.os.Bundle;
 
-import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.BR;
 import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.ViewModelProviderFactory;
 import com.vgu.dungluong.cardscannerapp.databinding.ActivitySplashBinding;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivity;
-import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
+import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
+import com.vgu.dungluong.cardscannerapp.utils.PermissionUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,13 +20,12 @@ import java.io.OutputStream;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
 
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.CODE_PERMISSIONS_REQUEST;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.DATA_PATH;
-import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.EAST;
-import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.MODEL;
-import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.MODEL_PATH;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.TESSDATA;
 
 /**
@@ -66,14 +65,9 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
         mActivitySplashBinding = getViewDataBinding();
         mSplashViewModel.setNavigator(this);
         mActivitySplashBinding.setViewModel(mSplashViewModel);
-
-        setUp();
-    }
-
-    private void setUp() {
-        getViewModel().setIsLoading(true);
-        prepareTesseract();
-        openMainActivity();
+        if(checkPermission()){
+            openMainActivity();
+        }
     }
 
     @Override
@@ -86,13 +80,11 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
     public void prepareTesseract() {
         try {
             prepareDirectory(DATA_PATH + TESSDATA);
-            prepareDirectory(MODEL_PATH + MODEL);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         copyDataFiles(DATA_PATH, TESSDATA);
-        copyDataFiles(MODEL_PATH, MODEL);
     }
 
     /**
@@ -149,6 +141,29 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
             }
         } catch (IOException e) {
             AppLogger.i( "Unable to copy files to tessdata " + e.toString());
+        }
+    }
+
+    /**
+     * Callback received when a permissions request has been completed
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if(requestCode == CODE_PERMISSIONS_REQUEST){
+            if(PermissionUtils.verifyPermissions(grantResults)){
+                showMessage(getString(R.string.camera_grant));
+                getViewModel().setIsLoading(true);
+                prepareTesseract();
+                openMainActivity();
+            } else {
+                CommonUtils.dialogConfiguration(this,
+                        getString(R.string.request_permissions_title),
+                        getString(R.string.permission_not_grant_message),
+                        false)
+                        .setPositiveButton(android.R.string.yes, ((dialog, which) -> restart())).show();
+            }
         }
     }
 }

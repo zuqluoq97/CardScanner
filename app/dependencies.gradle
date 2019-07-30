@@ -10,8 +10,6 @@ dependencies {
 
     // Fonts & icon
     implementation deps.calligraphy
-    implementation deps.icon
-    implementation deps.font_awesome
 
     // Network
     implementation deps.android_network
@@ -45,7 +43,8 @@ dependencies {
     implementation deps.lifecycle.extensions
 
     // Tess two library
-    implementation deps.tesstwo
+    // implementation deps.tesstwo
+    implementation(name:'tesseract4android-release', ext:'aar')
 
     // parser
     implementation deps.gson
@@ -60,6 +59,7 @@ dependencies {
 
     annotationProcessor deps.auto_value_parcel.compiler
     implementation deps.auto_value_parcel.adapter
+
     // Opencv
     implementation project(path: ':opencv')
 }

@@ -2,70 +2,37 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.graphics.Bitmap;
 
-import com.googlecode.tesseract.android.TessBaseAPI;
-import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONObject;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
-import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.core.TermCriteria;
-import org.opencv.dnn.Dnn;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 
 import androidx.annotation.Nullable;
-import androidx.databinding.ObservableBoolean;
 import io.reactivex.Observable;
-import kotlin.Pair;
 import kotlin.jvm.internal.Intrinsics;
 
 import static org.opencv.core.CvType.CV_8UC1;
-import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C;
-import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_MEAN_C;
+import static org.opencv.core.CvType.CV_8UC3;
+import static org.opencv.core.CvType.CV_8UC4;
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
-import static org.opencv.imgproc.Imgproc.COLOR_BGR2Lab;
 import static org.opencv.imgproc.Imgproc.COLOR_BGRA2GRAY;
-import static org.opencv.imgproc.Imgproc.COLOR_GRAY2BGRA;
-import static org.opencv.imgproc.Imgproc.COLOR_Lab2BGR;
-import static org.opencv.imgproc.Imgproc.COLOR_RGB2GRAY;
-import static org.opencv.imgproc.Imgproc.COLOR_RGBA2GRAY;
-import static org.opencv.imgproc.Imgproc.FILLED;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
-import static org.opencv.imgproc.Imgproc.MORPH_CLOSE;
-import static org.opencv.imgproc.Imgproc.MORPH_ELLIPSE;
-import static org.opencv.imgproc.Imgproc.MORPH_GRADIENT;
-import static org.opencv.imgproc.Imgproc.MORPH_OPEN;
-import static org.opencv.imgproc.Imgproc.MORPH_RECT;
-import static org.opencv.imgproc.Imgproc.RETR_CCOMP;
-import static org.opencv.imgproc.Imgproc.RETR_EXTERNAL;
-import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
-import static org.opencv.imgproc.Imgproc.THRESH_BINARY_INV;
-import static org.opencv.imgproc.Imgproc.THRESH_OTSU;
 import static org.opencv.imgproc.Imgproc.cvtColor;
 import static org.opencv.imgproc.Imgproc.getStructuringElement;
 import static org.opencv.imgproc.Imgproc.line;
@@ -148,13 +115,12 @@ public class CardProcessor {
         Mat resizeMat = src.clone();
         Imgproc.resize(resizeMat, resizeMat, croppedSize);
         Mat canny = new Mat(croppedSize, CV_8UC1);
-
         // Do contour detection
         Imgproc.Canny(resizeMat, canny, 30, 90, 3);
         Mat lines = new Mat();
 
         // Do hough transform
-        Imgproc.HoughLinesP(canny, lines, 1, Math.PI / 180, 70, 5, 1);
+        Imgproc.HoughLinesP(canny, lines, 1, Math.PI / 360.0, 70, 5, 1);
         AppLogger.i("Number of lines: " + lines.rows());
 
         return findEdges(lines, croppedSize, src, 1 / coeff);
@@ -162,7 +128,8 @@ public class CardProcessor {
 
     private static List<Point> sortPoints(List<Point> points, Mat img) {
         AppLogger.i(String.valueOf(points.size()));
-        Point center = new Point(img.size().width / 2, img.size().height / 2);
+        Size imgSize = img.size();
+        Point center = new Point(imgSize.width / 2, imgSize.height / 2);
 
         List<Point> maxTl = new ArrayList<>();
         List<Point> maxTr = new ArrayList<>();
@@ -176,12 +143,6 @@ public class CardProcessor {
             if(p.x < center.x && p.y > center.y) maxBl.add(p);
         });
 
-        Point p0 = points.stream().min(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
-        Point p1 = points.stream().max(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
-        Point p2 = points.stream().max(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
-        Point p3 = points.stream().min(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
-
-        outerLoop:
         for(int i = 0; i < maxTl.size(); i++) {
             AppLogger.i(String.valueOf(i));
             for (int j = 0; j < maxTr.size(); j++) {
@@ -198,23 +159,25 @@ public class CardProcessor {
                         double height = distance2Points(maxTr.get(j), maxBr.get(k));
                         double width = distance2Points(maxTl.get(i), maxTr.get(j));
                         double ratio = height / width;
-                        if (ratio > 1.62 && ratio < 1.65) {
+                        if (ratio > 1.60 && ratio < 1.70) {
                             AppLogger.i("found");
                             AppLogger.i(height + " " + width + " " + (img.size().area() / 4));
                             if(height * width > img.size().area() / 4) {
                                 AppLogger.i(String.valueOf(ratio));
-                                p0 = maxTl.get(i);
-                                p1 = maxTr.get(j);
-                                p2 = maxBr.get(k);
-                                p3 = maxBl.get(l);
-                                break outerLoop;
+                                return Arrays.asList(maxTl.get(i),
+                                        maxTr.get(j),
+                                        maxBr.get(k),
+                                        maxBl.get(l));
                             }
                         }
                     }
                 }
             }
         }
-        return Arrays.asList(p0, p1, p2, p3);
+        return Arrays.asList(new Point(imgSize.width / 10, imgSize.height / 10),
+                new Point(imgSize.width * 9/10, imgSize.height / 10),
+                new Point(imgSize.width * 9/10, imgSize.height * 9/10),
+                new Point(imgSize.width / 10, imgSize.height * 9/10));
     }
 
     public static List<Point> orderPoints(List<Point> unsortedPoints){
@@ -224,127 +187,32 @@ public class CardProcessor {
                 unsortedPoints.stream().min(Comparator.comparing(point -> point.x - point.y)).orElse(new Point()));
     }
 
-
-//    public static Observable<Boolean> textSkewCorrection(Mat img, boolean isBlackScan) {
-//       Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
-//        // Gradient X
-//        // Imgproc.Sobel(grayImage, grad_x, ddepth, 1, 0, 3, scale,
-//        // this.threshold.getValue(), Core.BORDER_DEFAULT );
-//        Mat grad_x = new Mat();
-//        Mat abs_grad_x = new Mat();
-//        Imgproc.Sobel(img, grad_x, CvType.CV_16S, 1, 0);
-//        Core.convertScaleAbs(grad_x, abs_grad_x);
-//
-//        // Gradient Y
-//        // Imgproc.Sobel(grayImage, grad_y, ddepth, 0, 1, 3, scale,
-//        // this.threshold.getValue(), Core.BORDER_DEFAULT );
-//        Mat grad_y = new Mat();
-//        Mat abs_grad_y = new Mat();
-//        Imgproc.Sobel(img, grad_y, CvType.CV_16S, 0, 1);
-//        Core.convertScaleAbs(grad_y, abs_grad_y);
-//
-//        // Total Gradient (approximate)
-//        Core.addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, img);
-//        // Core.addWeighted(grad_x, 0.5, grad_y, 0.5, 0, detectedEdges);
-////        Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
-////        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(30, 30));
-////        Mat closed = new Mat();
-////        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
-////
-////        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
-////        Core.divide(img, closed, img, 1, CvType.CV_32F);
-////        Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
-////        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
-////        Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
-////
-////        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-////        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
-////        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
-////        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
-////        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
-////
-////        Mat lines = new Mat();
-////        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
-////        double angle = 0.;
-////        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
-////        for (int i = 0; i < lines.height(); i++) {
-////            for (int j = 0; j < lines.width(); j++) {
-////                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
-////            }
-////        }
-////
-////            }
-////        }
-////        AppLogger.i(height + " " + width);
-//        return Arrays.asList(p0, p1, p2, p3);
-//    }
-
-    public static Observable<List<Bitmap>> textSkewCorrection(Mat img) {
-        //Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
+    public static Observable<List<Bitmap>> cropTextArea(Mat img, List<Corners> textRects) {
         Mat img2 = img.clone();
-        List<List<Point>> textBoxCorners = EastTextDetectorUtils.test(img);
-
+//        Imgproc.cvtColor(img2, img2, Imgproc.COLOR_BGRA2GRAY);
+//        Imgproc.GaussianBlur(img2, img2, new Size(3, 3), 0);
         List<Bitmap> bms = new ArrayList<>();
-        for(int i = 0; i < textBoxCorners.size(); i++){
-            List<Point> textBoxCorner = textBoxCorners.get(i);
+
+        for(int i = 0; i < textRects.size(); i++){
+            Corners textBoxCorners = textRects.get(i);
             Mat clone = img2.clone();
-            Mat crop = cropPicture(clone, textBoxCorner);
+            Mat crop = cropPicture(clone, textBoxCorners.getCorners());
             Bitmap bitmap = Bitmap.createBitmap(crop.width(), crop.height(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(crop, bitmap, true);
             bms.add(bitmap);
         }
 
-//        for(int i = 0; i < textBounds.size(); i++){
-//            Rect textBound = textBounds.get(i);
-//            Imgproc.rectangle(img, new Point(textBound.x, textBound.y),
-//                    new Point(textBound.width, textBound.height),
-//                    new Scalar(0, 255, 0), 3, 8, 0);
-//        }
-        //Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
-        //Core.bitwise_not(img, img);
-        //Imgproc.Canny(img, img, 30, 90);
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_BGRA2RGB);
 
-//        Mat kernel = Imgproc.getStructuringElement(MORPH_ELLIPSE, new Size(30, 30));
-//        Mat closed = new Mat();
-//        Imgproc.morphologyEx(img, closed, Imgproc.MORPH_CLOSE, kernel);
+        for(int i=0; i < textRects.size(); i++){
+            Corners textBoxCorners = textRects.get(i);
+            Imgproc.line(img, textBoxCorners.getCorners().get(0), textBoxCorners.getCorners().get(1), new Scalar(0, 0, 255), 3);
+            Imgproc.line(img, textBoxCorners.getCorners().get(1), textBoxCorners.getCorners().get(2), new Scalar(0, 0, 255), 3);
+            Imgproc.line(img, textBoxCorners.getCorners().get(2), textBoxCorners.getCorners().get(3), new Scalar(0, 0, 255), 3);
+            Imgproc.line(img, textBoxCorners.getCorners().get(3), textBoxCorners.getCorners().get(0), new Scalar(0, 0, 255), 3);
+        }
 
-//        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
-//        Core.divide(img, closed, img, 1, CvType.CV_32F);
-        //Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
-//        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
-       // Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV + Imgproc.THRESH_OTSU);
-//
-//        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
-//        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2, 2));
-//        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
-//        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
-//        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
-//
-//        Mat lines = new Mat();
-//        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 180, 100, 10, 20);
-//        double angle = 0.;
-//        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
-//        for (int i = 0; i < lines.height(); i++) {
-//            for (int j = 0; j < lines.width(); j++) {
-//                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
-//            }
-//        }
-//
-//        angle /= lines.size().area();
-//        angle = angle * 180 / Math.PI;
-//        AppLogger.i(String.valueOf(angle));
-//
-//        if (!Double.isNaN(angle)) {
-//            Mat white = new Mat(img.size(), CvType.CV_8UC1);
-//            Core.findNonZero(img, white);
-//            MatOfPoint points = new MatOfPoint(white);
-//            MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
-//            RotatedRect box = Imgproc.minAreaRect(points2f);
-//            AppLogger.i(String.valueOf(box.angle));
-//            if (box.angle != 0.0 && box.angle != -90.0 && box.angle == 90.0) {
-//                return Observable.just(deSkew(img, angle, box));
-//            }
-//        }
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGB2BGRA);
         return Observable.just(bms);
     }
 
@@ -377,13 +245,13 @@ public class CardProcessor {
                 double y2 = a * x2 + c;
                 points.add(new Point(x1, y1));
                 points.add(new Point(x2, y2));
-               // Imgproc.line(img, new Point(x1 * cropScale, y1 * cropScale), new Point(x2 * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
+                //Imgproc.line(img, new Point(x1 * cropScale, y1 * cropScale), new Point(x2 * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
             }else{
                 double y1 = -croppedSize.height;
                 double y2 = croppedSize.height;
                 points.add(new Point(val[0], y1));
                 points.add(new Point(val[2], y2));
-               // Imgproc.line(img, new Point(val[0] * cropScale, y1 * cropScale), new Point(val[2] * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
+                //Imgproc.line(img, new Point(val[0] * cropScale, y1 * cropScale), new Point(val[2] * cropScale, y2 * cropScale), new Scalar(0, 0, 255), 2);
             }
         }
 
@@ -444,85 +312,95 @@ public class CardProcessor {
         return (Math.acos((dx21*dx31 + dy21*dy31) / (m12 * m13)) * 180.0) / Math.PI;
     }
 
-    public static List<Rect> detectLetters(Mat img){
-//        List<Rect> boundRects = new ArrayList<>();
-//        Mat imgGray = new Mat();
-//        Mat imgSobel = new Mat();
-//        Mat imgThreshold = new Mat();
-//        Mat element = new Mat();
-//        Imgproc.cvtColor(img, imgGray, Imgproc.COLOR_BGRA2GRAY);
-//        Imgproc.Sobel(imgGray, imgSobel, CvType.CV_8U, 1, 0, 3, 1, 0, Core.BORDER_DEFAULT);
-//        Imgproc.threshold(imgSobel, imgThreshold, 0, 255, THRESH_BINARY + THRESH_OTSU);
-//        element = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(17, 3));
-//        Imgproc.morphologyEx(imgThreshold, imgThreshold, Imgproc.MORPH_CLOSE, element);
-//        List<MatOfPoint> contours = new ArrayList<>();
-//        Mat hierarchy = new Mat();
-//        Imgproc.findContours(imgThreshold, contours, hierarchy, RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-//        for(int i = 0; i < contours.size(); i++){
-//            if(contours.get(i).size().area() > 100){
-//                MatOfPoint2f c2f = new MatOfPoint2f(contours.get(i).toArray());
-//                double peri = Imgproc.arcLength(c2f, true);
-//                MatOfPoint2f approx = new MatOfPoint2f();
-//                Imgproc.approxPolyDP(c2f, approx, 3, true);
-//                MatOfPoint points = new MatOfPoint(approx.toArray());
-//                Rect rect = Imgproc.boundingRect(points);
-//                if(rect.width > rect.height){
-//                    boundRects.add(rect);
-//                }
-//            }
-//        }
-//        return boundRects;
+    public static Mat brightnessAndConstraintAuto(Mat img, float clipHistPercent){
+        Mat dst = new Mat();
+        float alpha = 0f;
+        float beta = 0f;
+        int minGray = 0;
+        int maxGray = 0;
 
-        List<Rect> rects = new ArrayList<>();
-        // Down sample
-        Mat rgb = new Mat();
-        Imgproc.pyrDown(img, rgb);
-        Imgproc.pyrDown(rgb, rgb);
-        Mat small = new Mat();
+        // To calculate grayscale histogram
+        Mat gray = new Mat();
 
-        // Gray scale
-        Imgproc.cvtColor(rgb, small, Imgproc.COLOR_BGRA2GRAY);
-
-        // Morphological gradient
-        Mat grad = new Mat();
-        Mat morphologyKernel = getStructuringElement(MORPH_ELLIPSE, new Size(3, 3));
-        Imgproc.morphologyEx(small, grad, MORPH_GRADIENT, morphologyKernel);
-
-        // Binarize
-        Mat bin = new Mat();
-        Imgproc.threshold(grad, bin, 0, 255, THRESH_BINARY + THRESH_OTSU);
-
-        // Connect horizontally oriented regions
-        Mat connected = new Mat();
-        morphologyKernel = getStructuringElement(MORPH_RECT, new Size(9, 1));
-        Imgproc.morphologyEx(bin, connected, MORPH_CLOSE, morphologyKernel);
-
-        // Find contours
-        Mat mask = new Mat(bin.size(), CV_8UC1);
-        List<MatOfPoint> contours = new ArrayList<>();
-        Mat hierarchy = new Mat();
-        Imgproc.findContours(connected, contours, hierarchy, RETR_CCOMP, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0));
-
-        for(int idx = 0; idx >= 0; idx = (int) hierarchy.get(0, idx)[0]){
-            Rect rect = Imgproc.boundingRect(contours.get(idx));
-            AppLogger.i(rect.x + " " + rect.y + " " + rect.width + " " + rect.height);
-            Mat maskROI = new Mat(mask, rect);
-            maskROI.setTo(new Scalar(0, 0, 0));
-            Imgproc.drawContours(mask, contours, idx, new Scalar(255, 255, 255), FILLED);
-
-            // ratio of non-zero pixels in the filled region
-            double r = Core.countNonZero(maskROI) / (rect.area());
-            if(r > 0.25 // assume at least 45% of the area is filled if it contains text
-                    && (rect.height > 8 && rect.width > 8)){ /* constraints on region size
-                                                            these two conditions alone are not very robust. better to use something
-                                                            like the number of significant peaks in a horizontal projection as a third condition */
-                double ratio = img.size().height / rgb.size().height;
-                rects.add(new Rect((int)(rect.x * ratio), (int) (rect.y * ratio), (int) (rect.width * ratio), (int) (rect.height * ratio)));
-                //Imgproc.rectangle(img, new Rect((int)(rect.x * ratio), (int) (rect.y * ratio), (int) (rect.width * ratio), (int) (rect.height * ratio)), new Scalar(0, 255, 0), 2);
-            }
+        if(img.type() == CV_8UC1) gray = img.clone();
+        else if(img.type() == CV_8UC3) Imgproc.cvtColor(img, gray, COLOR_BGR2GRAY);
+        else if(img.type() == CV_8UC4) {
+            Imgproc.cvtColor(img, gray, COLOR_BGRA2GRAY);
         }
-        return rects;
+
+        if(clipHistPercent == 0){
+            // Keep full available range
+            Core.minMaxLoc(gray);
+        }else{
+            Mat hist = new Mat(); // The grayscale histogram
+            MatOfFloat range = new MatOfFloat(0f, 256f);
+            MatOfInt histSize = new MatOfInt(256);
+            boolean accumulate = true;
+            Imgproc.calcHist(Arrays.asList(gray), new MatOfInt(0),
+                    new Mat(), hist, histSize, range, accumulate);
+
+            // calculate cumulative distribution from the histogram
+            List<Double> accumulator = new ArrayList<>();
+            AppLogger.i(accumulator.toString());
+
+            for(int i = 0; i < 256; i ++){
+                if(i == 0) accumulator.add(hist.get(i, 0)[0]);
+                else accumulator.add(accumulator.get(i - 1) + hist.get(i, 0)[0]);
+            }
+
+            // locate points that cuts at required value
+            double max = accumulator.get(255);
+            clipHistPercent *= (max / 100.0); //make percent as absolute
+            clipHistPercent /= 2.0; // left and right wings
+            // locate left cut
+            minGray = 0;
+            while (accumulator.get(minGray) < clipHistPercent)
+                minGray++;
+
+            // locate right cut
+            maxGray = 255;
+            while (accumulator.get(maxGray) >= (max - clipHistPercent))
+                maxGray--;
+
+            // current range
+            float inputRange = maxGray - minGray;
+
+            alpha = 255 / inputRange;   // alpha expands current range to histsize range
+            beta = -minGray * alpha;             // beta shifts current range so that minGray will go to 0
+
+            // Apply brightness and contrast normalization
+            // convertTo operates with saurate_cast
+            img.convertTo(dst, -1, alpha, beta);
+
+            // restore alpha channel from source
+            if (dst.type() == CV_8UC4) {
+                AppLogger.i("8uc4");
+                MatOfInt fromTo = new MatOfInt(3, 3);
+                Core.mixChannels(Collections.singletonList(img), Collections.singletonList(dst), fromTo);
+            }
+            return dst;
+        }
+
+        return gray;
     }
 
+
+    public static void performGammaCorrection(double gamma, Mat img) {
+        //! [changing-contrast-brightness-gamma-correction]
+        Mat lookUpTable = new Mat(1, 256, CvType.CV_8U);
+        byte[] lookUpTableData = new byte[(int) (lookUpTable.total()*lookUpTable.channels())];
+        for (int i = 0; i < lookUpTable.cols(); i++) {
+            lookUpTableData[i] = saturate(Math.pow(i / 255.0, gamma) * 255.0);
+        }
+        lookUpTable.put(0, 0, lookUpTableData);
+
+        Core.LUT(img, lookUpTable, img);
+    }
+
+    private static byte saturate(double val) {
+        int iVal = (int) Math.round(val);
+        iVal = iVal > 255 ? 255 : (iVal < 0 ? 0 : iVal);
+        return (byte) iVal;
+    }
 
 }

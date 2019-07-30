@@ -29,6 +29,8 @@ public interface MainNavigator {
 
     int getTopOffSet();
 
-    void changeColorIcon(boolean isBackColor);
+    void changeLocaleIcon(String locale);
+
+    void updateLocale(String locale);
 
 }

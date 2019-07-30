@@ -2,29 +2,24 @@ package com.vgu.dungluong.cardscannerapp.ui.result;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
-import android.util.Log;
 
+import com.googlecode.leptonica.android.Pix;
+import com.googlecode.leptonica.android.Rotate;
 import com.vgu.dungluong.cardscannerapp.data.DataManager;
+import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseViewModel;
-import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
-import com.vgu.dungluong.cardscannerapp.utils.EastTextDetectorUtils;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +27,6 @@ import java.util.Objects;
 
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
-
-import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.TESSDATA;
 
 /**
  * Created by Dung Luong on 02/07/2019
@@ -46,43 +39,40 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
     private ObservableField<String> mResultString;
 
-    private List<Bitmap> bm;
+    private Bitmap mBitmap;
 
+    private List<Bitmap> bms;
     private int idx = 0;
 
     public ResultViewModel(DataManager dataManager, SchedulerProvider schedulerProvider) {
         super(dataManager, schedulerProvider);
         mIsOCRSucceed = new ObservableBoolean(false);
         mResultString = new ObservableField<>("");
-        bm = new ArrayList<>();
+        bms = new ArrayList<>();
         mCardPicture = SourceManager.getInstance().getPic();
         AppLogger.i(mCardPicture.height() + " " + mCardPicture.width());
         if(Objects.requireNonNull(mCardPicture).height() > mCardPicture.width())
             Core.rotate(mCardPicture, mCardPicture, Core.ROTATE_90_CLOCKWISE);
+//        CardProcessor.performGammaCorrection(0.1, mCardPicture);
+//        mCardPicture = CardProcessor.brightnessAndConstraintAuto(mCardPicture, 5);
+        
     }
 
     public void displayCardImage(){
 
         int cardHeight = getNavigator().getCardImageView().getWidth() * mCardPicture.height() / mCardPicture.width();
-        Bitmap bitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(mCardPicture, bitmap, true);
+        mBitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
 
-//        if(mIsOCRSucceed.get()){
-//            tesseract(bitmap);
-//        }
-
-        getNavigator().getCardImageView().setImageBitmap(Bitmap.createScaledBitmap(bitmap,
+        Utils.matToBitmap(mCardPicture, mBitmap, true);
+        getNavigator().getCardImageView().setImageBitmap(Bitmap.createScaledBitmap(mBitmap,
                 getNavigator().getCardImageView().getWidth(), cardHeight, false));
+
 
     }
 
     public void next(){
-        displayNextImage(bm.get(idx));
+        getNavigator().getCardImageView().setImageBitmap(bms.get(idx));
         idx ++;
-    }
-
-    public void displayNextImage(Bitmap bm){
-        getNavigator().getCardImageView().setImageBitmap(bm);
     }
 
     public void rotate(){
@@ -90,46 +80,54 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         displayCardImage();
     }
 
-    public void ocr(){
+    public void textDetect(){
         setIsLoading(true);
-        Bitmap bitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(mCardPicture, bitmap, true);
 
         OutputStream os;
         File imgFile = getNavigator().getFileForCropImage();
         try{
             os = new FileOutputStream(imgFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
             os.flush();
             os.close();
         }catch (Exception e) {
             AppLogger.e(e.getLocalizedMessage());
         }
 
-//        getCompositeDisposable().add(CardProcessor
-//                .textSkewCorrection(mCardPicture)
-//                .subscribeOn(getSchedulerProvider().io())
-//                .observeOn(getSchedulerProvider().ui())
-//                .subscribe(bitmaps -> {
-//                    setIsOCRSucceed(true);
-//                    getNavigator().showMessage("Pre-image processing success");
-//                    displayCardImage();
-//
-////                    tesseract(bitmaps);
-////                    bm.addAll(bitmaps);
-//                }, throwable -> {
-//                    getNavigator().handleError(throwable.getLocalizedMessage());
-//                    setIsLoading(false);
-//                }));
+        // Change density to 300dpi
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 1; // 1 - means max size. 4 - means maxsize/4 size. Don't use value <4, because you need more memory in the heap to store your data.
+            options.inTargetDensity = 300;
+            Bitmap bm = BitmapFactory.decodeFile(imgFile.getPath(), options);
+            Utils.bitmapToMat(bm, mCardPicture);
+        } catch (Exception e) {
+            AppLogger.e(e.getLocalizedMessage());
+        }
 
-        AppLogger.i(imgFile.getName());
         getCompositeDisposable().add(getDataManager()
                 .doServerTextDetection(imgFile)
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
-                .subscribe(rects ->{
+                .subscribe(rects -> {
+                            cropTextArea(rects.getCorners());
+                            displayCardImage();
+                        },
+                        throwable -> {
+                            setIsLoading(false);
+                            AppLogger.e(throwable.getLocalizedMessage());
+                        }));
+    }
+
+    public void cropTextArea(List<Corners> textBoxCorners){
+        getCompositeDisposable().add(CardProcessor
+                .cropTextArea(mCardPicture, textBoxCorners)
+                .subscribeOn(getSchedulerProvider().io())
+                .observeOn(getSchedulerProvider().ui())
+                .subscribe(bitmaps -> {
                     setIsLoading(false);
-                    AppLogger.i(rects.toString());
+                        bms = bitmaps;
+                        tesseract(bitmaps);
                 }, throwable -> {
                     setIsLoading(false);
                     AppLogger.e(throwable.getLocalizedMessage());
@@ -142,7 +140,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(result -> {
-                    setIsOCRSucceed(false);
+                    //setIsOCRSucceed(true);
                     setIsLoading(false);
                     getNavigator().showMessage("OCR success");
                     mResultString.set(result);

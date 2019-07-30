@@ -59,26 +59,15 @@
                 android:onClick="@{() -> viewModel.shut()}"
                 tools:ignore="ContentDescription" />
 
-            <View
-                android:id="@+id/blackCardBackground"
-                android:layout_width="34dp"
-                android:layout_height="26dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="23dp"
-                android:background="@drawable/black_card_bg"
-                android:visibility="gone"
-                tools:ignore="ContentDescription" />
-
             <ImageView
-                android:id="@+id/blackCard"
+                android:id="@+id/languageOCR"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="24dp"
                 android:clickable="@{!viewModel.isLoading}"
-                android:onClick="@{() -> viewModel.changeBlackCardScanState()}"
+                android:onClick="@{() -> viewModel.changeLanguageOCR()}"
                 tools:ignore="ContentDescription" />
 
         </RelativeLayout>

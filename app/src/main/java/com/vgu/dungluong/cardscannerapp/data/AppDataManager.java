@@ -4,11 +4,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 
+import com.googlecode.tesseract.android.ResultIterator;
 import com.googlecode.tesseract.android.TessBaseAPI;
+import com.vgu.dungluong.cardscannerapp.data.local.locale.LocaleHelper;
 import com.vgu.dungluong.cardscannerapp.data.model.api.Rects;
-import com.vgu.dungluong.cardscannerapp.data.permission.PermissionHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
-import com.vgu.dungluong.cardscannerapp.data.preference.PreferenceHelper;
+import com.vgu.dungluong.cardscannerapp.data.local.preference.PreferenceHelper;
 import com.vgu.dungluong.cardscannerapp.data.remote.ApiHelper;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
@@ -39,23 +41,23 @@ import static com.vgu.dungluong.cardscannerapp.utils.CardProcessor.processPictur
 @Singleton
 public class AppDataManager implements DataManager{
 
-    private final Context mContext;
-
     private final PermissionHelper mPermissionHelper;
 
     private final PreferenceHelper mPreferenceHelper;
 
     private final ApiHelper mApiHelper;
 
+    private final LocaleHelper mLocaleHelper;
+
     @Inject
-    public AppDataManager(Context context,
-                          PermissionHelper permissionHelper,
+    public AppDataManager(PermissionHelper permissionHelper,
                           PreferenceHelper preferenceHelper,
-                          ApiHelper apiHelper){
-        this.mContext = context;
+                          ApiHelper apiHelper,
+                          LocaleHelper localeHelper){
         this.mPermissionHelper = permissionHelper;
         this.mPreferenceHelper = preferenceHelper;
         this.mApiHelper = apiHelper;
+        this.mLocaleHelper = localeHelper;
     }
 
     @Override
@@ -83,30 +85,23 @@ public class AppDataManager implements DataManager{
 
     @Override
     public Observable<String> doTesseract(List<Bitmap> bitmap, TessBaseAPI tessBaseAPI) {
-        String result = "";
+        StringBuilder result = new StringBuilder();
         for(int i =0; i < bitmap.size(); i++){
             Bitmap bm = bitmap.get(i);
             tessBaseAPI.setImage(bm);
-            result += tessBaseAPI.getUTF8Text();
+            result.append(tessBaseAPI.getUTF8Text()).append("\n");
+//            ResultIterator iterator = tessBaseAPI.getResultIterator();
+//            int level = TessBaseAPI.PageIteratorLevel.RIL_WORD;
+//            do{
+//                String text = iterator.getUTF8Text(level);
+//                float confident = iterator.confidence(level);
+//                AppLogger.i(text + " " + confident);
+//            }while(iterator.next(level));
+//            AppLogger.i(tessBaseAPI.getUTF8Text());
         }
-
-        String hocr = tessBaseAPI.getHOCRText(0);
-        String boxText = tessBaseAPI.getBoxText(0);
-//        AppLogger.i(hocr);
-//        AppLogger.i(boxText);
-//        AppLogger.i(result);
         tessBaseAPI.end();
-        return Observable.just(result);
-    }
 
-    @Override
-    public void setScanBlackCardState(boolean scanBlackCardState) {
-        mPreferenceHelper.setScanBlackCardState(scanBlackCardState);
-    }
-
-    @Override
-    public boolean getScanBlackCardState() {
-        return mPreferenceHelper.getScanBlackCardState();
+        return Observable.just(result.toString());
     }
 
     @Override
@@ -127,5 +122,25 @@ public class AppDataManager implements DataManager{
     @Override
     public Single<Rects> doServerTextDetection(File imgFile) {
         return mApiHelper.doServerTextDetection(imgFile);
+    }
+
+    @Override
+    public String getLocale() {
+        return mPreferenceHelper.getLocale();
+    }
+
+    @Override
+    public void setLocale(String language) {
+        mPreferenceHelper.setLocale(language);
+    }
+
+    @Override
+    public Context setNewLocale(Context c, String language) {
+        return mLocaleHelper.setNewLocale(c, language);
+    }
+
+    @Override
+    public Context setLocale(Context c) {
+        return mLocaleHelper.setLocale(c);
     }
 }
