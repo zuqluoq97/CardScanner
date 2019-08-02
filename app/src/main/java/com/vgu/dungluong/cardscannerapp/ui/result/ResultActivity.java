@@ -3,6 +3,7 @@ package com.vgu.dungluong.cardscannerapp.ui.result;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.widget.ImageView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
@@ -103,7 +104,7 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
 
     @Override
     public File getFileForCropImage() {
-        return new File(getCacheDir(), "crop.jpg");
+        return new File(Environment.getExternalStorageDirectory(), "crop.jpg");
     }
 
 }

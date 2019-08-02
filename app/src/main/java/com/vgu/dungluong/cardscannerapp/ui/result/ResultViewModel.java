@@ -19,8 +19,10 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,15 +64,11 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     }
 
     public void displayCardImage(){
-
         int cardHeight = getNavigator().getCardImageView().getWidth() * mCardPicture.height() / mCardPicture.width();
         mBitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
-
         Utils.matToBitmap(mCardPicture, mBitmap, true);
         getNavigator().getCardImageView().setImageBitmap(Bitmap.createScaledBitmap(mBitmap,
                 getNavigator().getCardImageView().getWidth(), cardHeight, false));
-
-
     }
 
     public void next(){
@@ -86,9 +84,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     public void textDetect(){
         setIsLoading(true);
         File imgFile = getNavigator().getFileForCropImage();
-        compressBitmapToFile(imgFile, mBitmap);
-
-        // Change density to 300dpi
+        saveBitmapToJpg(mBitmap, imgFile, 300);
         Bitmap bm = get300DPIBitmap(imgFile);
         Utils.bitmapToMat(bm, mCardPicture);
 
@@ -112,11 +108,6 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(bitmaps -> {
-                    bitmaps = bitmaps.stream().map(bitmap -> {
-                        File cropFile = getNavigator().getFileForCropImage();
-                        compressBitmapToFile(cropFile, bitmap);
-                        return get300DPIBitmap(cropFile);
-                    }).collect(Collectors.toList());
                     bms = bitmaps;
                     tesseract(bitmaps);
                     setIsLoading(false);
@@ -142,18 +133,6 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                 }));
     }
 
-    private void compressBitmapToFile(File file, Bitmap bitmap){
-        OutputStream os;
-        try{
-            os = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
-            os.flush();
-            os.close();
-        }catch (Exception e) {
-            AppLogger.e(e.getLocalizedMessage());
-        }
-    }
-
     private Bitmap get300DPIBitmap(File file){
         Bitmap bm = null;
         try {
@@ -165,6 +144,30 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
             AppLogger.e(e.getLocalizedMessage());
         }
         return bm;
+    }
+
+    public void saveBitmapToJpg(Bitmap bitmap, File file, int dpi){
+        try {
+            ByteArrayOutputStream imageByteArray = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, imageByteArray);
+            byte[] imageData = imageByteArray.toByteArray();
+
+            setDpi(imageData, dpi);
+
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            fileOutputStream.write(imageData);
+            fileOutputStream.close();
+        }catch (IOException e){
+            AppLogger.e(e.getLocalizedMessage());
+        }
+    }
+
+    private void setDpi(byte[] imageData, int dpi) {
+        imageData[13] = 1;
+        imageData[14] = (byte) (dpi >> 8);
+        imageData[15] = (byte) (dpi & 0xff);
+        imageData[16] = (byte) (dpi >> 8);
+        imageData[17] = (byte) (dpi & 0xff);
     }
 
     public ObservableBoolean getIsOCRSucceed() {

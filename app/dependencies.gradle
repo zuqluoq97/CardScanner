@@ -62,4 +62,7 @@ dependencies {
 
     // Opencv
     implementation project(path: ':opencv')
+
+    // Opennlp
+    implementation deps.opennlp
 }

@@ -32,11 +32,12 @@ versions.font_awesome = '5.3.1.2-kotlin@aar'
 versions.auto_value = '1.6.3'
 versions.auto_value_gson = '0.7.0'
 versions.auto_value_parcel = '0.2.5'
+
 // Third party dependencies
 versions.calligraphy = '2.2.0'
 versions.rx2_fast_android_networking = '1.0.1'
 versions.timber = '4.7.1'
-
+versions.opennlp = '1.9.1'
 // Test
 versions.junit = '4.13-beta-2'
 versions.espresso = '3.0.1'
@@ -112,6 +113,8 @@ def auto_value_parcel = [:]
 auto_value_parcel.compiler = "com.ryanharter.auto.value:auto-value-parcel:$versions.auto_value_parcel"
 auto_value_parcel.adapter = "com.ryanharter.auto.value:auto-value-parcel-adapter:$versions.auto_value_parcel"
 deps.auto_value_parcel = auto_value_parcel
+
+deps.opennlp = "org.apache.opennlp:opennlp-tools:$versions.opennlp"
 
 ext.deps = deps
 

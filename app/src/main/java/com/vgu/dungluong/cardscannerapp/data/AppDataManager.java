@@ -90,16 +90,16 @@ public class AppDataManager implements DataManager{
             Bitmap bm = bitmap.get(i);
             tessBaseAPI.setImage(bm);
             result.append(tessBaseAPI.getUTF8Text()).append("\n");
-//            ResultIterator iterator = tessBaseAPI.getResultIterator();
-//            int level = TessBaseAPI.PageIteratorLevel.RIL_WORD;
-//            do{
-//                String text = iterator.getUTF8Text(level);
-//                float confident = iterator.confidence(level);
-//                AppLogger.i(text + " " + confident);
-//            }while(iterator.next(level));
+            ResultIterator iterator = tessBaseAPI.getResultIterator();
+            int level = TessBaseAPI.PageIteratorLevel.RIL_BLOCK;
+            do{
+                String text = iterator.getUTF8Text(level);
+                float confident = iterator.confidence(level);
+                AppLogger.i(text + " " + confident);
+            }while(iterator.next(level));
 //            AppLogger.i(tessBaseAPI.getUTF8Text());
         }
-        tessBaseAPI.end();
+//        tessBaseAPI.end();
 
         return Observable.just(result.toString());
     }

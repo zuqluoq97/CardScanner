@@ -18,10 +18,10 @@ public class ResultActivityModule {
         TessBaseAPI tessBaseAPI = new TessBaseAPI();
         String locale = appDataManager.getLocale();
         tessBaseAPI.init(AppConstants.DATA_PATH, locale.equals("vi") ? "vie" : "eng", TessBaseAPI.OEM_LSTM_ONLY);
-        tessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_RAW_LINE);
-        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, locale.equals("vi")
-                ? "aAáÁàÀạẠãÃảẢăĂắẮằẰặẶẵẴẳẲâÂấẤầẦậẬẫẪẩẨbBcCdDđĐeEéÉèÈẹẸẽẼẻẺêÊếẾềỀệỆễỄểỂfFgGhHiIíÍìÌịỊĩĨỉỈjJkKlLmMnNoOóÓòÒọỌõÕỏỎôÔốỐồỒộỘỗỖổỔơƠớỚờỜợỢỡỠởỞpPqQrRsStTuUúÚùÙụỤũŨủỦưƯứỨừỪựỰữỮửỬvVxXyYýÝỳỲỵỴỹỸỷỶwzZ0123456789',.@-:/&#$+()_* "
-                : "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM0123456789',.@-:/&#$+()_* ");
+        tessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_LINE);
+//        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, locale.equals("vi")
+//                ? "aAáÁàÀạẠãÃảẢăĂắẮằẰặẶẵẴẳẲâÂấẤầẦậẬẫẪẩẨbBcCdDđĐeEéÉèÈẹẸẽẼẻẺêÊếẾềỀệỆễỄểỂfFgGhHiIíÍìÌịỊĩĨỉỈjJkKlLmMnNoOóÓòÒọỌõÕỏỎôÔốỐồỒộỘỗỖổỔơƠớỚờỜợỢỡỠởỞpPqQrRsStTuUúÚùÙụỤũŨủỦưƯứỨừỪựỰữỮửỬvVxXyYýÝỳỲỵỴỹỸỷỶwzZ0123456789',.@-:/&#$+()_* "
+//                : "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM0123456789',.@-:/&#$+()_* ");
 
         return tessBaseAPI;
     }

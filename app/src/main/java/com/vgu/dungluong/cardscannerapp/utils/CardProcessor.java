@@ -11,6 +11,8 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfFloat;
 import org.opencv.core.MatOfInt;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
@@ -38,7 +40,9 @@ import static org.opencv.imgproc.Imgproc.COLOR_BGRA2GRAY;
 import static org.opencv.imgproc.Imgproc.COLOR_Lab2BGR;
 import static org.opencv.imgproc.Imgproc.INTER_AREA;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
+import static org.opencv.imgproc.Imgproc.MORPH_CLOSE;
 import static org.opencv.imgproc.Imgproc.MORPH_ELLIPSE;
+import static org.opencv.imgproc.Imgproc.MORPH_OPEN;
 import static org.opencv.imgproc.Imgproc.MORPH_RECT;
 import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 import static org.opencv.imgproc.Imgproc.cvtColor;
@@ -203,12 +207,10 @@ public class CardProcessor {
             Corners textBoxCorners = textRects.get(i);
             Mat clone = img2.clone();
             Mat crop = cropPicture(clone, textBoxCorners.getCorners());
-            crop = brightnessAndConstraintAuto(crop, 1);
-            performGammaCorrection(0.6, crop);
-            Imgproc.resize(crop, crop, crop.size(), 0.5, 0.5, INTER_AREA);
-            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_BGR2RGB);
-            Core.copyMakeBorder(crop, crop, 0, 5, 0, 0, Core.BORDER_CONSTANT, new Scalar(255, 255, 255));
-            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_RGB2BGR);
+            textSkewCorrection(crop);
+//            crop = brightnessAndConstraintAuto(crop, 5);
+//            performGammaCorrection(0.2, crop);
+            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_BGR2GRAY);
             Bitmap bitmap = Bitmap.createBitmap(crop.width(), crop.height(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(crop, bitmap, true);
             bms.add(bitmap);
@@ -224,6 +226,54 @@ public class CardProcessor {
         }
         Imgproc.cvtColor(img, img, Imgproc.COLOR_RGB2BGR);
         return Observable.just(bms);
+    }
+
+    public static Observable<Boolean> textSkewCorrection(Mat image){
+        Mat img = image.clone();
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGBA2GRAY);
+        Imgproc.GaussianBlur(img, img, new Size(3, 3), 0);
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(30,30));
+        Mat closed = new Mat();
+        Imgproc.morphologyEx(img, closed, MORPH_CLOSE, kernel);
+
+        img.convertTo(img, CvType.CV_32F); // divide requires floating-point
+        Core.divide(img, closed, img, 1, CvType.CV_32F);
+        Core.normalize(img, img, 0, 255, Core.NORM_MINMAX);
+        img.convertTo(img, CvType.CV_8UC1); // convert back to unsigned int
+        Imgproc.threshold(img, img, 0, 255, Imgproc.THRESH_BINARY_INV+Imgproc.THRESH_OTSU);
+
+        Mat kernel1 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5,5));
+        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2,2));
+        Imgproc.morphologyEx(img, img, MORPH_CLOSE, kernel1);
+        Imgproc.morphologyEx(img, img, MORPH_OPEN, kernel2);
+        //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
+
+        Mat lines = new Mat();
+        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
+        double angle = 0.;
+        AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
+        for(int i = 0; i<lines.height(); i++){
+            for(int j = 0; j<lines.width();j++){
+                angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
+            }
+        }
+
+        angle /= lines.size().area();
+        angle = angle * 180 / Math.PI;
+        AppLogger.i(String.valueOf(angle));
+
+        if(!Double.isNaN(angle)){
+            Mat white = new Mat(img.size(), CvType.CV_8UC1);
+            Core.findNonZero(img, white);
+            MatOfPoint points = new MatOfPoint(white);
+            MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
+            RotatedRect box = Imgproc.minAreaRect(points2f);
+            AppLogger.i(String.valueOf(box.angle));
+            if(box.angle != 0.0 && box.angle != -90.0 && box.angle == 90.0){
+                return Observable.just(deSkew(image, angle, box));
+            }
+        }
+        return Observable.just(false);
     }
 
     private static boolean deSkew(Mat img, double angle, RotatedRect box) {
@@ -418,7 +468,7 @@ public class CardProcessor {
         Imgproc.cvtColor(img, lab, COLOR_BGR2Lab);
         List<Mat> channels = new ArrayList<>();
         Core.split(lab, channels);
-        CLAHE clahe = Imgproc.createCLAHE(4, new Size(8, 8));
+        CLAHE clahe = Imgproc.createCLAHE(2, new Size(3, 3));
         Mat cl = new Mat();
         clahe.apply(channels.get(0), cl);
         Mat limg = new Mat();
