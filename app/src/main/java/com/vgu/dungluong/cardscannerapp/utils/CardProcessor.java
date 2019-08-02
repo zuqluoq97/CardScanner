@@ -20,11 +20,13 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 import androidx.annotation.Nullable;
 import io.reactivex.Observable;
@@ -208,8 +210,9 @@ public class CardProcessor {
             Mat clone = img2.clone();
             Mat crop = cropPicture(clone, textBoxCorners.getCorners());
             textSkewCorrection(crop);
-//            crop = brightnessAndConstraintAuto(crop, 5);
-//            performGammaCorrection(0.2, crop);
+            crop = brightnessAndConstraintAuto(crop, 1);
+            performGammaCorrection(0.8, crop);
+
             Imgproc.cvtColor(crop, crop, Imgproc.COLOR_BGR2GRAY);
             Bitmap bitmap = Bitmap.createBitmap(crop.width(), crop.height(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(crop, bitmap, true);
@@ -476,4 +479,5 @@ public class CardProcessor {
         Imgproc.cvtColor(limg, limg, COLOR_Lab2BGR);
         return limg;
     }
+
 }

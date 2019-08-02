@@ -17,6 +17,7 @@ import com.vgu.dungluong.cardscannerapp.ui.main.MainActivity;
 import java.io.File;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
@@ -36,8 +37,13 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    @Named("lstm")
     @Inject
     TessBaseAPI mTessBaseAPI;
+
+    @Named("legacy")
+    @Inject
+    TessBaseAPI mTessBaseAPI2;
 
     @Override
     public int getBindingVariable() {
@@ -100,6 +106,11 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
     @Override
     public TessBaseAPI getTesseractApi() {
         return mTessBaseAPI;
+    }
+
+    @Override
+    public TessBaseAPI getTesseractApi2() {
+        return mTessBaseAPI2;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.vgu.dungluong.cardscannerapp.data;
 
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.util.Pair;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.data.local.locale.LocaleHelper;
@@ -22,7 +23,7 @@ public interface DataManager extends PermissionHelper, PreferenceHelper, ApiHelp
 
     Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera, List<Point> cropCoordinates);
 
-    Observable<String> doTesseract(List<Bitmap> bitmap, TessBaseAPI tessBaseAPI);
+    Observable<Pair<String, Float>> doTesseract(Bitmap bitmap, TessBaseAPI tessBaseAPI);
 
 
 }

@@ -38,6 +38,7 @@ versions.calligraphy = '2.2.0'
 versions.rx2_fast_android_networking = '1.0.1'
 versions.timber = '4.7.1'
 versions.opennlp = '1.9.1'
+
 // Test
 versions.junit = '4.13-beta-2'
 versions.espresso = '3.0.1'
@@ -115,6 +116,5 @@ auto_value_parcel.adapter = "com.ryanharter.auto.value:auto-value-parcel-adapter
 deps.auto_value_parcel = auto_value_parcel
 
 deps.opennlp = "org.apache.opennlp:opennlp-tools:$versions.opennlp"
-
 ext.deps = deps
 

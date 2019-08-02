@@ -19,5 +19,7 @@ public interface ResultNavigator {
 
     TessBaseAPI getTesseractApi();
 
+    TessBaseAPI getTesseractApi2();
+
     File getFileForCropImage();
 }

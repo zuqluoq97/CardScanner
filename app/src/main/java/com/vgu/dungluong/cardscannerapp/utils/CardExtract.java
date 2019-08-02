@@ -126,6 +126,7 @@ public class CardExtract {
             }
         }
         Imgproc.blur(new_image,new_image,new Size(2,2));
+
         return new_image;
     }
 

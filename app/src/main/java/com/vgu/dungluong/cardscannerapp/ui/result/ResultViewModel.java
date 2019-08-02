@@ -11,6 +11,7 @@ import com.vgu.dungluong.cardscannerapp.ui.base.BaseViewModel;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardExtract;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
+import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
@@ -46,21 +47,25 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     private Bitmap mBitmap;
 
     private List<Bitmap> bms;
-    private int idx = 0;
+
+    private int idx;
+
+    private int idx2;
+
+    private List<String> mOCRs;
 
     public ResultViewModel(DataManager dataManager, SchedulerProvider schedulerProvider) {
         super(dataManager, schedulerProvider);
         mIsOCRSucceed = new ObservableBoolean(false);
         mResultString = new ObservableField<>("");
         bms = new ArrayList<>();
+        mOCRs = new ArrayList<>();
         mCardPicture = SourceManager.getInstance().getPic();
         AppLogger.i(mCardPicture.height() + " " + mCardPicture.width());
         if(Objects.requireNonNull(mCardPicture).height() > mCardPicture.width())
             Core.rotate(mCardPicture, mCardPicture, Core.ROTATE_90_CLOCKWISE);
 //        CardProcessor.performGammaCorrection(0.8, mCardPicture);
 //        mCardPicture = CardProcessor.improveContrast(mCardPicture);
-
-
     }
 
     public void displayCardImage(){
@@ -118,19 +123,51 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     }
 
     public void tesseract(List<Bitmap> bitmap){
-        getCompositeDisposable().add(getDataManager()
-                .doTesseract(bitmap, getNavigator().getTesseractApi())
-                .subscribeOn(getSchedulerProvider().io())
-                .observeOn(getSchedulerProvider().ui())
-                .subscribe(result -> {
-                    //setIsOCRSucceed(true);
-                    setIsLoading(false);
-                    getNavigator().showMessage("OCR success");
-                    mResultString.set(result);
-                }, throwable -> {
-                    getNavigator().handleError(throwable.getLocalizedMessage());
-                    setIsLoading(false);
-                }));
+        for(int i = 0; i < bitmap.size(); i++){
+            Bitmap bm = bitmap.get(i);
+            getCompositeDisposable().add(getDataManager()
+                    .doTesseract(bm, getNavigator().getTesseractApi())
+                    .subscribeOn(getSchedulerProvider().io())
+                    .observeOn(getSchedulerProvider().ui())
+                    .subscribe(ocr -> {
+                        AppLogger.i(ocr.first + " " + ocr.second);
+                        if(ocr.second < 50){
+                            getCompositeDisposable().add(getDataManager()
+                                    .doTesseract(bm, getNavigator().getTesseractApi2())
+                                    .subscribeOn(getSchedulerProvider().io())
+                                    .observeOn(getSchedulerProvider().ui())
+                                    .subscribe(secondOcr -> {
+                                        AppLogger.i(secondOcr.first + " " + secondOcr.second);
+                                        if(secondOcr.first.length() / ocr.first.length() < 2) {
+                                            double similarity = CommonUtils.similarity(secondOcr.first, ocr.first);
+                                            if (similarity > 0.3) mOCRs.add(ocr.first);
+                                            else mOCRs.add(secondOcr.first);
+                                            AppLogger.i(String.valueOf(similarity));
+                                        } else mOCRs.add(secondOcr.first);
+                                        idx2++;
+                                        if(idx2 == bitmap.size()) displayOCR();
+                                    }, throwable -> {
+                                        getNavigator().handleError(throwable.getLocalizedMessage());
+                                        setIsLoading(false);
+                                    }));
+                        }else{
+                            mOCRs.add(ocr.first);
+                            idx2++;
+                            if(idx2 == bitmap.size()) displayOCR();
+                        }
+
+                    }, throwable -> {
+                        getNavigator().handleError(throwable.getLocalizedMessage());
+                        setIsLoading(false);
+                    }));
+        }
+    }
+
+    private void displayOCR(){
+        setIsLoading(false);
+        final String[] result = {""};
+        mOCRs.forEach(ocr -> result[0] += ocr + "\n");
+        mResultString.set(result[0]);
     }
 
     private Bitmap get300DPIBitmap(File file){

@@ -3,6 +3,7 @@ package com.vgu.dungluong.cardscannerapp.data;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.util.Pair;
 
 import com.googlecode.tesseract.android.ResultIterator;
 import com.googlecode.tesseract.android.TessBaseAPI;
@@ -25,6 +26,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -84,24 +86,23 @@ public class AppDataManager implements DataManager{
     }
 
     @Override
-    public Observable<String> doTesseract(List<Bitmap> bitmap, TessBaseAPI tessBaseAPI) {
-        StringBuilder result = new StringBuilder();
-        for(int i =0; i < bitmap.size(); i++){
-            Bitmap bm = bitmap.get(i);
-            tessBaseAPI.setImage(bm);
-            result.append(tessBaseAPI.getUTF8Text()).append("\n");
-            ResultIterator iterator = tessBaseAPI.getResultIterator();
-            int level = TessBaseAPI.PageIteratorLevel.RIL_BLOCK;
-            do{
-                String text = iterator.getUTF8Text(level);
-                float confident = iterator.confidence(level);
-                AppLogger.i(text + " " + confident);
-            }while(iterator.next(level));
-//            AppLogger.i(tessBaseAPI.getUTF8Text());
-        }
-//        tessBaseAPI.end();
+    public Observable<Pair<String, Float>> doTesseract(Bitmap bitmap, TessBaseAPI tessBaseAPI) {
+        String result = "";
+        tessBaseAPI.setImage(bitmap);
+        result = tessBaseAPI.getUTF8Text();
+        ResultIterator iterator = tessBaseAPI.getResultIterator();
 
-        return Observable.just(result.toString());
+        int level = TessBaseAPI.PageIteratorLevel.RIL_TEXTLINE;
+        float confident = iterator.confidence(level);
+//        int level2 = TessBaseAPI.PageIteratorLevel.RIL_PARA;
+//        do{
+//            String text = iterator.getUTF8Text(level2);
+//            float confident2 = iterator.confidence(level2);
+//            AppLogger.i(text + " " + confident2);
+//
+//        }while(iterator.next(level2));
+//        AppLogger.i(result + " " + confident);
+        return Observable.just(new Pair<>(result, confident));
     }
 
     @Override
