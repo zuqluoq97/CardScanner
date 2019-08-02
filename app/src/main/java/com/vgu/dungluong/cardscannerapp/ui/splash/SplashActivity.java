@@ -120,24 +120,22 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
                 // if it is not already there copy it to the sdcard
                 String pathToDataFile = path + folder + "/" + fileName;
 
-                if (!(new File(pathToDataFile)).exists()) {
+                InputStream in = getAssets().open(folder+ "/" + fileName);
 
-                    InputStream in = getAssets().open(folder+ "/" + fileName);
+                OutputStream out = new FileOutputStream(pathToDataFile);
 
-                    OutputStream out = new FileOutputStream(pathToDataFile);
+                // Transfer bytes from in to out
+                byte[] buf = new byte[1024];
+                int len;
 
-                    // Transfer bytes from in to out
-                    byte[] buf = new byte[1024];
-                    int len;
-
-                    while ((len = in.read(buf)) > 0) {
-                        out.write(buf, 0, len);
-                    }
-                    in.close();
-                    out.close();
-
-                    AppLogger.i("Copied " + fileName + "to tessdata");
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
                 }
+                in.close();
+                out.close();
+
+                AppLogger.i("Copied " + fileName + "to tessdata");
+
             }
         } catch (IOException e) {
             AppLogger.i( "Unable to copy files to tessdata " + e.toString());

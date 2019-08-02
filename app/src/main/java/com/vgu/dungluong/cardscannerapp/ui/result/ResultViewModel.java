@@ -9,6 +9,7 @@ import com.vgu.dungluong.cardscannerapp.data.DataManager;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseViewModel;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
+import com.vgu.dungluong.cardscannerapp.utils.CardExtract;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
@@ -24,6 +25,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
@@ -53,9 +55,10 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         AppLogger.i(mCardPicture.height() + " " + mCardPicture.width());
         if(Objects.requireNonNull(mCardPicture).height() > mCardPicture.width())
             Core.rotate(mCardPicture, mCardPicture, Core.ROTATE_90_CLOCKWISE);
-//        CardProcessor.performGammaCorrection(0.1, mCardPicture);
-//        mCardPicture = CardProcessor.brightnessAndConstraintAuto(mCardPicture, 5);
-        
+//        CardProcessor.performGammaCorrection(0.8, mCardPicture);
+//        mCardPicture = CardProcessor.improveContrast(mCardPicture);
+
+
     }
 
     public void displayCardImage(){
@@ -82,28 +85,12 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
     public void textDetect(){
         setIsLoading(true);
-
-        OutputStream os;
         File imgFile = getNavigator().getFileForCropImage();
-        try{
-            os = new FileOutputStream(imgFile);
-            mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
-            os.flush();
-            os.close();
-        }catch (Exception e) {
-            AppLogger.e(e.getLocalizedMessage());
-        }
+        compressBitmapToFile(imgFile, mBitmap);
 
         // Change density to 300dpi
-        try {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 1; // 1 - means max size. 4 - means maxsize/4 size. Don't use value <4, because you need more memory in the heap to store your data.
-            options.inTargetDensity = 300;
-            Bitmap bm = BitmapFactory.decodeFile(imgFile.getPath(), options);
-            Utils.bitmapToMat(bm, mCardPicture);
-        } catch (Exception e) {
-            AppLogger.e(e.getLocalizedMessage());
-        }
+        Bitmap bm = get300DPIBitmap(imgFile);
+        Utils.bitmapToMat(bm, mCardPicture);
 
         getCompositeDisposable().add(getDataManager()
                 .doServerTextDetection(imgFile)
@@ -125,9 +112,14 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(bitmaps -> {
+                    bitmaps = bitmaps.stream().map(bitmap -> {
+                        File cropFile = getNavigator().getFileForCropImage();
+                        compressBitmapToFile(cropFile, bitmap);
+                        return get300DPIBitmap(cropFile);
+                    }).collect(Collectors.toList());
+                    bms = bitmaps;
+                    tesseract(bitmaps);
                     setIsLoading(false);
-                        bms = bitmaps;
-                        tesseract(bitmaps);
                 }, throwable -> {
                     setIsLoading(false);
                     AppLogger.e(throwable.getLocalizedMessage());
@@ -148,6 +140,31 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                     getNavigator().handleError(throwable.getLocalizedMessage());
                     setIsLoading(false);
                 }));
+    }
+
+    private void compressBitmapToFile(File file, Bitmap bitmap){
+        OutputStream os;
+        try{
+            os = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
+            os.flush();
+            os.close();
+        }catch (Exception e) {
+            AppLogger.e(e.getLocalizedMessage());
+        }
+    }
+
+    private Bitmap get300DPIBitmap(File file){
+        Bitmap bm = null;
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 1; // 1 - means max size. 4 - means maxsize/4 size. Don't use value <4, because you need more memory in the heap to store your data.
+            options.inTargetDensity = 300;
+            bm = BitmapFactory.decodeFile(file.getPath(), options);
+        } catch (Exception e) {
+            AppLogger.e(e.getLocalizedMessage());
+        }
+        return bm;
     }
 
     public ObservableBoolean getIsOCRSucceed() {

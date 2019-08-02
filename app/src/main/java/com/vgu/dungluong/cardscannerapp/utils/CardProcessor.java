@@ -15,6 +15,7 @@ import org.opencv.core.Point;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -30,9 +31,16 @@ import kotlin.jvm.internal.Intrinsics;
 import static org.opencv.core.CvType.CV_8UC1;
 import static org.opencv.core.CvType.CV_8UC3;
 import static org.opencv.core.CvType.CV_8UC4;
+import static org.opencv.imgproc.Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C;
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
+import static org.opencv.imgproc.Imgproc.COLOR_BGR2Lab;
 import static org.opencv.imgproc.Imgproc.COLOR_BGRA2GRAY;
+import static org.opencv.imgproc.Imgproc.COLOR_Lab2BGR;
+import static org.opencv.imgproc.Imgproc.INTER_AREA;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
+import static org.opencv.imgproc.Imgproc.MORPH_ELLIPSE;
+import static org.opencv.imgproc.Imgproc.MORPH_RECT;
+import static org.opencv.imgproc.Imgproc.THRESH_BINARY;
 import static org.opencv.imgproc.Imgproc.cvtColor;
 import static org.opencv.imgproc.Imgproc.getStructuringElement;
 import static org.opencv.imgproc.Imgproc.line;
@@ -188,22 +196,25 @@ public class CardProcessor {
     }
 
     public static Observable<List<Bitmap>> cropTextArea(Mat img, List<Corners> textRects) {
-        Mat img2 = img.clone();
-//        Imgproc.cvtColor(img2, img2, Imgproc.COLOR_BGRA2GRAY);
-//        Imgproc.GaussianBlur(img2, img2, new Size(3, 3), 0);
-        List<Bitmap> bms = new ArrayList<>();
 
+        Mat img2 = img.clone();
+        List<Bitmap> bms = new ArrayList<>();
         for(int i = 0; i < textRects.size(); i++){
             Corners textBoxCorners = textRects.get(i);
             Mat clone = img2.clone();
             Mat crop = cropPicture(clone, textBoxCorners.getCorners());
+            crop = brightnessAndConstraintAuto(crop, 1);
+            performGammaCorrection(0.6, crop);
+            Imgproc.resize(crop, crop, crop.size(), 0.5, 0.5, INTER_AREA);
+            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_BGR2RGB);
+            Core.copyMakeBorder(crop, crop, 0, 5, 0, 0, Core.BORDER_CONSTANT, new Scalar(255, 255, 255));
+            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_RGB2BGR);
             Bitmap bitmap = Bitmap.createBitmap(crop.width(), crop.height(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(crop, bitmap, true);
             bms.add(bitmap);
         }
 
-        Imgproc.cvtColor(img, img, Imgproc.COLOR_BGRA2RGB);
-
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_BGR2RGB);
         for(int i=0; i < textRects.size(); i++){
             Corners textBoxCorners = textRects.get(i);
             Imgproc.line(img, textBoxCorners.getCorners().get(0), textBoxCorners.getCorners().get(1), new Scalar(0, 0, 255), 3);
@@ -211,8 +222,7 @@ public class CardProcessor {
             Imgproc.line(img, textBoxCorners.getCorners().get(2), textBoxCorners.getCorners().get(3), new Scalar(0, 0, 255), 3);
             Imgproc.line(img, textBoxCorners.getCorners().get(3), textBoxCorners.getCorners().get(0), new Scalar(0, 0, 255), 3);
         }
-
-        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGB2BGRA);
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGB2BGR);
         return Observable.just(bms);
     }
 
@@ -403,4 +413,17 @@ public class CardProcessor {
         return (byte) iVal;
     }
 
+    public static Mat improveContrast(Mat img){
+        Mat lab = new Mat();
+        Imgproc.cvtColor(img, lab, COLOR_BGR2Lab);
+        List<Mat> channels = new ArrayList<>();
+        Core.split(lab, channels);
+        CLAHE clahe = Imgproc.createCLAHE(4, new Size(8, 8));
+        Mat cl = new Mat();
+        clahe.apply(channels.get(0), cl);
+        Mat limg = new Mat();
+        Core.merge(Arrays.asList(cl, channels.get(1), channels.get(2)), limg);
+        Imgproc.cvtColor(limg, limg, COLOR_Lab2BGR);
+        return limg;
+    }
 }

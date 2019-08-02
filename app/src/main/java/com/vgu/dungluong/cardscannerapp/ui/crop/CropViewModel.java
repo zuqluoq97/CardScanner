@@ -12,6 +12,7 @@ import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 /**
