@@ -66,6 +66,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
             Core.rotate(mCardPicture, mCardPicture, Core.ROTATE_90_CLOCKWISE);
 //        CardProcessor.performGammaCorrection(0.8, mCardPicture);
 //        mCardPicture = CardProcessor.improveContrast(mCardPicture);
+        mCardPicture = CardExtract.run(mCardPicture);
     }
 
     public void displayCardImage(){
@@ -131,30 +132,30 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                     .observeOn(getSchedulerProvider().ui())
                     .subscribe(ocr -> {
                         AppLogger.i(ocr.first + " " + ocr.second);
-                        if(ocr.second < 50){
-                            getCompositeDisposable().add(getDataManager()
-                                    .doTesseract(bm, getNavigator().getTesseractApi2())
-                                    .subscribeOn(getSchedulerProvider().io())
-                                    .observeOn(getSchedulerProvider().ui())
-                                    .subscribe(secondOcr -> {
-                                        AppLogger.i(secondOcr.first + " " + secondOcr.second);
-                                        if(secondOcr.first.length() / ocr.first.length() < 2) {
-                                            double similarity = CommonUtils.similarity(secondOcr.first, ocr.first);
-                                            if (similarity > 0.3) mOCRs.add(ocr.first);
-                                            else mOCRs.add(secondOcr.first);
-                                            AppLogger.i(String.valueOf(similarity));
-                                        } else mOCRs.add(secondOcr.first);
-                                        idx2++;
-                                        if(idx2 == bitmap.size()) displayOCR();
-                                    }, throwable -> {
-                                        getNavigator().handleError(throwable.getLocalizedMessage());
-                                        setIsLoading(false);
-                                    }));
-                        }else{
+//                        if(ocr.second < 50){
+//                            getCompositeDisposable().add(getDataManager()
+//                                    .doTesseract(bm, getNavigator().getTesseractApi2())
+//                                    .subscribeOn(getSchedulerProvider().io())
+//                                    .observeOn(getSchedulerProvider().ui())
+//                                    .subscribe(secondOcr -> {
+//                                        AppLogger.i(secondOcr.first + " " + secondOcr.second);
+//                                       // if(secondOcr.first.length() / ocr.first.length() < 2) {
+//                                            double similarity = CommonUtils.similarity(secondOcr.first, ocr.first);
+//                                            if (similarity > 0.3) mOCRs.add(ocr.first);
+//                                            else mOCRs.add(secondOcr.first);
+//                                            AppLogger.i(String.valueOf(similarity));
+//                                       // } else mOCRs.add(secondOcr.first);
+//                                        idx2++;
+//                                        if(idx2 == bitmap.size()) displayOCR();
+//                                    }, throwable -> {
+//                                        getNavigator().handleError(throwable.getLocalizedMessage());
+//                                        setIsLoading(false);
+//                                    }));
+//                        }else{
                             mOCRs.add(ocr.first);
                             idx2++;
                             if(idx2 == bitmap.size()) displayOCR();
-                        }
+                       // }
 
                     }, throwable -> {
                         getNavigator().handleError(throwable.getLocalizedMessage());

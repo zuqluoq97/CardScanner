@@ -5,6 +5,12 @@ import android.content.Context;
 import android.text.Html;
 import android.widget.Toast;
 
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+
+import java.util.Comparator;
+import java.util.List;
+
 import androidx.annotation.Nullable;
 
 /**
@@ -79,5 +85,14 @@ public class CommonUtils {
                 costs[s2.length()] = lastValue;
         }
         return costs[s2.length()];
+    }
+
+    public static Rect getRect(List<Point> pointList){
+        Point tl = pointList.stream().min(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
+        //Point tr = pointList.stream().max(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
+        Point br = pointList.stream().max(Comparator.comparing(point -> point.x + point.y)).orElse(new Point());
+        //Point bl = pointList.stream().min(Comparator.comparing(point -> point.x - point.y)).orElse(new Point());
+
+        return new Rect(tl, br);
     }
 }

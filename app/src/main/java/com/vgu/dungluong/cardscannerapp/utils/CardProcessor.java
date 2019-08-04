@@ -194,12 +194,7 @@ public class CardProcessor {
                 new Point(imgSize.width / 10, imgSize.height * 9/10));
     }
 
-    public static List<Point> orderPoints(List<Point> unsortedPoints){
-        return Arrays.asList(unsortedPoints.stream().min(Comparator.comparing(point -> point.x + point.y)).orElse(new Point()),
-                unsortedPoints.stream().max(Comparator.comparing(point -> point.x - point.y)).orElse(new Point()),
-                unsortedPoints.stream().max(Comparator.comparing(point -> point.x + point.y)).orElse(new Point()),
-                unsortedPoints.stream().min(Comparator.comparing(point -> point.x - point.y)).orElse(new Point()));
-    }
+
 
     public static Observable<List<Bitmap>> cropTextArea(Mat img, List<Corners> textRects) {
 
@@ -210,10 +205,11 @@ public class CardProcessor {
             Mat clone = img2.clone();
             Mat crop = cropPicture(clone, textBoxCorners.getCorners());
             textSkewCorrection(crop);
-            crop = brightnessAndConstraintAuto(crop, 1);
-            performGammaCorrection(0.8, crop);
+//            crop = brightnessAndConstraintAuto(crop, 1);
+//            performGammaCorrection(0.8, crop);
 
-            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_BGR2GRAY);
+
+//            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_BGR2GRAY);
             Bitmap bitmap = Bitmap.createBitmap(crop.width(), crop.height(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(crop, bitmap, true);
             bms.add(bitmap);
@@ -471,7 +467,7 @@ public class CardProcessor {
         Imgproc.cvtColor(img, lab, COLOR_BGR2Lab);
         List<Mat> channels = new ArrayList<>();
         Core.split(lab, channels);
-        CLAHE clahe = Imgproc.createCLAHE(2, new Size(3, 3));
+        CLAHE clahe = Imgproc.createCLAHE(3, new Size(8, 8));
         Mat cl = new Mat();
         clahe.apply(channels.get(0), cl);
         Mat limg = new Mat();

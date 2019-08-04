@@ -1,8 +1,9 @@
 package com.vgu.dungluong.cardscannerapp.utils;
 
-import org.opencv.core.Core;
+
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
@@ -14,7 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.abs;
-import static org.opencv.imgproc.Imgproc.FONT_HERSHEY_PLAIN;
+import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
+import static org.opencv.imgproc.Imgproc.INTER_AREA;
 
 /**
  * Created by Dung Luong on 31/07/2019
@@ -30,41 +32,37 @@ public class CardExtract {
 
     public static Mat run(Mat src) {
         img = src.clone();
-        Imgproc.resize(img,img,new Size(640,480));
-        Core.copyMakeBorder(img,img,50,50,50,50, Core.BORDER_CONSTANT);
+        double scale = 0.5;
+        Size size = new Size(img.width() * scale, img.height() * scale);
+        Imgproc.resize(img,img,size,INTER_AREA);
         img_y=img.rows();
         img_x=img.cols();
-        List<Mat> channels=new ArrayList<>();
-        Core.split(img,channels);
-        for(int i=0;i<3;i++) Imgproc.Canny(channels.get(i),channels.get(i),200,250);
+        Mat gray = new Mat();
+        Imgproc.bilateralFilter(img, gray, 1, 250, 50);
+        Imgproc.cvtColor(gray, gray, COLOR_BGR2GRAY);
         Mat edges=new Mat();
-        Core.merge(channels,edges);
+        Imgproc.Canny(gray,edges,30,90);
         contours=new ArrayList<>();
         Mat hierarchy=new Mat();
-        Imgproc.cvtColor(edges,edges,Imgproc.COLOR_BGR2GRAY);
-        Imgproc.findContours(edges,contours,hierarchy,Imgproc.RETR_TREE,Imgproc.CHAIN_APPROX_NONE);
+        Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
         List<MatOfPoint> keepers = new ArrayList<>();
         Mat processed = edges.clone();
-        Mat rejected = edges.clone();
         for(int i=0;i<contours.size();i++)
         {
             MatOfPoint contour=contours.get(i);
             Rect rect=Imgproc.boundingRect(contour);
             double x=rect.x,y=rect.y,w=rect.width,h=rect.height;
-            if ( keep(contour) && include_box(i, hierarchy, contour)){
+
+            if (keep(contour) && include_box(i, hierarchy, contour)) {
                 // It's a winner!
                 keepers.add(contour);
-                Imgproc.rectangle(processed, new Point(x, y),new Point(x + w, y + h), new Scalar(100, 100, 100), 1);
-                Imgproc.putText(processed, ""+i, new Point(x, y - 5), FONT_HERSHEY_PLAIN, 1 ,new Scalar(255, 255, 255));
+                Imgproc.rectangle(processed, new Point(x, y),new Point(x + w, y + h), new Scalar(100, 100, 100), 3);
             }
-            else{
-                Imgproc.rectangle(rejected, new Point(x, y), new Point(x + w, y + h), new Scalar(100, 100, 100), 1);
-                Imgproc.putText(rejected, ""+i, new Point(x, y - 5), FONT_HERSHEY_PLAIN, 1, new Scalar(255, 255, 255));
-            }
-
         }
+
         Mat new_image=img.clone();
         new_image.setTo(new Scalar(255,255,255));
+
         for(int i = 0; i< keepers.size(); i++)
         {
             //# Find the average intensity of the edge pixels to
@@ -117,7 +115,7 @@ public class CardExtract {
                 for(double y=y_;y<y_+height;y++)
                 {
                     if (y >= img_y || x >= img_x){
-                        System.out.println("pixel out of bounds ("+y+","+x+")");
+                        //System.out.println("pixel out of bounds ("+y+","+x+")");
                         continue;
                     }
                     if (ii(x, y) > fg_int) new_image.put((int)y,(int)x,bg,bg,bg);
@@ -125,11 +123,9 @@ public class CardExtract {
                 }
             }
         }
-        Imgproc.blur(new_image,new_image,new Size(2,2));
-
+        Imgproc.GaussianBlur(new_image,new_image,new Size(3,3), 0);
         return new_image;
     }
-
     // Function for calculating median
     private static double findMedian(double a[])
     {
@@ -156,13 +152,13 @@ public class CardExtract {
         return lout;
     }
     // Whether we care about this contour
-    static boolean keep(MatOfPoint contour){
+    private static boolean keep(MatOfPoint contour){
         return keep_box(contour) && connected(contour);
     }
 
     private static boolean keep_box(MatOfPoint contour)
     {
-        Rect rect= Imgproc.boundingRect(contour);
+        Rect rect=Imgproc.boundingRect(contour);
         double x=rect.x,y=rect.y,
                 w=rect.width * 1.0,
                 h=rect.height * 1.0;
@@ -181,7 +177,7 @@ public class CardExtract {
         double[] last = contour.get(contour.rows() - 1,0);
         return abs(first[0] - last[0]) <= 1 && abs(first[1] - last[1]) <= 1;
     }
-    private static boolean include_box(int index, Mat h_, MatOfPoint contour){
+    private static boolean include_box(int index,Mat  h_,MatOfPoint contour){
         // if DEBUG: print str(index) + ":"
         //if (is_child(index, h_))
         // print "\tIs a child"
@@ -189,11 +185,11 @@ public class CardExtract {
         // count_children(get_parent(index, h_), h_, contour)) + " children"
         //  print "\thas " + str(count_children(index, h_, contour)) + " children"
 
-        if(is_child(index, h_) && (count_children((int)get_parent(index, h_), h_, contour) <= 2))
+        if(is_child(index, h_) && (count_children((int)get_parent(index, h_), h_, contour) <= 5))
             //if DEBUG: print "\t skipping: is an interior to a letter"
             return false;
 
-        if (count_children(index, h_, contour) > 2)
+        if (count_children(index, h_, contour) > 5)
             //if DEBUG: print "\t skipping, is a container of letters"
             return false;
 
