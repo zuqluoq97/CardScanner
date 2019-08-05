@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import io.reactivex.Observable;
 import kotlin.jvm.internal.Intrinsics;
 
+import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.core.CvType.CV_8UC1;
 import static org.opencv.core.CvType.CV_8UC3;
 import static org.opencv.core.CvType.CV_8UC4;
@@ -201,13 +202,16 @@ public class CardProcessor {
         Mat img2 = img.clone();
         List<Bitmap> bms = new ArrayList<>();
         for(int i = 0; i < textRects.size(); i++){
+            AppLogger.i(String.valueOf(i));
             Corners textBoxCorners = textRects.get(i);
             Mat clone = img2.clone();
             Mat crop = cropPicture(clone, textBoxCorners.getCorners());
             textSkewCorrection(crop);
-//            crop = brightnessAndConstraintAuto(crop, 1);
-//            performGammaCorrection(0.8, crop);
-
+            cvtColor(crop, crop, Imgproc.COLOR_BGRA2BGR);
+            crop = brightnessAndConstraintAuto(crop, 1);
+            performGammaCorrection(0.8, crop);
+            CardExtract ce = new CardExtract(crop);
+            crop = ce.run();
 
 //            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_BGR2GRAY);
             Bitmap bitmap = Bitmap.createBitmap(crop.width(), crop.height(), Bitmap.Config.ARGB_8888);
@@ -446,7 +450,7 @@ public class CardProcessor {
 
     public static void performGammaCorrection(double gamma, Mat img) {
         //! [changing-contrast-brightness-gamma-correction]
-        Mat lookUpTable = new Mat(1, 256, CvType.CV_8U);
+        Mat lookUpTable = new Mat(1, 256, CV_8U);
         byte[] lookUpTableData = new byte[(int) (lookUpTable.total()*lookUpTable.channels())];
         for (int i = 0; i < lookUpTable.cols(); i++) {
             lookUpTableData[i] = saturate(Math.pow(i / 255.0, gamma) * 255.0);

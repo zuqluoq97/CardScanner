@@ -1,6 +1,7 @@
 package com.vgu.dungluong.cardscannerapp.utils;
 
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 
@@ -17,31 +18,32 @@ import java.util.List;
 import static java.lang.Math.abs;
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
 import static org.opencv.imgproc.Imgproc.INTER_AREA;
+import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 
 /**
  * Created by Dung Luong on 31/07/2019
  */
 public class CardExtract {
-    private static Mat img;
-    private static int img_y, img_x;
-    private static List<MatOfPoint> contours;
+    private Mat img;
+    private int img_y, img_x;
+    private List<MatOfPoint> contours;
 
-    private CardExtract() {
+    public CardExtract(Mat src) {
         // This utility class is not publicly instantiable
+        img = src.clone();
     }
 
-    public static Mat run(Mat src) {
-        img = src.clone();
-        double scale = 0.5;
+    public Mat run() {
+        double scale = 0.7;
         Size size = new Size(img.width() * scale, img.height() * scale);
         Imgproc.resize(img,img,size,INTER_AREA);
-        img_y=img.rows();
-        img_x=img.cols();
+        img_y = img.rows();
+        img_x = img.cols();
         Mat gray = new Mat();
-        Imgproc.bilateralFilter(img, gray, 1, 250, 50);
+        Imgproc.bilateralFilter(img, gray, 5, 250, 50);
         Imgproc.cvtColor(gray, gray, COLOR_BGR2GRAY);
         Mat edges=new Mat();
-        Imgproc.Canny(gray,edges,30,90);
+        Imgproc.Canny(gray,edges,80,240);
         contours=new ArrayList<>();
         Mat hierarchy=new Mat();
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
@@ -90,10 +92,10 @@ public class CardExtract {
                     ii(x_ - 1, y_ + height),
                     ii(x_, y_ + height + 1),
 
-                    //# top right corner 3 pixels
+                   //# top right corner 3 pixels
                     ii(x_ + width + 1, y_ + height + 1),
                     ii(x_ + width, y_ + height + 1),
-                    ii(x_ + width + 1, y_ + height)
+                    ii(x_ + width + 1, y_ + height),
             };
             //# Find the median of the background
             //# pixels determined above
@@ -123,12 +125,10 @@ public class CardExtract {
                 }
             }
         }
-        Imgproc.GaussianBlur(new_image,new_image,new Size(3,3), 0);
-        return new_image;
+        return processed;
     }
     // Function for calculating median
-    private static double findMedian(double a[])
-    {
+    private double findMedian(double a[]) {
         int n=a.length;
         // First we sort the array
         Arrays.sort(a);
@@ -141,23 +141,20 @@ public class CardExtract {
     }
 
 
-    private static double ii(double xx,double yy){
-        if ((yy >= img_y) || (xx >= img_x))
-        {
+    private double ii(double xx,double yy){
+        if ((yy >= img_y) || (xx >= img_x)) {
             //System.out.println("pixel out of bounds ("+str(y)+","+str(x)+")");
             return 0;
         }
         double[] pixel = img.get((int)yy,(int)xx);
-        double lout= (0.30 * pixel[2]) + (0.59 * pixel[1]) + (0.11 * pixel[0]);
-        return lout;
+        return 0.30 * pixel[2] + 0.59 * pixel[1] + 0.11 * pixel[0];
     }
     // Whether we care about this contour
-    private static boolean keep(MatOfPoint contour){
+    private boolean keep(MatOfPoint contour){
         return keep_box(contour) && connected(contour);
     }
 
-    private static boolean keep_box(MatOfPoint contour)
-    {
+    private boolean keep_box(MatOfPoint contour) {
         Rect rect=Imgproc.boundingRect(contour);
         double x=rect.x,y=rect.y,
                 w=rect.width * 1.0,
@@ -169,15 +166,16 @@ public class CardExtract {
         if (((w * h) > ((img_x * img_y) / 5)) || ((w * h) < 15))return false;
         return true;
     }
-    private static boolean connected(MatOfPoint contour)
-    {
+
+    private boolean connected(MatOfPoint contour) {
         //# A quick test to check whether the contour is
         //# a connected shape
         double[] first = contour.get(0,0);
         double[] last = contour.get(contour.rows() - 1,0);
         return abs(first[0] - last[0]) <= 1 && abs(first[1] - last[1]) <= 1;
     }
-    private static boolean include_box(int index,Mat  h_,MatOfPoint contour){
+
+    private boolean include_box(int index,Mat  h_,MatOfPoint contour){
         // if DEBUG: print str(index) + ":"
         //if (is_child(index, h_))
         // print "\tIs a child"
@@ -185,11 +183,11 @@ public class CardExtract {
         // count_children(get_parent(index, h_), h_, contour)) + " children"
         //  print "\thas " + str(count_children(index, h_, contour)) + " children"
 
-        if(is_child(index, h_) && (count_children((int)get_parent(index, h_), h_, contour) <= 5))
+        if(is_child(index, h_) && (count_children((int)get_parent(index, h_), h_, contour) <= 7))
             //if DEBUG: print "\t skipping: is an interior to a letter"
             return false;
 
-        if (count_children(index, h_, contour) > 5)
+        if (count_children(index, h_, contour) > 6)
             //if DEBUG: print "\t skipping, is a container of letters"
             return false;
 
@@ -197,11 +195,11 @@ public class CardExtract {
         return true;
     }
 
-    private static boolean is_child(int index, Mat h_) {
+    private boolean is_child(int index, Mat h_) {
         return get_parent(index, h_) > 0;
     }
 
-    private static int count_children(int index, Mat h_, MatOfPoint contour) {
+    private int count_children(int index, Mat h_, MatOfPoint contour) {
         int count;
         //# No children
         if (h_.get(0,index)[2] < 0) return 0;
@@ -217,10 +215,10 @@ public class CardExtract {
         return count;
     }
 
-    private static MatOfPoint c(int index) {
+    private MatOfPoint c(int index) {
         return contours.get(index);
     }
-    private static double get_parent(int index, Mat h_) {
+    private double get_parent(int index, Mat h_) {
         double d=h_.get(0,index)[3];
         double parent = (int) d;
         while (parent > 0 && !keep(c((int)parent)) )
@@ -228,7 +226,7 @@ public class CardExtract {
         return parent;
     }
 
-    private static int count_siblings(int index, Mat h_, MatOfPoint contour, boolean inc_children) {
+    private int count_siblings(int index, Mat h_, MatOfPoint contour, boolean inc_children) {
         int count;
         //# Include the children if necessary
         if (inc_children)

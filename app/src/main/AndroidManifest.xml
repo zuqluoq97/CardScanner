@@ -40,9 +40,6 @@
 
         <activity android:name=".ui.result.ResultActivity"/>
 
-        <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat"/>
-
         <provider
             android:name=".tools.GenericFileProvider"
             android:authorities="${applicationId}.my.package.name.provider"

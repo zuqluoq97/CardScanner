@@ -66,7 +66,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
             Core.rotate(mCardPicture, mCardPicture, Core.ROTATE_90_CLOCKWISE);
 //        CardProcessor.performGammaCorrection(0.8, mCardPicture);
 //        mCardPicture = CardProcessor.improveContrast(mCardPicture);
-        mCardPicture = CardExtract.run(mCardPicture);
+
     }
 
     public void displayCardImage(){
@@ -93,7 +93,6 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         saveBitmapToJpg(mBitmap, imgFile, 300);
         Bitmap bm = get300DPIBitmap(imgFile);
         Utils.bitmapToMat(bm, mCardPicture);
-
         getCompositeDisposable().add(getDataManager()
                 .doServerTextDetection(imgFile)
                 .subscribeOn(getSchedulerProvider().io())
