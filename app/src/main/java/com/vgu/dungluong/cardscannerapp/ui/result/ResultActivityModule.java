@@ -20,11 +20,8 @@ public class ResultActivityModule {
     TessBaseAPI provideTessBaseAPI(AppDataManager appDataManager){
         TessBaseAPI tessBaseAPI = new TessBaseAPI();
         String locale = appDataManager.getLocale();
-        tessBaseAPI.init(AppConstants.DATA_PATH, locale.equals("vi") ? "vie_best" : "eng", TessBaseAPI.OEM_LSTM_ONLY);
+        tessBaseAPI.init(AppConstants.DATA_PATH, locale.equals("vi") ? "vie_best" : "eng_best", TessBaseAPI.OEM_LSTM_ONLY);
         tessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_LINE);
-        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, locale.equals("vi")
-                ? "aAáÁàÀạẠãÃảẢăĂắẮằẰặẶẵẴẳẲâÂấẤầẦậẬẫẪẩẨbBcCdDđĐeEéÉèÈẹẸẽẼẻẺêÊếẾềỀệỆễỄểỂfFgGhHiIíÍìÌịỊĩĨỉỈjJkKlLmMnNoOóÓòÒọỌõÕỏỎôÔốỐồỒộỘỗỖổỔơƠớỚờỜợỢỡỠởỞpPqQrRsStTuUúÚùÙụỤũŨủỦưƯứỨừỪựỰữỮửỬvVxXyYýÝỳỲỵỴỹỸỷỶwzZ0123456789',.@-:/&#$+()_* "
-                : "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM0123456789',.@-:/&#$+()_* ");
         return tessBaseAPI;
     }
 

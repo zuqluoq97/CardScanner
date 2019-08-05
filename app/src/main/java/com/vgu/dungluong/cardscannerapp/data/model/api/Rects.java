@@ -54,8 +54,8 @@ public abstract class Rects implements Parcelable {
             for(int i=0; i < rect.size(); i+=2){
                 int x = rect.get(i);
                 int y = rect.get(i+1);
-                if(i < 4) y -= height / 10;
-                else y += height / 15;
+                if(i < 4) y -= height / 5;
+                else y += height / 10;
                 coordinates.add(new Point(x, y));
             }
             Corners corners = new Corners(coordinates);

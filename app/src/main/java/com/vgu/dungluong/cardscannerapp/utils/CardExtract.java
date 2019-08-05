@@ -16,6 +16,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.abs;
+import static org.opencv.core.Core.BORDER_CONSTANT;
+import static org.opencv.core.CvType.CV_8U;
 import static org.opencv.imgproc.Imgproc.COLOR_BGR2GRAY;
 import static org.opencv.imgproc.Imgproc.INTER_AREA;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
@@ -40,18 +42,34 @@ public class CardExtract {
         img_y = img.rows();
         img_x = img.cols();
         Mat gray = new Mat();
-        Imgproc.bilateralFilter(img, gray, 5, 250, 50);
+        Imgproc.bilateralFilter(img, gray, 5, 150, 150, BORDER_CONSTANT);
         Imgproc.cvtColor(gray, gray, COLOR_BGR2GRAY);
         Mat edges=new Mat();
-        Imgproc.Canny(gray,edges,80,240);
+        Imgproc.Canny(gray,edges,70,210);
         contours=new ArrayList<>();
         Mat hierarchy=new Mat();
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+        Mat clone = new Mat(size, CV_8U);
+        //printExternalContours(clone, contours, hierarchy, 0);
         List<MatOfPoint> keepers = new ArrayList<>();
         Mat processed = edges.clone();
-        for(int i=0;i<contours.size();i++)
-        {
+//        for(int i = 0; i >= 0; i = (int) hierarchy.get(0, i)[0])
+//        {
+//            MatOfPoint contour=contours.get(i);
+//
+//            Rect rect=Imgproc.boundingRect(contour);
+//            double x=rect.x,y=rect.y,w=rect.width,h=rect.height;
+//
+//            if (keep(contour) && include_box(i, hierarchy, contour)) {
+//                // It's a winner!
+//                keepers.add(contour);
+//                Imgproc.rectangle(processed, new Point(x, y),new Point(x + w, y + h), new Scalar(100, 100, 100), 3);
+//            }
+//        }
+
+        for(int i=0;i<contours.size();i++) {
             MatOfPoint contour=contours.get(i);
+
             Rect rect=Imgproc.boundingRect(contour);
             double x=rect.x,y=rect.y,w=rect.width,h=rect.height;
 
@@ -76,7 +94,27 @@ public class CardExtract {
             fg_int = (int)fg_int;
             Rect rect=Imgproc.boundingRect(keepers.get(i));
             double x_=rect.x, y_=rect.y, width=rect.width, height=rect.height;
+
             double [] bg_int = new double[]{
+//                    //# bottom left corner 3 pixels
+//                    ii(x_ - 1, y_ + height + 1),
+//                    ii(x_ - 1, y_ + height - 1),
+//                    ii(x_ + 1, y_ + height + 1),
+//
+//                    //# bottom right corner 3 pixels
+//                    ii(x_ + width + 1, y_ - 1),
+//                    ii(x_ + width, y_ - 1),
+//                    ii(x_ + width + 1, y_),
+//
+//                    //# top left
+//                    ii(x_ - 1, y_ - 1),
+//                    ii(x_ - 1, y_ + 1),
+//                    ii(x_ + 1, y_ - 1),
+//
+//                    //# top right corner 3 pixels
+//                    ii(x_ + width + 1, y_ + 1),
+//                    ii(x_ + width + 1, y_ - 1),
+//                    ii(x_ + width - 1, y_  - 1),
                     //# bottom left corner 3 pixels
                     ii(x_ - 1, y_ - 1),
                     ii(x_ - 1, y_),
@@ -92,10 +130,10 @@ public class CardExtract {
                     ii(x_ - 1, y_ + height),
                     ii(x_, y_ + height + 1),
 
-                   //# top right corner 3 pixels
+                    //# top right corner 3 pixels
                     ii(x_ + width + 1, y_ + height + 1),
                     ii(x_ + width, y_ + height + 1),
-                    ii(x_ + width + 1, y_ + height),
+                    ii(x_ + width + 1, y_ + height)
             };
             //# Find the median of the background
             //# pixels determined above
@@ -125,7 +163,7 @@ public class CardExtract {
                 }
             }
         }
-        return processed;
+        return new_image;
     }
     // Function for calculating median
     private double findMedian(double a[]) {
@@ -159,11 +197,12 @@ public class CardExtract {
         double x=rect.x,y=rect.y,
                 w=rect.width * 1.0,
                 h=rect.height * 1.0;
+
         // Test it's shape - if it's too oblong or tall it's
         // probably not a real character
         if (w / h < 0.1 || w/h > 10)return false;
         // check size of the box
-        if (((w * h) > ((img_x * img_y) / 5)) || ((w * h) < 15))return false;
+        if (((w * h) > ((img_x * img_y) / 2)) || ((w * h) < 4))return false;
         return true;
     }
 
@@ -183,11 +222,11 @@ public class CardExtract {
         // count_children(get_parent(index, h_), h_, contour)) + " children"
         //  print "\thas " + str(count_children(index, h_, contour)) + " children"
 
-        if(is_child(index, h_) && (count_children((int)get_parent(index, h_), h_, contour) <= 7))
+        if(is_child(index, h_) && (count_children((int)get_parent(index, h_), h_, contour) <= 5))
             //if DEBUG: print "\t skipping: is an interior to a letter"
             return false;
 
-        if (count_children(index, h_, contour) > 6)
+        if (count_children(index, h_, contour) > 5)
             //if DEBUG: print "\t skipping, is a container of letters"
             return false;
 
@@ -252,4 +291,20 @@ public class CardExtract {
         }
         return count;
     }
+
+    private void printExternalContours(Mat img, List<MatOfPoint> contours, Mat hierarchy, int idx) {
+        //for every contour of the same hierarchy level
+        for(int i = idx; i >= 0; i = (int) hierarchy.get(0, i)[0])
+        {
+            AppLogger.i(Arrays.toString(hierarchy.get(0, i)));
+            Imgproc.drawContours(img, contours, i, new Scalar(255));
+            //for every of its internal contours
+            for(int j = (int) hierarchy.get(0, i)[2]; j >= 0; j = (int) hierarchy.get(0, j)[0])
+            {
+                //recursively print the external contours of its children
+               // printExternalContours(img, contours, hierarchy, (int) hierarchy.get(j, 2)[0]);
+            }
+        }
+    }
+
 }

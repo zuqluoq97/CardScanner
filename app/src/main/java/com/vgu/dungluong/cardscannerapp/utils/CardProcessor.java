@@ -208,8 +208,8 @@ public class CardProcessor {
             Mat crop = cropPicture(clone, textBoxCorners.getCorners());
             textSkewCorrection(crop);
             cvtColor(crop, crop, Imgproc.COLOR_BGRA2BGR);
+            performGammaCorrection(0.6, crop);
             crop = brightnessAndConstraintAuto(crop, 1);
-            performGammaCorrection(0.8, crop);
             CardExtract ce = new CardExtract(crop);
             crop = ce.run();
 
@@ -471,7 +471,7 @@ public class CardProcessor {
         Imgproc.cvtColor(img, lab, COLOR_BGR2Lab);
         List<Mat> channels = new ArrayList<>();
         Core.split(lab, channels);
-        CLAHE clahe = Imgproc.createCLAHE(3, new Size(8, 8));
+        CLAHE clahe = Imgproc.createCLAHE(2);
         Mat cl = new Mat();
         clahe.apply(channels.get(0), cl);
         Mat limg = new Mat();
