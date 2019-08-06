@@ -26,6 +26,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.CODE_PERMISSIONS_REQUEST;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.DATA_PATH;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.MODELDATA;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.MODEL_PATH;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.TESSDATA;
 
 /**
@@ -80,11 +82,13 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
     public void prepareTesseract() {
         try {
             prepareDirectory(DATA_PATH + TESSDATA);
+            prepareDirectory(MODEL_PATH + MODELDATA);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         copyDataFiles(DATA_PATH, TESSDATA);
+        copyDataFiles(MODEL_PATH, MODELDATA);
     }
 
     /**
@@ -134,11 +138,11 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
                 in.close();
                 out.close();
 
-                AppLogger.i("Copied " + fileName + "to tessdata");
+                AppLogger.i("Copied " + fileName + "to " + pathToDataFile);
 
             }
         } catch (IOException e) {
-            AppLogger.i( "Unable to copy files to tessdata " + e.toString());
+            AppLogger.i( "Unable to copy files to " + e.toString());
         }
     }
 

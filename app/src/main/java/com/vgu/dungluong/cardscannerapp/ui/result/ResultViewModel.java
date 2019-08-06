@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
+import opennlp.tools.doccat.DocumentCategorizerME;
 
 /**
  * Created by Dung Luong on 02/07/2019
@@ -131,31 +132,11 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                     .observeOn(getSchedulerProvider().ui())
                     .subscribe(ocr -> {
                         AppLogger.i(ocr.first + " " + ocr.second);
-//                        if(ocr.second < 50){
-//                            getCompositeDisposable().add(getDataManager()
-//                                    .doTesseract(bm, getNavigator().getTesseractApi2())
-//                                    .subscribeOn(getSchedulerProvider().io())
-//                                    .observeOn(getSchedulerProvider().ui())
-//                                    .subscribe(secondOcr -> {
-//                                        AppLogger.i(secondOcr.first + " " + secondOcr.second);
-//                                       // if(secondOcr.first.length() / ocr.first.length() < 2) {
-//                                            double similarity = CommonUtils.similarity(secondOcr.first, ocr.first);
-//                                            if (similarity > 0.3) mOCRs.add(ocr.first);
-//                                            else mOCRs.add(secondOcr.first);
-//                                            AppLogger.i(String.valueOf(similarity));
-//                                       // } else mOCRs.add(secondOcr.first);
-//                                        idx2++;
-//                                        if(idx2 == bitmap.size()) displayOCR();
-//                                    }, throwable -> {
-//                                        getNavigator().handleError(throwable.getLocalizedMessage());
-//                                        setIsLoading(false);
-//                                    }));
-//                        }else{
                             mOCRs.add(ocr.first);
                             idx2++;
-                            if(idx2 == bitmap.size()) displayOCR();
-                       // }
-
+                            if(idx2 == bitmap.size()){
+                                displayOCR();
+                            }
                     }, throwable -> {
                         getNavigator().handleError(throwable.getLocalizedMessage());
                         setIsLoading(false);

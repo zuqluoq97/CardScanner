@@ -49,7 +49,7 @@ public class CardExtract {
         contours=new ArrayList<>();
         Mat hierarchy=new Mat();
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
-        Mat clone = new Mat(size, CV_8U);
+       // Mat clone = new Mat(size, CV_8U);
         //printExternalContours(clone, contours, hierarchy, 0);
         List<MatOfPoint> keepers = new ArrayList<>();
         Mat processed = edges.clone();
@@ -96,25 +96,6 @@ public class CardExtract {
             double x_=rect.x, y_=rect.y, width=rect.width, height=rect.height;
 
             double [] bg_int = new double[]{
-//                    //# bottom left corner 3 pixels
-//                    ii(x_ - 1, y_ + height + 1),
-//                    ii(x_ - 1, y_ + height - 1),
-//                    ii(x_ + 1, y_ + height + 1),
-//
-//                    //# bottom right corner 3 pixels
-//                    ii(x_ + width + 1, y_ - 1),
-//                    ii(x_ + width, y_ - 1),
-//                    ii(x_ + width + 1, y_),
-//
-//                    //# top left
-//                    ii(x_ - 1, y_ - 1),
-//                    ii(x_ - 1, y_ + 1),
-//                    ii(x_ + 1, y_ - 1),
-//
-//                    //# top right corner 3 pixels
-//                    ii(x_ + width + 1, y_ + 1),
-//                    ii(x_ + width + 1, y_ - 1),
-//                    ii(x_ + width - 1, y_  - 1),
                     //# bottom left corner 3 pixels
                     ii(x_ - 1, y_ - 1),
                     ii(x_ - 1, y_),
@@ -135,6 +116,7 @@ public class CardExtract {
                     ii(x_ + width, y_ + height + 1),
                     ii(x_ + width + 1, y_ + height)
             };
+
             //# Find the median of the background
             //# pixels determined above
             double bg_intN = findMedian(bg_int);
@@ -185,7 +167,8 @@ public class CardExtract {
             return 0;
         }
         double[] pixel = img.get((int)yy,(int)xx);
-        return 0.30 * pixel[2] + 0.59 * pixel[1] + 0.11 * pixel[0];
+        //return 0.2126 * pixel[0] + 0.7152 * pixel[1] + 0.0722 * pixel[2];
+        return 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
     }
     // Whether we care about this contour
     private boolean keep(MatOfPoint contour){
@@ -200,7 +183,7 @@ public class CardExtract {
 
         // Test it's shape - if it's too oblong or tall it's
         // probably not a real character
-        if (w / h < 0.1 || w/h > 10)return false;
+        if (w / h < 0.05 || w/h > 20)return false;
         // check size of the box
         if (((w * h) > ((img_x * img_y) / 2)) || ((w * h) < 4))return false;
         return true;

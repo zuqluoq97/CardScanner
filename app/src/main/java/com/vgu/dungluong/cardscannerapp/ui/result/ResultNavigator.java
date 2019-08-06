@@ -6,6 +6,8 @@ import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
 
+import opennlp.tools.langdetect.LanguageDetector;
+
 /**
  * Created by Dung Luong on 02/07/2019
  */
@@ -18,8 +20,6 @@ public interface ResultNavigator {
     void showMessage(String mess);
 
     TessBaseAPI getTesseractApi();
-
-    TessBaseAPI getTesseractApi2();
 
     File getFileForCropImage();
 }

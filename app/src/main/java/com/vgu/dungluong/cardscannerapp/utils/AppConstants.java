@@ -34,7 +34,9 @@ public class AppConstants {
 
     public static final String DATA_PATH = Environment.getExternalStorageDirectory().toString() + "/TesseractData/";
     public static final String TESSDATA = "tessdata";
-
+    public static final String MODEL_PATH = Environment.getExternalStorageDirectory().toString() + "/OpenNLP/";
+    public static final String MODELDATA = "model";
+    public static final String LANGUAGE_MODEL = "langdetect-183.bin";
     public static final double EPISILON = 1E-8;
 
 }

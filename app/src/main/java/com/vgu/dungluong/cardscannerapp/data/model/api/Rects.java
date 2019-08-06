@@ -15,6 +15,8 @@ import org.opencv.core.Size;
 import java.util.ArrayList;
 import java.util.List;
 
+import opennlp.tools.namefind.NameFinderME;
+
 /**
  * Created by Dung Luong on 25/07/2019
  */
@@ -54,8 +56,8 @@ public abstract class Rects implements Parcelable {
             for(int i=0; i < rect.size(); i+=2){
                 int x = rect.get(i);
                 int y = rect.get(i+1);
-                if(i < 4) y -= height / 5;
-                else y += height / 10;
+                if(i < 4) y -= height / 3.5;
+                else y += height / 6;
                 coordinates.add(new Point(x, y));
             }
             Corners corners = new Corners(coordinates);

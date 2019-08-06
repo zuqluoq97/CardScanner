@@ -3,11 +3,23 @@ package com.vgu.dungluong.cardscannerapp.ui.result;
 import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.data.AppDataManager;
 import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
+import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
 
 import javax.inject.Named;
 
 import dagger.Module;
 import dagger.Provides;
+import opennlp.tools.langdetect.LanguageDetector;
+import opennlp.tools.langdetect.LanguageDetectorME;
+import opennlp.tools.langdetect.LanguageDetectorModel;
+
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.LANGUAGE_MODEL;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.MODELDATA;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.MODEL_PATH;
 
 /**
  * Created by Dung Luong on 02/07/2019
@@ -16,7 +28,6 @@ import dagger.Provides;
 public class ResultActivityModule {
 
     @Provides
-    @Named("lstm")
     TessBaseAPI provideTessBaseAPI(AppDataManager appDataManager){
         TessBaseAPI tessBaseAPI = new TessBaseAPI();
         String locale = appDataManager.getLocale();
@@ -25,16 +36,4 @@ public class ResultActivityModule {
         return tessBaseAPI;
     }
 
-    @Provides
-    @Named("legacy")
-    TessBaseAPI provideTessBaseAPI2(AppDataManager appDataManager){
-        TessBaseAPI tessBaseAPI = new TessBaseAPI();
-        String locale = appDataManager.getLocale();
-        tessBaseAPI.init(AppConstants.DATA_PATH, locale.equals("vi") ? "vie_legacy" : "eng_legacy", TessBaseAPI.OEM_TESSERACT_ONLY);
-        tessBaseAPI.setPageSegMode(TessBaseAPI.PageSegMode.PSM_SINGLE_LINE);
-        tessBaseAPI.setVariable(TessBaseAPI.VAR_CHAR_WHITELIST, locale.equals("vi")
-                ? "aAáÁàÀạẠãÃảẢăĂắẮằẰặẶẵẴẳẲâÂấẤầẦậẬẫẪẩẨbBcCdDđĐeEéÉèÈẹẸẽẼẻẺêÊếẾềỀệỆễỄểỂfFgGhHiIíÍìÌịỊĩĨỉỈjJkKlLmMnNoOóÓòÒọỌõÕỏỎôÔốỐồỒộỘỗỖổỔơƠớỚờỜợỢỡỠởỞpPqQrRsStTuUúÚùÙụỤũŨủỦưƯứỨừỪựỰữỮửỬvVxXyYýÝỳỲỵỴỹỸỷỶwzZ0123456789',.@-:/&#$+()_* "
-                : "qQwWeErRtTyYuUiIoOpPaAsSdDfFgGhHjJkKlLzZxXcCvVbBnNmM0123456789',.@-:/&#$+()_* ");
-        return tessBaseAPI;
-    }
 }
