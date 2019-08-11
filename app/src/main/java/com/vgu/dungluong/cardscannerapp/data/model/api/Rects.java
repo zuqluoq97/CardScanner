@@ -7,9 +7,11 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
+import com.vgu.dungluong.cardscannerapp.data.model.local.OnTouchZone;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Size;
 
 import java.util.ArrayList;
@@ -52,12 +54,17 @@ public abstract class Rects implements Parcelable {
         List<Corners> rectCorners = new ArrayList<>();
         rects().forEach(rect -> {
             List<Point> coordinates = new ArrayList<>();
-            int height = ((rect.get(7) - rect.get(1)) + (rect.get(5) - rect.get(3))) / 2;
+            int height1 = (rect.get(7) - rect.get(1));
+            int height2 = (rect.get(5) - rect.get(3));
             for(int i=0; i < rect.size(); i+=2){
                 int x = rect.get(i);
                 int y = rect.get(i+1);
-                if(i < 4) y -= height / 3.5;
-                else y += height / 6;
+
+                if (i == 0) y -= height1 / 5;
+                else if (i == 2) y -= height2 / 5;
+                else if(i == 4) y += height2 / 5;
+                else if (i == 6) y += height1 / 5;
+
                 coordinates.add(new Point(x, y));
             }
             Corners corners = new Corners(coordinates);

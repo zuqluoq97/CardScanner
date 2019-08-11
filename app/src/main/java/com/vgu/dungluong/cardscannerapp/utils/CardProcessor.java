@@ -206,19 +206,23 @@ public class CardProcessor {
             Corners textBoxCorners = textRects.get(i);
             Mat clone = img2.clone();
             Mat crop = cropPicture(clone, textBoxCorners.getCorners());
-            textSkewCorrection(crop);
             cvtColor(crop, crop, Imgproc.COLOR_BGRA2BGR);
             performGammaCorrection(0.6, crop);
             crop = brightnessAndConstraintAuto(crop, 1);
             CardExtract ce = new CardExtract(crop);
             crop = ce.run();
-
+            textSkewCorrection(crop);
 //            Imgproc.cvtColor(crop, crop, Imgproc.COLOR_BGR2GRAY);
             Bitmap bitmap = Bitmap.createBitmap(crop.width(), crop.height(), Bitmap.Config.ARGB_8888);
             Utils.matToBitmap(crop, bitmap, true);
             bms.add(bitmap);
         }
 
+        return Observable.just(bms);
+    }
+
+    public static Mat updateCropRectsOnImage(Mat src, List<Corners> textRects){
+        Mat img = src.clone();
         Imgproc.cvtColor(img, img, Imgproc.COLOR_BGR2RGB);
         for(int i=0; i < textRects.size(); i++){
             Corners textBoxCorners = textRects.get(i);
@@ -228,7 +232,7 @@ public class CardProcessor {
             Imgproc.line(img, textBoxCorners.getCorners().get(3), textBoxCorners.getCorners().get(0), new Scalar(0, 0, 255), 3);
         }
         Imgproc.cvtColor(img, img, Imgproc.COLOR_RGB2BGR);
-        return Observable.just(bms);
+        return img;
     }
 
     public static Observable<Boolean> textSkewCorrection(Mat image){
@@ -263,7 +267,7 @@ public class CardProcessor {
 
         angle /= lines.size().area();
         angle = angle * 180 / Math.PI;
-        AppLogger.i(String.valueOf(angle));
+        AppLogger.i("angle: " + String.valueOf(angle));
 
         if(!Double.isNaN(angle)){
             Mat white = new Mat(img.size(), CvType.CV_8UC1);
@@ -271,8 +275,8 @@ public class CardProcessor {
             MatOfPoint points = new MatOfPoint(white);
             MatOfPoint2f points2f = new MatOfPoint2f(points.toArray());
             RotatedRect box = Imgproc.minAreaRect(points2f);
-            AppLogger.i(String.valueOf(box.angle));
-            if(box.angle != 0.0 && box.angle != -90.0 && box.angle == 90.0){
+            AppLogger.i("angle2: " + String.valueOf(box.angle));
+            if(box.angle != 0.0 && box.angle != -0.0 && box.angle != -90.0 && box.angle != 90.0){
                 return Observable.just(deSkew(image, angle, box));
             }
         }

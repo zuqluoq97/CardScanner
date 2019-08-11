@@ -1,22 +1,33 @@
 package com.vgu.dungluong.cardscannerapp.ui.result;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.BR;
 import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.ViewModelProviderFactory;
+import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
+import com.vgu.dungluong.cardscannerapp.data.model.local.OnTouchZone;
 import com.vgu.dungluong.cardscannerapp.databinding.ActivityResultBinding;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivity;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
+import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -52,6 +63,9 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
         return R.layout.activity_result;
     }
 
+    private List<OnTouchZone> mOnTouchZones;
+
+    private int mStatusBarHeight;
 
     @Override
     public ResultViewModel getViewModel() {
@@ -73,6 +87,31 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
         checkPermission();
 
         setUp();
+        listeners();
+        subscribeToLiveData();
+    }
+
+
+    private void listeners() {
+        mResultBinding.cardImageView.setOnTouchListener((view, motionEvent) -> {
+            view.performClick();
+            mOnTouchZones.forEach(onTouchZone -> {
+                if (onTouchZone.contains(motionEvent.getX() / mResultViewModel.getScaleRatioWidth(), (motionEvent.getY() - mStatusBarHeight) / mResultViewModel.getScaleRatioHeight())) {
+                    // Your action
+                    List<Corners> currentCropAreas = mResultViewModel.getRects();
+                    currentCropAreas.remove(mOnTouchZones.indexOf(onTouchZone));
+                    mResultViewModel.updateCropAreas(currentCropAreas);
+                }
+            });
+            return false;
+        });
+    }
+
+    private void subscribeToLiveData() {
+        mResultViewModel.getOnTouchZones().observe(this, touchZones -> {
+            mOnTouchZones = touchZones;
+        });
+
     }
 
     @Override
@@ -82,7 +121,11 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
     }
 
     private void setUp() {
-
+        mOnTouchZones = new ArrayList<>();
+        Rect rectangle = new Rect();
+        Window window = getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+        mStatusBarHeight = rectangle.top;
     }
 
     @Override

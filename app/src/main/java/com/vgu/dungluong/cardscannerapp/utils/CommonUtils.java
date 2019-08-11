@@ -5,6 +5,9 @@ import android.content.Context;
 import android.text.Html;
 import android.widget.Toast;
 
+import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
+import com.vgu.dungluong.cardscannerapp.data.model.local.OnTouchZone;
+
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
@@ -95,4 +98,22 @@ public class CommonUtils {
 
         return new Rect(tl, br);
     }
+
+    public static OnTouchZone getOnTouchZone(Corners corners){
+        List<Point> points = corners.getCorners();
+        return new OnTouchZone(points.get(0).x, points.get(0).y, points.get(2).x, points.get(2).y);
+    }
+
+//    public static double[] toPrimitive(Double[] array) {
+//        if (array == null) {
+//            return null;
+//        } else if (array.length == 0) {
+//            return new double[]{};
+//        }
+//        final double[] result = new double[array.length];
+//        for (int i = 0; i < array.length; i++) {
+//            result[i] = array[i].doubleValue();
+//        }
+//        return result;
+//    }
 }

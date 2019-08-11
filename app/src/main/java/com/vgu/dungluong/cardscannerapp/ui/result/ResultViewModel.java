@@ -7,6 +7,7 @@ import com.googlecode.leptonica.android.Pix;
 import com.googlecode.leptonica.android.Rotate;
 import com.vgu.dungluong.cardscannerapp.data.DataManager;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
+import com.vgu.dungluong.cardscannerapp.data.model.local.OnTouchZone;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseViewModel;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardExtract;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
+import androidx.lifecycle.MutableLiveData;
 import opennlp.tools.doccat.DocumentCategorizerME;
 
 /**
@@ -42,6 +44,8 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     private Mat mCardPicture;
 
     private ObservableBoolean mIsOCRSucceed;
+
+    private ObservableBoolean mIsTextDetectSucceed;
 
     private ObservableField<String> mResultString;
 
@@ -55,9 +59,14 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
     private List<String> mOCRs;
 
+    private List<Corners> mRects;
+
+    private MutableLiveData<List<OnTouchZone>> mOnTouchZonesMutableLiveData;
+
     public ResultViewModel(DataManager dataManager, SchedulerProvider schedulerProvider) {
         super(dataManager, schedulerProvider);
-        mIsOCRSucceed = new ObservableBoolean(false);
+        mIsOCRSucceed = new ObservableBoolean(true);
+        mIsTextDetectSucceed = new ObservableBoolean(false);
         mResultString = new ObservableField<>("");
         bms = new ArrayList<>();
         mOCRs = new ArrayList<>();
@@ -65,15 +74,15 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         AppLogger.i(mCardPicture.height() + " " + mCardPicture.width());
         if(Objects.requireNonNull(mCardPicture).height() > mCardPicture.width())
             Core.rotate(mCardPicture, mCardPicture, Core.ROTATE_90_CLOCKWISE);
-//        CardProcessor.performGammaCorrection(0.8, mCardPicture);
-//        mCardPicture = CardProcessor.improveContrast(mCardPicture);
-
+        mRects = new ArrayList<>();
+        mOnTouchZonesMutableLiveData = new MutableLiveData<>();
     }
 
     public void displayCardImage(){
-        int cardHeight = getNavigator().getCardImageView().getWidth() * mCardPicture.height() / mCardPicture.width();
-        mBitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
-        Utils.matToBitmap(mCardPicture, mBitmap, true);
+        Mat img = CardProcessor.updateCropRectsOnImage(mCardPicture, getRects());
+        int cardHeight = (int) (getScaleRatioWidth() * img.height());
+        mBitmap = Bitmap.createBitmap(img.width(), img.height(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(img, mBitmap, true);
         getNavigator().getCardImageView().setImageBitmap(Bitmap.createScaledBitmap(mBitmap,
                 getNavigator().getCardImageView().getWidth(), cardHeight, false));
     }
@@ -99,8 +108,11 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(rects -> {
-                            cropTextArea(rects.getCorners());
+                            setIsLoading(false);
+                            updateCropAreas(rects.getCorners());
                             displayCardImage();
+                            setIsTextDetectSucceed(true);
+                            setIsOCRSucceed(false);
                         },
                         throwable -> {
                             setIsLoading(false);
@@ -108,9 +120,20 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                         }));
     }
 
-    public void cropTextArea(List<Corners> textBoxCorners){
+    public void updateCropAreas(List<Corners> corners){
+        mRects = corners;
+        List<OnTouchZone> onTouchZones = new ArrayList<>();
+        corners.forEach(rect -> {
+            onTouchZones.add(CommonUtils.getOnTouchZone(rect));
+        });
+        mOnTouchZonesMutableLiveData.setValue(onTouchZones);
+        displayCardImage();
+    }
+
+    public void cropTextArea(){
+        setIsLoading(true);
         getCompositeDisposable().add(CardProcessor
-                .cropTextArea(mCardPicture, textBoxCorners)
+                .cropTextArea(mCardPicture, getRects())
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(bitmaps -> {
@@ -188,15 +211,40 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         imageData[17] = (byte) (dpi & 0xff);
     }
 
+    public double getScaleRatioWidth(){
+        return (double) getNavigator().getCardImageView().getWidth() / mCardPicture.width();
+    }
+
+    public double getScaleRatioHeight(){
+        return (double) getNavigator().getCardImageView().getHeight() / mCardPicture.height();
+    }
+
     public ObservableBoolean getIsOCRSucceed() {
         return mIsOCRSucceed;
+    }
+
+    public ObservableBoolean getIsTextDetectSucceed() {
+        return mIsTextDetectSucceed;
     }
 
     public void setIsOCRSucceed(boolean isOCRSucceed) {
         mIsOCRSucceed.set(isOCRSucceed);
     }
 
+    public void setIsTextDetectSucceed(boolean isTextDetectSucceed) {
+        mIsTextDetectSucceed.set(isTextDetectSucceed);
+    }
+
     public ObservableField<String> getResultString() {
         return mResultString;
     }
+
+    public List<Corners> getRects() {
+        return mRects;
+    }
+
+    public MutableLiveData<List<OnTouchZone>> getOnTouchZones() {
+        return mOnTouchZonesMutableLiveData;
+    }
+
 }

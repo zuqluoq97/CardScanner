@@ -19,6 +19,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 
 import com.vgu.dungluong.cardscannerapp.BR;
 import com.vgu.dungluong.cardscannerapp.R;
@@ -160,9 +161,11 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
      */
     @Override
     public int getTopOffSet() {
-        DisplayMetrics dm = new DisplayMetrics();
-        this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        return dm.heightPixels - getSurfaceView().getMeasuredHeight();
+        Rect rectangle = new Rect();
+        Window window = getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
+
+        return rectangle.top;
     }
 
     @Override

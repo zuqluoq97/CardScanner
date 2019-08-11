@@ -14,6 +14,7 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.Math.abs;
 import static org.opencv.core.Core.BORDER_CONSTANT;
@@ -41,6 +42,7 @@ public class CardExtract {
         Imgproc.resize(img,img,size,INTER_AREA);
         img_y = img.rows();
         img_x = img.cols();
+        AppLogger.i(img_y + " " + img_x);
         Mat gray = new Mat();
         Imgproc.bilateralFilter(img, gray, 5, 150, 150, BORDER_CONSTANT);
         Imgproc.cvtColor(gray, gray, COLOR_BGR2GRAY);
@@ -95,7 +97,7 @@ public class CardExtract {
             Rect rect=Imgproc.boundingRect(keepers.get(i));
             double x_=rect.x, y_=rect.y, width=rect.width, height=rect.height;
 
-            double [] bg_int = new double[]{
+            List<Double> mBgIntensities = Arrays.asList(
                     //# bottom left corner 3 pixels
                     ii(x_ - 1, y_ - 1),
                     ii(x_ - 1, y_),
@@ -114,8 +116,12 @@ public class CardExtract {
                     //# top right corner 3 pixels
                     ii(x_ + width + 1, y_ + height + 1),
                     ii(x_ + width, y_ + height + 1),
-                    ii(x_ + width + 1, y_ + height)
-            };
+                    ii(x_ + width + 1, y_ + height));
+
+
+            mBgIntensities = mBgIntensities.stream().filter(intensity -> intensity > -1).collect(Collectors.toList());
+
+            double [] bg_int = mBgIntensities.stream().mapToDouble(d -> d).toArray();
 
             //# Find the median of the background
             //# pixels determined above
@@ -145,6 +151,9 @@ public class CardExtract {
                 }
             }
         }
+        Mat sharpen = new Mat();
+        Imgproc.GaussianBlur(new_image, sharpen, new Size(0,0), 3);
+        Core.addWeighted(new_image, 1.5, sharpen, -0.5, 0, new_image);
         return new_image;
     }
     // Function for calculating median
@@ -164,12 +173,13 @@ public class CardExtract {
     private double ii(double xx,double yy){
         if ((yy >= img_y) || (xx >= img_x)) {
             //System.out.println("pixel out of bounds ("+str(y)+","+str(x)+")");
-            return 0;
+            return -1;
         }
         double[] pixel = img.get((int)yy,(int)xx);
         //return 0.2126 * pixel[0] + 0.7152 * pixel[1] + 0.0722 * pixel[2];
         return 0.299 * pixel[0] + 0.587 * pixel[1] + 0.114 * pixel[2];
     }
+
     // Whether we care about this contour
     private boolean keep(MatOfPoint contour){
         return keep_box(contour) && connected(contour);

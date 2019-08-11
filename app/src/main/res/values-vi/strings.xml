@@ -9,6 +9,7 @@
     <!-- button title -->
     <string name="confirm_title">Xác nhận</string>
     <string name="crop_title">Cắt</string>
+    <string name="detect_text">Phát hiện chữ</string>
     <string name="ocr_title">Đọc thông tin</string>
     <!-- app message -->
     <string name="double_to_exit">Nhấn phím LÙI lần nữa để thoát!</string>

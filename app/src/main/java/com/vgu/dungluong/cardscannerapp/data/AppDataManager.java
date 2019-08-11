@@ -91,17 +91,9 @@ public class AppDataManager implements DataManager{
         tessBaseAPI.setImage(bitmap);
         result = tessBaseAPI.getUTF8Text();
         ResultIterator iterator = tessBaseAPI.getResultIterator();
-
         int level = TessBaseAPI.PageIteratorLevel.RIL_TEXTLINE;
         float confident = iterator.confidence(level);
-//        int level2 = TessBaseAPI.PageIteratorLevel.RIL_PARA;
-//        do{
-//            String text = iterator.getUTF8Text(level2);
-//            float confident2 = iterator.confidence(level2);
-//            AppLogger.i(text + " " + confident2);
-//
-//        }while(iterator.next(level2));
-//        AppLogger.i(result + " " + confident);
+        AppLogger.i(result + " " + confident);
         return Observable.just(new Pair<>(result, confident));
     }
 
