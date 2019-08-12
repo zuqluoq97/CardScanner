@@ -3,6 +3,7 @@ package com.vgu.dungluong.cardscannerapp.data;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.util.Pair;
 
 import com.googlecode.tesseract.android.ResultIterator;
@@ -17,6 +18,7 @@ import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -63,7 +65,7 @@ public class AppDataManager implements DataManager{
     }
 
     @Override
-    public Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera, List<Point> cropCoordinates) {
+    public Observable<Boolean> handleTakenPicture(byte[] bytes, Camera camera, List<Point> cropCoordinates) {
         Camera.Size pictureSize = camera.getParameters().getPictureSize();
         AppLogger.i("Picture size " + pictureSize.height + " " + pictureSize.width);
 
@@ -80,6 +82,34 @@ public class AppDataManager implements DataManager{
         Corners corners = processPicture(pic);
         SourceManager.getInstance().setCorners(corners);
         Imgproc.cvtColor(pic, pic, Imgproc.COLOR_RGB2BGR);
+        SourceManager.getInstance().setPic(pic);
+
+        return Observable.just(true);
+    }
+
+    @Override
+    public Observable<Boolean> handleSeletedPicture(Bitmap bitmap, int orientation) {
+        // Rean an image from a buffer in memory
+        Mat pic = new Mat();
+        AppLogger.i(bitmap.getHeight() + " " + bitmap.getWidth());
+        Utils.bitmapToMat(bitmap, pic);
+        switch(orientation) {
+            case 90:
+                Core.rotate(pic, pic, Core.ROTATE_90_CLOCKWISE);
+                break;
+            case 180:
+                Core.rotate(pic, pic, Core.ROTATE_180);
+                break;
+            case 270:
+                Core.rotate(pic, pic, Core.ROTATE_90_COUNTERCLOCKWISE);
+                break;
+            default:
+                break;
+        }
+
+        // Set corners && picture
+        Corners corners = processPicture(pic);
+        SourceManager.getInstance().setCorners(corners);
         SourceManager.getInstance().setPic(pic);
 
         return Observable.just(true);

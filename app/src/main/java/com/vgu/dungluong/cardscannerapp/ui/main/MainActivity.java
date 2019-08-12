@@ -1,16 +1,21 @@
 package com.vgu.dungluong.cardscannerapp.ui.main;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.media.MediaActionSound;
+import android.net.Uri;
 import android.os.Bundle;
 
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -52,6 +57,8 @@ import androidx.core.view.LayoutInflaterCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.CODE_PERMISSIONS_REQUEST;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.GALLERY_REQUEST_CODE;
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.IS_SELECTED_CARD;
 
 /**
  * Created by Dung Luong on 17/06/2019
@@ -152,8 +159,10 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
     }
 
     @Override
-    public void openCropActivity() {
-        startActivity(CropActivity.newIntent(MainActivity.this));
+    public void openCropActivity(boolean isSelectedCard) {
+        Intent intent = CropActivity.newIntent(MainActivity.this);
+        intent.putExtra(IS_SELECTED_CARD, isSelectedCard);
+        startActivity(intent);
     }
 
     /*
@@ -184,6 +193,19 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
         getViewModel().getDataManager().setNewLocale(this, locale);
         showMessage(locale);
         restart();
+    }
+
+    @Override
+    public void openGallery() {
+        //Create an Intent with action as ACTION_PICK
+        Intent intent=new Intent(Intent.ACTION_PICK);
+        // Sets the type as image/*. This ensures only components of type image are selected
+        intent.setType("image/*");
+        //We pass an extra array with the accepted mime types. This will ensure only components with these MIME types as targeted.
+        String[] mimeTypes = {"image/jpeg", "image/png"};
+        intent.putExtra(Intent.EXTRA_MIME_TYPES,mimeTypes);
+        // Launching the Intent
+        startActivityForResult(intent, GALLERY_REQUEST_CODE);
     }
 
     @Override
@@ -221,5 +243,31 @@ public class MainActivity extends BaseActivity<ActivityMainBinding, MainViewMode
             CommonUtils.showQuickToast(this, getString(R.string.double_to_exit));
         }
         mBackPressResponseTime = System.currentTimeMillis();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        // Result code is RESULT_OK only if the user selects an Image
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK)
+            switch (requestCode) {
+                case GALLERY_REQUEST_CODE:
+                    //data.getData return the content URI for the selected Image
+                    Uri selectedImage = data.getData();
+                    String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                    // Get the cursor
+                    Cursor cursor = getContentResolver().query(selectedImage, filePathColumn, null, null, null);
+                    // Move to first row
+                    cursor.moveToFirst();
+                    //Get the column index of MediaStore.Images.Media.DATA
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    //Gets the String value in the column
+                    String imgDecodableString = cursor.getString(columnIndex);
+                    cursor.close();
+                    // Set the Image in ImageView after decoding the String
+                    mMainViewModel.handlePictureChosen(BitmapFactory.decodeFile(imgDecodableString),
+                            CommonUtils.getCameraPhotoOrientation(this, selectedImage, imgDecodableString));
+                    break;
+            }
     }
 }

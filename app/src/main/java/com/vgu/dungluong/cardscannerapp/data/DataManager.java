@@ -21,7 +21,9 @@ import io.reactivex.Observable;
  */
 public interface DataManager extends PermissionHelper, PreferenceHelper, ApiHelper, LocaleHelper {
 
-    Observable<Boolean> handleTakenPictureByte(byte[] bytes, Camera camera, List<Point> cropCoordinates);
+    Observable<Boolean> handleTakenPicture(byte[] bytes, Camera camera, List<Point> cropCoordinates);
+
+    Observable<Boolean> handleSeletedPicture(Bitmap bitmap, int orientation);
 
     Observable<Pair<String, Float>> doTesseract(Bitmap bitmap, TessBaseAPI tessBaseAPI);
 

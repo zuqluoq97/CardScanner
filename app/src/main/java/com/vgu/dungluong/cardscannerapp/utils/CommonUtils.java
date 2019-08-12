@@ -2,6 +2,8 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.text.Html;
 import android.widget.Toast;
 
@@ -11,6 +13,7 @@ import com.vgu.dungluong.cardscannerapp.data.model.local.OnTouchZone;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 
+import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 
@@ -104,16 +107,32 @@ public class CommonUtils {
         return new OnTouchZone(points.get(0).x, points.get(0).y, points.get(2).x, points.get(2).y);
     }
 
-//    public static double[] toPrimitive(Double[] array) {
-//        if (array == null) {
-//            return null;
-//        } else if (array.length == 0) {
-//            return new double[]{};
-//        }
-//        final double[] result = new double[array.length];
-//        for (int i = 0; i < array.length; i++) {
-//            result[i] = array[i].doubleValue();
-//        }
-//        return result;
-//    }
+    public static int getCameraPhotoOrientation(Context context, Uri imageUri, String imagePath){
+        int rotate = 0;
+        try {
+            context.getContentResolver().notifyChange(imageUri, null);
+            File imageFile = new File(imagePath);
+
+            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+            int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotate = 270;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotate = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotate = 90;
+                    break;
+            }
+
+            AppLogger.i("RotateImage" + " Exif orientation: " + orientation);
+            AppLogger.i("RotateImage" + " Rotate value: " + rotate);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return rotate;
+    }
 }

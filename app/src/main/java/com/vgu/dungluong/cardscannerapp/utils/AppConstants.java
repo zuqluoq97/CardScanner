@@ -39,4 +39,8 @@ public class AppConstants {
     public static final String LANGUAGE_MODEL = "langdetect-183.bin";
     public static final double EPISILON = 1E-8;
 
+    public static final int GALLERY_REQUEST_CODE = 1;
+
+    public static final String IS_SELECTED_CARD = "IS_SELECTED_CARD";
+
 }

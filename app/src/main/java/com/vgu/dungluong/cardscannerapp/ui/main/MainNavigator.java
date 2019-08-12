@@ -25,7 +25,7 @@ public interface MainNavigator {
 
     void onShutButtonClick();
 
-    void openCropActivity();
+    void openCropActivity(boolean isSelectedCard);
 
     int getTopOffSet();
 
@@ -33,4 +33,5 @@ public interface MainNavigator {
 
     void updateLocale(String locale);
 
+    void openGallery();
 }

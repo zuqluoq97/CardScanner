@@ -125,6 +125,7 @@ public class CardProcessor {
 
     private static Corners findContours(Mat src) {
         double coeff = 0.1;
+        AppLogger.i(src.width() + " " + src.height());
         // Down sample
         Size croppedSize = new Size(src.size().width * coeff, src.size().height * coeff);
         Mat resizeMat = src.clone();
@@ -173,7 +174,9 @@ public class CardProcessor {
                             continue;
                         double height = distance2Points(maxTr.get(j), maxBr.get(k));
                         double width = distance2Points(maxTl.get(i), maxTr.get(j));
-                        double ratio = height / width;
+                        double ratio;
+                        if(height > width) ratio = height / width;
+                        else ratio = width / height;
                         if (ratio > 1.60 && ratio < 1.70) {
                             AppLogger.i("found");
                             AppLogger.i(height + " " + width + " " + (img.size().area() / 4));
@@ -194,8 +197,6 @@ public class CardProcessor {
                 new Point(imgSize.width * 9/10, imgSize.height * 9/10),
                 new Point(imgSize.width / 10, imgSize.height * 9/10));
     }
-
-
 
     public static Observable<List<Bitmap>> cropTextArea(Mat img, List<Corners> textRects) {
 

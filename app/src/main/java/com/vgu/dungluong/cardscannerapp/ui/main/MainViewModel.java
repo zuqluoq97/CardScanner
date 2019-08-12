@@ -1,5 +1,6 @@
 package com.vgu.dungluong.cardscannerapp.ui.main;
 
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Handler;
 
@@ -9,6 +10,7 @@ import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import org.opencv.core.Point;
+import org.opencv.core.Size;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,18 +33,36 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
         getNavigator().onShutButtonClick();
     }
 
+    public void onGalleryItemClick(){
+        getNavigator().openGallery();
+    }
+
     public void changeLanguageOCR(){
         getNavigator().updateLocale(getDataManager().getLocale().equals("en") ? "vi" : "en");
     }
 
     public void handlePictureTaken(byte[] bytes, Camera camera){
         getCompositeDisposable().add(getDataManager()
-                .handleTakenPictureByte(bytes, camera, findCropCoordinate(camera))
+                .handleTakenPicture(bytes, camera, findCropCoordinate(camera))
                 .subscribeOn(getSchedulerProvider().io())
                 .observeOn(getSchedulerProvider().ui())
                 .subscribe(result -> {
                     setIsLoading(false);
-                    getNavigator().openCropActivity();
+                    getNavigator().openCropActivity(false);
+                }, throwable -> {
+                    setIsLoading(false);
+                    AppLogger.e(throwable.getLocalizedMessage());
+                }));
+    }
+
+    public void handlePictureChosen(Bitmap bitmap, int orientation){
+        getCompositeDisposable().add(getDataManager()
+                .handleSeletedPicture(bitmap, orientation)
+                .subscribeOn(getSchedulerProvider().io())
+                .observeOn(getSchedulerProvider().ui())
+                .subscribe(result -> {
+                    setIsLoading(false);
+                    getNavigator().openCropActivity(true);
                 }, throwable -> {
                     setIsLoading(false);
                     AppLogger.e(throwable.getLocalizedMessage());
@@ -52,6 +72,7 @@ public class MainViewModel extends BaseViewModel<MainNavigator> {
     private List<Point> findCropCoordinate(Camera camera){
         int[] locations = new int[2];
         Camera.Size pictureSize = camera.getParameters().getPictureSize();
+        AppLogger.i(pictureSize.width + "  " + pictureSize.height);
         getNavigator().getCroppedView().getLocationOnScreen(locations);
         AppLogger.i(Arrays.toString(locations));
         float cropWidthRatio = (float) 17 / 3;

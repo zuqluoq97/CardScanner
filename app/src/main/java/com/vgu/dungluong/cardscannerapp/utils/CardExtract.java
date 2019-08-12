@@ -47,7 +47,7 @@ public class CardExtract {
         Imgproc.bilateralFilter(img, gray, 5, 150, 150, BORDER_CONSTANT);
         Imgproc.cvtColor(gray, gray, COLOR_BGR2GRAY);
         Mat edges=new Mat();
-        Imgproc.Canny(gray,edges,70,210);
+        Imgproc.Canny(gray,edges,65,195);
         contours=new ArrayList<>();
         Mat hierarchy=new Mat();
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);

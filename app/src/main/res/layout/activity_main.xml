@@ -70,6 +70,18 @@
                 android:onClick="@{() -> viewModel.changeLanguageOCR()}"
                 tools:ignore="ContentDescription" />
 
+            <ImageView
+                android:id="@+id/gallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                app:srcCompat="@drawable/ic_gallery"
+                android:clickable="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.onGalleryItemClick()}"
+                tools:ignore="ContentDescription" />
+
         </RelativeLayout>
 
         <androidx.core.widget.ContentLoadingProgressBar

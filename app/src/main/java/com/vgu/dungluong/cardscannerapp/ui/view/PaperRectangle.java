@@ -113,7 +113,7 @@ public class PaperRectangle extends View {
         invalidate();
     }
 
-    public void onCorners2Crop(@Nullable Corners corners, @Nullable Size size) {
+    public void onCorners2Crop(@Nullable Corners corners, @Nullable Size size, int height) {
         cropMode = true;
 
         int space = 30;
@@ -129,8 +129,9 @@ public class PaperRectangle extends View {
                 br = corners.getCorners().get(2);
                 bl = corners.getCorners().get(3);
                 if (size != null) {
-                    ratioX = size.width / this.getWidth();
-                    ratioY = size.height / this.getHeight();
+                    this.ratioX = size.width / this.getWidth();
+                    if(this.getHeight() == 0) this.ratioY = size.height / height;
+                    else this.ratioY = size.height / this.getHeight();
                 }
                 resize();
             }
@@ -222,6 +223,7 @@ public class PaperRectangle extends View {
     }
 
     private void reverseSize() {
+        AppLogger.i(ratioX + " " + ratioY);
         this.tl.x *= this.ratioX;
         this.tl.y *= this.ratioY;
         this.tr.x *= this.ratioX;

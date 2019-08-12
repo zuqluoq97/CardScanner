@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
@@ -28,6 +29,8 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
+
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.IS_SELECTED_CARD;
 
 /**
  * Created by Dung Luong on 19/06/2019
@@ -70,18 +73,22 @@ public class CropActivity extends BaseActivity<ActivityCropBinding, CropViewMode
         mCropBinding = getViewDataBinding();
         mCropViewModel.setNavigator(this);
         mCropBinding.setViewModel(mCropViewModel);
-
+        mCropViewModel.setIsCardSelected(getIntent().getBooleanExtra(IS_SELECTED_CARD, false));
         setUp();
     }
 
     private void setUp() {
-        mCropViewModel.prepareImage();
+        new Handler().postDelayed(() ->mCropViewModel.prepareImage(), 500);
     }
-
 
     @Override
     public ImageView getCroppedPaper() {
         return mCropBinding.pictureCropped;
+    }
+
+    @Override
+    public ImageView getCroppedPaper2() {
+        return mCropBinding.pictureSelected;
     }
 
     @Override
@@ -94,6 +101,11 @@ public class CropActivity extends BaseActivity<ActivityCropBinding, CropViewMode
     @Override
     public PaperRectangle getPaperRect() {
         return mCropBinding.paperRect;
+    }
+
+    @Override
+    public PaperRectangle getPaperRect2() {
+        return mCropBinding.paperRect2;
     }
 
     @Override

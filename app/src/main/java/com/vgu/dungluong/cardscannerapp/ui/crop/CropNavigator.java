@@ -13,9 +13,13 @@ public interface CropNavigator {
 
     ImageView getCroppedPaper();
 
+    ImageView getCroppedPaper2();
+
     int getTopOffSet();
 
     PaperRectangle getPaperRect();
+
+    PaperRectangle getPaperRect2();
 
     void openResultActivity();
 }
