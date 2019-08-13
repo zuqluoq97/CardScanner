@@ -37,17 +37,17 @@ public class CardExtract {
     }
 
     public Mat run() {
-        double scale = 0.7;
-        Size size = new Size(img.width() * scale, img.height() * scale);
-        Imgproc.resize(img,img,size,INTER_AREA);
+        double scale = img.size().height/55;
+        Size size;
+        size = new Size(img.size().width / scale, 55);
+        if(scale > 1) Imgproc.resize(img,img,size, INTER_AREA);
         img_y = img.rows();
         img_x = img.cols();
-        AppLogger.i(img_y + " " + img_x);
         Mat gray = new Mat();
         Imgproc.bilateralFilter(img, gray, 5, 150, 150, BORDER_CONSTANT);
         Imgproc.cvtColor(gray, gray, COLOR_BGR2GRAY);
         Mat edges=new Mat();
-        Imgproc.Canny(gray,edges,65,195);
+        Imgproc.Canny(gray,edges,70,210);
         contours=new ArrayList<>();
         Mat hierarchy=new Mat();
         Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);

@@ -91,7 +91,7 @@ public class AppDataManager implements DataManager{
     public Observable<Boolean> handleSeletedPicture(Bitmap bitmap, int orientation) {
         // Rean an image from a buffer in memory
         Mat pic = new Mat();
-        AppLogger.i(bitmap.getHeight() + " " + bitmap.getWidth());
+
         Utils.bitmapToMat(bitmap, pic);
         switch(orientation) {
             case 90:
