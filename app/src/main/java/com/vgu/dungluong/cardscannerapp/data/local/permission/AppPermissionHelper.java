@@ -36,4 +36,9 @@ public class AppPermissionHelper implements PermissionHelper{
     public boolean hasWriteExternalStorage() {
         return ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
+
+    @Override
+    public boolean hasWriteContact() {
+        return ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED;
+    }
 }

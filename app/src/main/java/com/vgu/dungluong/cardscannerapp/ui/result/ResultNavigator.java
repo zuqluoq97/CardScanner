@@ -1,5 +1,6 @@
 package com.vgu.dungluong.cardscannerapp.ui.result;
 
+import android.content.ContentResolver;
 import android.widget.ImageView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
@@ -22,4 +23,6 @@ public interface ResultNavigator {
     TessBaseAPI getTesseractApi();
 
     File getFileForCropImage();
+
+    ContentResolver getContentResolver();
 }

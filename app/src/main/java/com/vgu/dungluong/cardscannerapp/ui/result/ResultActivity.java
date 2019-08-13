@@ -1,6 +1,7 @@
 package com.vgu.dungluong.cardscannerapp.ui.result;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -153,4 +154,8 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
         return new File(Environment.getExternalStorageDirectory(), "crop.jpg");
     }
 
+    @Override
+    public ContentResolver getContentResolver() {
+        return super.getContentResolver();
+    }
 }

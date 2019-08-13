@@ -13,6 +13,7 @@ import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardExtract;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
+import com.vgu.dungluong.cardscannerapp.utils.ContactUtils;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
@@ -159,6 +160,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                             idx2++;
                             if(idx2 == bitmap.size()){
                                 displayOCR();
+                                ContactUtils.addContact(getNavigator().getContentResolver());
                             }
                     }, throwable -> {
                         getNavigator().handleError(throwable.getLocalizedMessage());

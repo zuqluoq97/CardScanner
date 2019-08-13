@@ -141,7 +141,9 @@ public abstract class BaseActivity<T extends ViewDataBinding, V extends BaseView
                 || ActivityCompat.shouldShowRequestPermissionRationale(this,
                 PERMISSIONS[1])
                 || ActivityCompat.shouldShowRequestPermissionRationale(this,
-                PERMISSIONS[2])){
+                PERMISSIONS[2])
+                || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                PERMISSIONS[3])){
             // Provide an additional rationale to the user if the permissions were not granted
             // and the user would benefit from additional contest for the use of the permission.
             // For example if the user has previously denied the permission

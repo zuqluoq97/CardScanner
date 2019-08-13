@@ -75,7 +75,8 @@ public abstract class BaseViewModel<N> extends ViewModel implements Observable {
     public boolean haveFullPermissionGained(){
         return getDataManager().hasUseCamera()
                 && getDataManager().hasReadExternalStorage()
-                && getDataManager().hasWriteExternalStorage();
+                && getDataManager().hasWriteExternalStorage()
+                && getDataManager().hasWriteContact();
     }
 
     @Override

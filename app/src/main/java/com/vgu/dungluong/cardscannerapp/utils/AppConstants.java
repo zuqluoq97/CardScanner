@@ -15,7 +15,8 @@ public class AppConstants {
 
     public static final String[] PERMISSIONS = {Manifest.permission.CAMERA,
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_CONTACTS};
 
     /**
      * Conversion from screen rotation to JPEG orientation.
