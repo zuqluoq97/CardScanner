@@ -5,6 +5,8 @@ import android.os.Environment;
 import android.util.SparseIntArray;
 import android.view.Surface;
 
+import java.util.regex.Pattern;
+
 /**
  * Created by Dung Luong on 17/06/2019
  */
@@ -16,7 +18,8 @@ public class AppConstants {
     public static final String[] PERMISSIONS = {Manifest.permission.CAMERA,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_CONTACTS};
+            Manifest.permission.WRITE_CONTACTS,
+            Manifest.permission.READ_CONTACTS};
 
     /**
      * Conversion from screen rotation to JPEG orientation.
@@ -43,5 +46,9 @@ public class AppConstants {
     public static final int GALLERY_REQUEST_CODE = 1;
 
     public static final String IS_SELECTED_CARD = "IS_SELECTED_CARD";
+
+    // REGEX
+    public static final Pattern EMAIL_ADDDRESS_PATTERN = Pattern.compile("([a-zA-Z0-9.]+\\(?+@[a-zA-Z0-9.]+\\.[a-zA-Z0-9]+)");
+    public static final Pattern INTENT_EMAIL_ADDDRESS_PATTERN = Pattern.compile(".+@.+\\..+");
 
 }

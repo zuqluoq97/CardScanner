@@ -1,6 +1,6 @@
 set(pathToProject G:/ProjectAndroid/CardScanner)
 
-set(pathToOpenCV G:/Software/opencv/opencv-4.1.0-android-sdk/OpenCV-android-sdk/sdk)
+set(pathToOpenCV G:/Soware/openc/opencv-4.1.0-android-sdk/OpenCV-android-sdk/sdk)
 
 
 # For more information about using CMake with Android Studio, read the

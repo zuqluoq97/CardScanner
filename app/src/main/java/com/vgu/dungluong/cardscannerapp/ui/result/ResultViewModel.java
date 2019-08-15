@@ -3,6 +3,7 @@ package com.vgu.dungluong.cardscannerapp.ui.result;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+import com.androidnetworking.utils.ParseUtil;
 import com.googlecode.leptonica.android.Pix;
 import com.googlecode.leptonica.android.Rotate;
 import com.vgu.dungluong.cardscannerapp.data.DataManager;
@@ -14,6 +15,7 @@ import com.vgu.dungluong.cardscannerapp.utils.CardExtract;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
 import com.vgu.dungluong.cardscannerapp.utils.ContactUtils;
+import com.vgu.dungluong.cardscannerapp.utils.ParserUtils;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
@@ -160,7 +162,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                             idx2++;
                             if(idx2 == bitmap.size()){
                                 displayOCR();
-                                ContactUtils.addContact(getNavigator().getContentResolver());
+                                //ContactUtils.addContact(getNavigator().getContentResolver());
                             }
                     }, throwable -> {
                         getNavigator().handleError(throwable.getLocalizedMessage());
@@ -172,7 +174,10 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     private void displayOCR(){
         setIsLoading(false);
         final String[] result = {""};
-        mOCRs.forEach(ocr -> result[0] += ocr + "\n");
+        mOCRs.forEach(ocr -> {
+            result[0] += ocr + "\n";
+        });
+        AppLogger.i(ParserUtils.parseEmails(mOCRs).toString());
         mResultString.set(result[0]);
     }
 

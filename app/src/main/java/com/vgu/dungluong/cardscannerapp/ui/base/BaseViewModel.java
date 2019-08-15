@@ -76,7 +76,8 @@ public abstract class BaseViewModel<N> extends ViewModel implements Observable {
         return getDataManager().hasUseCamera()
                 && getDataManager().hasReadExternalStorage()
                 && getDataManager().hasWriteExternalStorage()
-                && getDataManager().hasWriteContact();
+                && getDataManager().hasWriteContact()
+                && getDataManager().hasReadContact();
     }
 
     @Override

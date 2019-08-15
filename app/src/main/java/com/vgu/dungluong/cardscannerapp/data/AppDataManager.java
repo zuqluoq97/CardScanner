@@ -148,6 +148,11 @@ public class AppDataManager implements DataManager{
     }
 
     @Override
+    public boolean hasReadContact() {
+        return mPermissionHelper.hasReadContact();
+    }
+
+    @Override
     public Single<Rects> doServerTextDetection(File imgFile) {
         return mApiHelper.doServerTextDetection(imgFile);
     }

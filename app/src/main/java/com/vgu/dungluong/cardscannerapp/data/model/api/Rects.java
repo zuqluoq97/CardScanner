@@ -60,9 +60,9 @@ public abstract class Rects implements Parcelable {
                 int x = rect.get(i);
                 int y = rect.get(i+1);
 
-                if (i == 0) y -= height1 / 5;
+                if (i == 0) y -= height1 / 4;
                 else if (i == 2) y -= height2 / 5;
-                else if(i == 4) y += height2 / 5;
+                else if(i == 4) y += height2 / 4;
                 else if (i == 6) y += height1 / 5;
 
                 coordinates.add(new Point(x, y));

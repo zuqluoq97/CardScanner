@@ -12,4 +12,6 @@ public interface PermissionHelper {
     boolean hasWriteExternalStorage();
 
     boolean hasWriteContact();
+
+    boolean hasReadContact();
 }

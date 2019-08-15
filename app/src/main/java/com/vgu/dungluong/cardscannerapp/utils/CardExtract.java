@@ -37,9 +37,9 @@ public class CardExtract {
     }
 
     public Mat run() {
-        double scale = img.size().height/55;
+        double scale = img.size().height/60;
         Size size;
-        size = new Size(img.size().width / scale, 55);
+        size = new Size(img.size().width / scale, 60);
         if(scale > 1) Imgproc.resize(img,img,size, INTER_AREA);
         img_y = img.rows();
         img_x = img.cols();
@@ -117,7 +117,6 @@ public class CardExtract {
                     ii(x_ + width + 1, y_ + height + 1),
                     ii(x_ + width, y_ + height + 1),
                     ii(x_ + width + 1, y_ + height));
-
 
             mBgIntensities = mBgIntensities.stream().filter(intensity -> intensity > -1).collect(Collectors.toList());
 

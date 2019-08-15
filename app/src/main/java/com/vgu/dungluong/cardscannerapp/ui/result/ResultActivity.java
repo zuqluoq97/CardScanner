@@ -96,14 +96,16 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
     private void listeners() {
         mResultBinding.cardImageView.setOnTouchListener((view, motionEvent) -> {
             view.performClick();
-            mOnTouchZones.forEach(onTouchZone -> {
+            for(int i = 0; i < mOnTouchZones.size(); i++){
+                OnTouchZone onTouchZone = mOnTouchZones.get(i);
                 if (onTouchZone.contains(motionEvent.getX() / mResultViewModel.getScaleRatioWidth(), (motionEvent.getY() - mStatusBarHeight) / mResultViewModel.getScaleRatioHeight())) {
                     // Your action
                     List<Corners> currentCropAreas = mResultViewModel.getRects();
                     currentCropAreas.remove(mOnTouchZones.indexOf(onTouchZone));
                     mResultViewModel.updateCropAreas(currentCropAreas);
+                    break;
                 }
-            });
+            }
             return false;
         });
     }
