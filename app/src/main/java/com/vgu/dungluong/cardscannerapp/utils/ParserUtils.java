@@ -17,14 +17,16 @@ public class ParserUtils {
         List<String> emails = new ArrayList<>();
         texts.forEach(text -> {
             if(consider(text)){
-                emails.addAll(extractEmails(text));
+                List<String> validEmails = extractEmails(text);
+                if(validEmails.size() > 0) emails.addAll(extractEmails(text));
+                else emails.add(text);
             }
         });
         return emails;
     }
 
     // Check email address intent
-    public static boolean consider(String line) {
+    private static boolean consider(String line) {
         if (AppConstants.INTENT_EMAIL_ADDDRESS_PATTERN.matcher(line).matches()) {
             return true;
         }else{
@@ -32,7 +34,7 @@ public class ParserUtils {
         }
     }
 
-    public static List<String> extractEmails(String text){
+    private static List<String> extractEmails(String text){
         List<String> matches = new ArrayList<String>();
         Matcher m = AppConstants.EMAIL_ADDDRESS_PATTERN.matcher(text);
         while(m.find()) {
