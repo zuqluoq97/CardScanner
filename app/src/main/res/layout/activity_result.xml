@@ -10,107 +10,449 @@
             type="com.vgu.dungluong.cardscannerapp.ui.result.ResultViewModel"/>
     </data>
 
-    <androidx.core.widget.NestedScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_height="match_parent"
+        android:background="@color/light_gray"
+        android:fitsSystemWindows="true"
+        android:focusableInTouchMode="true">
+
+        <RelativeLayout
+            android:id="@+id/cardLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@color/white_bg">
+            android:layout_height="wrap_content">
 
             <ImageView
                 android:id="@+id/cardImageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@color/light_gray"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:ignore="ContentDescription"
-                android:background="@color/gray"/>
-
-            <ImageView
-                android:id="@+id/rotateButton"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_centerInParent="true"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintEnd_toEndOf="@+id/cardImageView"
-                app:layout_constraintBottom_toBottomOf="@+id/cardImageView"
-                app:srcCompat="@drawable/ic_rotate"
-                android:clickable="@{!viewModel.isLoading}"
-                android:onClick="@{() -> viewModel.rotate()}"
-                android:visibility="@{viewModel.isOCRSucceed ? View.GONE : View.VISIBLE}"
-                tools:ignore="ContentDescription"
-                android:background="?android:attr/selectableItemBackground"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/textDetectButton"
-                style="@style/Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/detect_text"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardImageView"
-                android:visibility="@{viewModel.isTextDetectSucceed ? View.GONE : View.VISIBLE}"
-                android:enabled="@{!viewModel.isLoading}"
-                android:onClick="@{() -> viewModel.textDetect()}"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/ocrButton"
-                style="@style/Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/ocr_title"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardImageView"
-                android:visibility="@{viewModel.isOCRSucceed ? View.GONE : View.VISIBLE}"
-                android:enabled="@{!viewModel.isLoading}"
-                android:onClick="@{() -> viewModel.cropTextArea()}"/>
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/nextButton"
-                style="@style/Button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="next"
-                app:layout_constraintStart_toEndOf="@+id/ocrButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardImageView"
-                android:visibility="@{viewModel.isOCRSucceed ? View.GONE : View.VISIBLE}"
-                android:enabled="@{!viewModel.isLoading}"
-                android:onClick="@{() -> viewModel.next()}"/>
+                tools:ignore="ContentDescription" />
 
             <androidx.core.widget.ContentLoadingProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleLarge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="@+id/cardImageView"
-                app:layout_constraintStart_toStartOf="@+id/cardImageView"
-                app:layout_constraintEnd_toEndOf="@+id/cardImageView"
-                app:layout_constraintBottom_toBottomOf="@+id/cardImageView"
+                android:layout_centerInParent="true"
                 android:elevation="11dp"
                 android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}" />
 
-            <TextView
-                android:id="@+id/ocrResult"
-                android:layout_width="match_parent"
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/actionSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/cardLayout"
+            android:background="@color/trans_black"
+            android:visibility="@{viewModel.isOCRSucceed  ? View.GONE : View.VISIBLE}">
+
+            <ImageView
+                android:id="@+id/rotateButton"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/ocrButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:text="@{viewModel.resultString}"
-                android:textColor="@color/black"/>
+                android:layout_alignParentEnd="true"
+                android:layout_centerInParent="true"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="?android:attr/selectableItemBackground"
+                android:clickable="@{!viewModel.isLoading}"
+                android:onClick="@{(v) -> viewModel.rotate(v)}"
+                android:visibility="@{viewModel.isTextDetectSucceed ? View.GONE : View.VISIBLE}"
+                app:srcCompat="@drawable/avd_refresh_arrow"
+                tools:ignore="ContentDescription" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.core.widget.NestedScrollView>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/textDetectButton"
+                style="@style/Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:enabled="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.textDetect()}"
+                android:text="@string/detect_text"
+                android:visibility="@{viewModel.isTextDetectSucceed ? View.GONE : View.VISIBLE}"
+                tools:ignore="RelativeOverlap" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/ocrButton"
+                style="@style/Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:enabled="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.cropTextArea()}"
+                android:text="@string/ocr_title"
+                android:visibility="@{viewModel.isTextDetectSucceed ? View.VISIBLE : View.GONE}"
+                tools:ignore="RelativeOverlap" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/nextButton"
+                style="@style/Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:enabled="@{!viewModel.isLoading}"
+                android:onClick="@{() -> viewModel.next()}"
+                android:layout_alignParentStart="true"
+                android:text="next"
+                tools:ignore="HardcodedText"
+                android:visibility="gone"/>
+                <!--android:visibility="@{viewModel.isTextDetectSucceed ? View.VISIBLE : View.GONE}"-->
+
+        </RelativeLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrolView"
+            android:layout_below="@+id/actionSection"
+            android:layout_marginTop="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbarThumbVertical="@drawable/scrollbar"
+            android:scrollbars="vertical"
+            android:scrollbarSize="5dip"
+            android:visibility="@{viewModel.isOCRSucceed  ? View.VISIBLE : View.GONE}">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/ocrResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:text="@{viewModel.resultString}"
+                    android:textColor="@color/black"
+                    android:visibility="gone"/>
+
+                <RelativeLayout
+                    android:id="@+id/categoryNameRelativeLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/ocrResult"
+                    android:background="@color/white">
+
+                    <TextView
+                        style="@style/Title"
+                        android:id="@+id/categoryNameTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/name_title"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="8dp"/>
+
+                    <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+                        android:id="@+id/contactNameInputLayout"
+                        style="@style/EditTextLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/categoryNameTitle"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="8dp">
+
+                        <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                            android:id="@+id/contactNameEditText"
+                            style="@style/EditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:dropDownHeight="wrap_content"
+                            android:hint="@string/contact_name_title"
+                            android:text="@={viewModel.nameObservableField}"/>
+                    </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/categoryTelRelativeLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/white"
+                    app:layout_constraintTop_toBottomOf="@+id/categoryNameRelativeLayout">
+
+                    <TextView
+                        style="@style/Title"
+                        android:id="@+id/categoryTelTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/tel_title" />
+
+                    <ImageView
+                        android:id="@+id/addTelFieldButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_alignParentEnd="true"
+                        app:srcCompat="@drawable/ic_plus"
+                        android:clickable="@{!viewModel.isLoading}"
+                        android:onClick="@{() -> viewModel.onAddMorePhoneButtonClick()}"
+                        tools:ignore="ContentDescription" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/telRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/addTelFieldButton"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        app:layout_constraintTop_toBottomOf="@id/categoryTelTitle" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/categoryEmailRelativeLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/white"
+                    app:layout_constraintTop_toBottomOf="@+id/categoryTelRelativeLayout">
+
+                    <TextView
+                        android:id="@+id/categoryEmailTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/email_title"
+                        style="@style/Title" />
+
+                    <ImageView
+                        android:id="@+id/addEmailFieldButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_alignParentEnd="true"
+                        app:srcCompat="@drawable/ic_plus"
+                        tools:ignore="ContentDescription"
+                        android:clickable="@{!viewModel.isLoading}"
+                        android:onClick="@{() -> viewModel.onAddMoreEmailButtonClick()}"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/emailRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/addEmailFieldButton"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        app:layout_constraintTop_toBottomOf="@id/categoryEmailTitle" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_marginTop="16dp"
+                    android:id="@+id/categoryCompanyRelativeLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toBottomOf="@+id/categoryEmailRelativeLayout"
+                    android:background="@color/white">
+
+                    <TextView
+                        android:id="@+id/categoryCompanyTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/company_title"
+                        style="@style/Title"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="8dp"/>
+
+                    <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+                        android:id="@+id/companyInputLayout"
+                        style="@style/EditTextLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/categoryCompanyTitle"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginStart="8dp">
+
+                        <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                            android:id="@+id/companyEditText"
+                            style="@style/EditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:dropDownHeight="wrap_content"
+                            android:hint="@string/company_name_title"
+                            android:text="@={viewModel.companyObservableField}"/>
+                    </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+
+                    <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+                        android:id="@+id/departmentInputLayout"
+                        style="@style/EditTextLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/companyInputLayout"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="8dp">
+
+                        <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                            android:id="@+id/departmentEditText"
+                            style="@style/EditText"
+                            android:text="@={viewModel.departmentObservableField}"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:dropDownHeight="wrap_content"
+                            android:hint="@string/department_title" />
+                    </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+
+                    <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+                        android:id="@+id/titleInputLayout"
+                        style="@style/EditTextLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/departmentInputLayout"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="8dp">
+
+                        <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                            android:id="@+id/titleEditText"
+                            style="@style/EditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:dropDownHeight="wrap_content"
+                            android:hint="@string/job_title"
+                            android:text="@={viewModel.titleObservableField}"/>
+                    </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/categoryWebRelativeLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/white"
+                    app:layout_constraintTop_toBottomOf="@+id/categoryCompanyRelativeLayout">
+
+                    <TextView
+                        android:id="@+id/categoryWebTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/web_title"
+                        style="@style/Title"/>
+
+                    <ImageView
+                        android:id="@+id/addWebFieldButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_alignParentEnd="true"
+                        app:srcCompat="@drawable/ic_plus"
+                        tools:ignore="ContentDescription"
+                        android:clickable="@{!viewModel.isLoading}"
+                        android:onClick="@{() -> viewModel.onAddMoreWebButtonClick()}"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/webRecyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/addWebFieldButton"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        app:layout_constraintTop_toBottomOf="@id/categoryWebTitle" />
+
+                </RelativeLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/categoryAddressConstraintLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@color/white"
+                    app:layout_constraintTop_toBottomOf="@+id/categoryWebRelativeLayout">
+
+                    <TextView
+                        android:id="@+id/categoryAddressTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/address_title"
+                        style="@style/Title"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"/>
+
+                    <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+                        android:id="@+id/addressTypeInputLayout"
+                        style="@style/EditTextLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="8dp"
+                        android:layout_marginStart="8dp"
+                        app:layout_constraintVertical_bias="0.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/categoryAddressTitle"
+                        app:layout_constraintEnd_toStartOf="@+id/addressInputLayout"
+                        app:layout_constraintHorizontal_weight="1">
+
+                        <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                            android:id="@+id/addressTypeEditText"
+                            style="@style/EditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:dropDownHeight="180dp"
+                            android:hint="@string/data_type_title"
+                            android:text="@={viewModel.addressDataTypeObservableField}"
+                            app:items="@{viewModel.typeObservableArrayList}"/>
+                    </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+
+                    <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+                        android:id="@+id/addressInputLayout"
+                        style="@style/EditTextLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        app:layout_constraintVertical_bias="0.0"
+                        android:layout_marginBottom="8dp"
+                        app:layout_constraintStart_toEndOf="@+id/addressTypeInputLayout"
+                        app:layout_constraintTop_toBottomOf="@+id/categoryAddressTitle"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_weight="3">
+
+                        <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                            android:id="@+id/addressEditText"
+                            style="@style/EditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:dropDownHeight="180dp"
+                            android:text="@={viewModel.fullAddressObservableField}"
+                            android:hint="@string/full_address_title"
+                           />
+                    </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/saveButton"
+                    style="@style/Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintTop_toBottomOf="@+id/categoryAddressConstraintLayout"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:enabled="@{!viewModel.isLoading}"
+                    android:text="@string/save_title" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </RelativeLayout>
 
 </layout>

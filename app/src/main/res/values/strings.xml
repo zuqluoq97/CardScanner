@@ -1,6 +1,21 @@
 <resources>
     <string name="app_name">Card Scanner</string>
-
+    <!-- field title-->
+    <string name="name_title">Name</string>
+    <string name="tel_title">Tel</string>
+    <string name="email_title">Email</string>
+    <string name="company_title">Company</string>
+    <string name="web_title">Web</string>
+    <string name="address_title">Address</string>
+    <string name="contact_name_title">Contact name</string>
+    <string name="company_name_title">Company name</string>
+    <string name="department_title">Department</string>
+    <string name="job_title">Title</string>
+    <string name="data_type_title">Type</string>
+    <string name="full_address_title">Full address</string>
+    <string name="web_address_title">Web address</string>
+    <string name="email_address_title">Email address</string>
+    <string name="phone_number_title">Phone number</string>
     <!-- permission -->
     <string name="request_permissions_title">Request Permissions</string>
     <string name="request_permissions_content">Use camera &amp; Read-write external storage permission</string>
@@ -11,6 +26,7 @@
     <string name="crop_title">Crop</string>
     <string name="detect_text">Detect text</string>
     <string name="ocr_title">Get information</string>
+    <string name="save_title">Save</string>
     <!-- app message -->
     <string name="double_to_exit">Press Back again to exit!</string>
     <string name="camera_grant">Camera permission granted.</string>

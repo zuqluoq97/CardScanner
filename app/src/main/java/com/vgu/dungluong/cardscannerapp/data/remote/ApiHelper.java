@@ -1,6 +1,9 @@
 package com.vgu.dungluong.cardscannerapp.data.remote;
 
+import com.vgu.dungluong.cardscannerapp.data.model.api.Labels;
 import com.vgu.dungluong.cardscannerapp.data.model.api.Rects;
+
+import org.json.JSONObject;
 
 import java.io.File;
 
@@ -12,4 +15,6 @@ import io.reactivex.Single;
 public interface ApiHelper {
 
     Single<Rects> doServerTextDetection(File imgFile);
+
+    Single<Labels> doServerTextClassification(JSONObject textUnLabelJSONObject);
 }

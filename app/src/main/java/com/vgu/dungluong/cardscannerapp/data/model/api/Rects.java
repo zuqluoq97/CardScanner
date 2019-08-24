@@ -15,6 +15,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Size;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import opennlp.tools.namefind.NameFinderME;
@@ -52,7 +53,10 @@ public abstract class Rects implements Parcelable {
 
     public List<Corners> getCorners(){
         List<Corners> rectCorners = new ArrayList<>();
-        rects().forEach(rect -> {
+        rects().stream()
+                .sorted((rect1, rect2) -> Integer.compare(rect1.get(0), rect2.get(0)))
+                .sorted((rect1, rect2) -> Integer.compare(rect1.get(1), rect2.get(1)))
+                .forEach(rect -> {
             List<Point> coordinates = new ArrayList<>();
             int height1 = (rect.get(7) - rect.get(1));
             int height2 = (rect.get(5) - rect.get(3));

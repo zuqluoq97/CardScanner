@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.vgu.dungluong.cardscannerapp.ui.result.adapter.WebItemViewModel"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+            android:id="@+id/webInputLayout"
+            style="@style/EditTextLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                android:id="@+id/webEditText"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dropDownHeight="wrap_content"
+                android:hint="@string/web_address_title"
+                android:text="@={viewModel.webObservableField}"/>
+        </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

@@ -32,6 +32,8 @@ versions.font_awesome = '5.3.1.2-kotlin@aar'
 versions.auto_value = '1.6.3'
 versions.auto_value_gson = '0.7.0'
 versions.auto_value_parcel = '0.2.5'
+versions.auto_value_with = '1.1.0-rc1'
+versions.animator = '1.1.0'
 
 // Third party dependencies
 versions.calligraphy = '2.2.0'
@@ -116,5 +118,10 @@ auto_value_parcel.adapter = "com.ryanharter.auto.value:auto-value-parcel-adapter
 deps.auto_value_parcel = auto_value_parcel
 
 deps.opennlp = "org.apache.opennlp:opennlp-tools:$versions.opennlp"
+
+deps.animator = "com.github.florent37:viewanimator:$versions.animator"
+
+deps.auto_value_with = "com.gabrielittner.auto.value:auto-value-with:$versions.auto_value_with"
+
 ext.deps = deps
 

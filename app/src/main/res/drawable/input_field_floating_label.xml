@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:color="@color/orange" android:state_focused="true" />
+    <item android:color="@color/trans_gray" app:state_empty_text="true"/>
+    <item android:color="@color/gray"/> <!-- default color -->
+
+</selector>

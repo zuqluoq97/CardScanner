@@ -60,9 +60,13 @@ dependencies {
     annotationProcessor deps.auto_value_parcel.compiler
     implementation deps.auto_value_parcel.adapter
 
+    annotationProcessor deps.auto_value_with
     // Opencv
     implementation project(path: ':opencv')
 
     // Opennlp
     implementation deps.opennlp
+
+    // Animation
+    implementation deps.animator
 }

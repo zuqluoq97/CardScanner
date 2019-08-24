@@ -2,9 +2,12 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.Manifest;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.util.SparseIntArray;
 import android.view.Surface;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -40,7 +43,7 @@ public class AppConstants {
     public static final String TESSDATA = "tessdata";
     public static final String MODEL_PATH = Environment.getExternalStorageDirectory().toString() + "/OpenNLP/";
     public static final String MODELDATA = "model";
-    public static final String LANGUAGE_MODEL = "langdetect-183.bin";
+
     public static final double EPISILON = 1E-8;
 
     public static final int GALLERY_REQUEST_CODE = 1;
@@ -48,7 +51,11 @@ public class AppConstants {
     public static final String IS_SELECTED_CARD = "IS_SELECTED_CARD";
 
     // REGEX
-    public static final Pattern EMAIL_ADDDRESS_PATTERN = Pattern.compile("([a-zA-Z0-9.]+\\(?+@[a-zA-Z0-9.]+\\.[a-zA-Z0-9]+)");
+    public static final Pattern EMAIL_ADDDRESS_PATTERN = Pattern.compile("[a-zA-Z0-9.(]+@[a-zA-Z0-9.]+\\.[a-zA-Z0-9]+");
     public static final Pattern INTENT_EMAIL_ADDDRESS_PATTERN = Pattern.compile(".+@.+\\..+");
+    public static final Pattern WEB_ADDRESS_PATTERN = Pattern.compile("(?:[a-zA-Z0-9]+?\\.)+[a-zA-Z0-9]{2,}");
 
+    public static final List<String> DATA_TYPE1_TYPE_TITLE = Arrays.asList("Home", "Work", "Other");
+    public static final List<Integer> DATE_TYPE1_ADDRESS_TYPE = Arrays.asList(ContactsContract.CommonDataKinds.SipAddress.TYPE_HOME, ContactsContract.CommonDataKinds.SipAddress.TYPE_WORK, ContactsContract.CommonDataKinds.SipAddress.TYPE_OTHER, ContactsContract.CommonDataKinds.SipAddress.TYPE_CUSTOM);
+    public static final List<String> DATA_TYPE2_TYPE_TITLE = Arrays.asList("Mobile", "Home", "Work", "Work Fax", "Home Fax", "Pager", "Other", "Callback");
 }

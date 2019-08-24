@@ -257,9 +257,13 @@ public class CardProcessor {
         //Imgproc.erode(img, img, kernel2, new Point(-1, -1), 1);
 
         Mat lines = new Mat();
-        Imgproc.HoughLinesP(img, lines, 1, Math.PI / 160, 100, 10, 20);
+        Imgproc.HoughLinesP(img, lines, 2, Math.PI / 360, 70, 5, 1);
         double angle = 0.;
         AppLogger.i(lines.height() + " " + lines.width() + " " + lines.rows() + " " + lines.cols());
+//        for (int i = 0; i < lines.rows(); i++) {
+//            double[] val = lines.get(i, 0);
+//            Imgproc.line(image, new Point(val[0], val[1]), new Point(val[2] , val[3]), new Scalar(140, 180, 33), 1);
+//        }
         for(int i = 0; i<lines.height(); i++){
             for(int j = 0; j<lines.width();j++){
                 angle += Math.atan2(lines.get(i, j)[3] - lines.get(i, j)[1], lines.get(i, j)[2] - lines.get(i, j)[0]);
@@ -286,7 +290,9 @@ public class CardProcessor {
 
     private static boolean deSkew(Mat img, double angle, RotatedRect box) {
         Mat rotMat = Imgproc.getRotationMatrix2D(box.center, angle, 1);
-        Imgproc.warpAffine(img, img, rotMat, img.size(), INTER_CUBIC);
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_BGR2RGB);
+        Imgproc.warpAffine(img, img, rotMat, img.size(), INTER_CUBIC, Core.BORDER_CONSTANT, new Scalar(255, 255, 255));
+        Imgproc.cvtColor(img, img, Imgproc.COLOR_RGB2BGR);
         return true;
     }
 

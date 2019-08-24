@@ -1,6 +1,21 @@
 <resources>
     <string name="app_name">Card Scanner</string>
-
+    <!-- field title-->
+    <string name="name_title">Tên</string>
+    <string name="tel_title">ĐT</string>
+    <string name="email_title">Email</string>
+    <string name="company_title">Công ty</string>
+    <string name="web_title">Web</string>
+    <string name="address_title">Địa chỉ</string>
+    <string name="contact_name_title">Tên danh bạ</string>
+    <string name="company_name_title">Tên công ty</string>
+    <string name="department_title">Phòng ban</string>
+    <string name="job_title">Chức danh</string>
+    <string name="data_type_title">Loại</string>
+    <string name="full_address_title">Địa chỉ cụ thể</string>
+    <string name="web_address_title">Địa chỉ web</string>
+    <string name="email_address_title">Địa chỉ email</string>
+    <string name="phone_number_title">Số điện thoại</string>
     <!-- permission -->
     <string name="request_permissions_title">Yêu cầu các quyền</string>
     <string name="request_permissions_content">Quyền sử dụng camera &amp; ghi-đọc bộ nhớ ngoài</string>
@@ -11,6 +26,7 @@
     <string name="crop_title">Cắt</string>
     <string name="detect_text">Phát hiện chữ</string>
     <string name="ocr_title">Đọc thông tin</string>
+    <string name="save_title">Lưu</string>
     <!-- app message -->
     <string name="double_to_exit">Nhấn phím LÙI lần nữa để thoát!</string>
     <string name="camera_grant">Quyền sử dụng ảnh được cấp.</string>

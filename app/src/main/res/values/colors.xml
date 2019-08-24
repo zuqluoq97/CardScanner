@@ -7,6 +7,11 @@
     <color name="white">#ffffff</color>
     <color name="black">#000000</color>
     <color name="gray">#808080</color>
-    <color name="blue_normal">#00bfff</color>
-    <color name="white_bg">#f5f7fa</color>
+    <color name="trans_gray">#7f808080</color>
+    <color name="trans_black">#80000000</color>
+    <color name="light_gray">#F1F1EF</color>
+    <color name="blue">#33b5e5</color>
+    <color name="orange">#FF9900</color>
+    <color name="yellow">#ffff00</color>
+    <color name="grey">#808080</color>
 </resources>

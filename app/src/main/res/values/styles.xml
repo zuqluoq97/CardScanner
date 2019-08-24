@@ -22,4 +22,23 @@
     <style name="TextAppearance.Text.Bold" parent="android:TextAppearance">
         <item name="fontPath">fonts/Roboto-Bold.ttf</item>
     </style>
+
+
+    <style name="EditTextLayout" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:textColorHint">@drawable/input_field_floating_label</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="android:paddingLeft">5dp</item>
+    </style>
+
+    <style name="EditText">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:paddingRight">15dp</item>
+    </style>
+
+    <style name="Title">
+        <item name="android:textAppearance">@style/TextAppearance.Text.Bold</item>
+        <item name="android:textColor">@color/blue</item>
+    </style>
+
 </resources>

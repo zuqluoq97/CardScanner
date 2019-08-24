@@ -11,18 +11,25 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.BR;
 import com.vgu.dungluong.cardscannerapp.R;
 import com.vgu.dungluong.cardscannerapp.ViewModelProviderFactory;
+import com.vgu.dungluong.cardscannerapp.data.model.local.ContactField;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.data.model.local.OnTouchZone;
 import com.vgu.dungluong.cardscannerapp.databinding.ActivityResultBinding;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivity;
+import com.vgu.dungluong.cardscannerapp.ui.result.adapter.EmailAdapter;
+import com.vgu.dungluong.cardscannerapp.ui.result.adapter.PhoneAdapter;
+import com.vgu.dungluong.cardscannerapp.ui.result.adapter.WebAdapter;
+import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
+import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 
 import java.io.File;
@@ -32,9 +39,13 @@ import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.tokenize.TokenizerModel;
 
 /**
  * Created by Dung Luong on 02/07/2019
@@ -51,6 +62,23 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
 
     public static final String TAG = MainActivity.class.getSimpleName();
 
+    @Inject
+    EmailAdapter mEmailAdapter;
+
+    @Inject
+    PhoneAdapter mPhoneAdapter;
+
+    @Inject
+    WebAdapter mWebAdapter;
+
+    @Inject
+    LinearLayoutManager mLinearLayoutManager1;
+
+    @Inject
+    LinearLayoutManager mLinearLayoutManager2;
+
+    @Inject
+    LinearLayoutManager mLinearLayoutManager3;
     @Inject
     TessBaseAPI mTessBaseAPI;
 
@@ -115,6 +143,18 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
             mOnTouchZones = touchZones;
         });
 
+        mResultViewModel.getPhoneContactFieldMutableLiveData().observe(this, phoneContactFields ->{
+            mPhoneAdapter.setContactFieldList(phoneContactFields);
+        });
+
+        mResultViewModel.getEmailContactFieldMutableLiveData().observe(this, emailContactFields ->{
+            mEmailAdapter.setContactFieldList(emailContactFields);
+        });
+
+        mResultViewModel.getWebContactFieldMutableLiveData().observe(this, webList ->{
+            mWebAdapter.setWebList(webList);
+        });
+
     }
 
     @Override
@@ -129,6 +169,21 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
         Window window = getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(rectangle);
         mStatusBarHeight = rectangle.top;
+
+        // email adapter
+        mResultBinding.telRecyclerView.setLayoutManager(mLinearLayoutManager1);
+        mResultBinding.telRecyclerView.setNestedScrollingEnabled(false);
+        mResultBinding.telRecyclerView.setAdapter(mPhoneAdapter);
+
+        // email adapter
+        mResultBinding.emailRecyclerView.setLayoutManager(mLinearLayoutManager2);
+        mResultBinding.emailRecyclerView.setNestedScrollingEnabled(false);
+        mResultBinding.emailRecyclerView.setAdapter(mEmailAdapter);
+
+        // web adapter
+        mResultBinding.webRecyclerView.setLayoutManager(mLinearLayoutManager3);
+        mResultBinding.webRecyclerView.setNestedScrollingEnabled(false);
+        mResultBinding.webRecyclerView.setAdapter(mWebAdapter);
     }
 
     @Override
@@ -159,5 +214,48 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
     @Override
     public ContentResolver getContentResolver() {
         return super.getContentResolver();
+    }
+
+    @Override
+    public void animateButton(View view, int time) {
+        CommonUtils.rotate(view, time);
+    }
+
+    @Override
+    public void addOnePhoneContactField() {
+        List<ContactField> phoneContactFields = mPhoneAdapter.getContactField();
+        phoneContactFields.add(ContactField.create(-1, "", ""));
+        AppLogger.i(phoneContactFields.toString());
+        mPhoneAdapter.setContactFieldList(phoneContactFields);
+    }
+
+    @Override
+    public void addOneEmailContactField() {
+        List<ContactField> emailContactFields = mEmailAdapter.getContactField();
+        emailContactFields.add(ContactField.create(-1, "", ""));
+        AppLogger.i(emailContactFields.toString());
+        mEmailAdapter.setContactFieldList(emailContactFields);
+    }
+
+    @Override
+    public void addOneWebContactField() {
+        List<String> webContactFields = mWebAdapter.getWebList();
+        webContactFields.add("");
+        mWebAdapter.setWebList(webContactFields);
+    }
+
+    @Override
+    public List<ContactField> getEmailContactFields() {
+        return mEmailAdapter.getContactField();
+    }
+
+    @Override
+    public List<ContactField> getPhoneContactFields() {
+        return mPhoneAdapter.getContactField();
+    }
+
+    @Override
+    public List<String> getWebs() {
+        return mWebAdapter.getWebList();
     }
 }

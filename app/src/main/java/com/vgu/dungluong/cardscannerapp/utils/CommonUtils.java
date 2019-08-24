@@ -2,11 +2,15 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.drawable.Animatable;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.text.Html;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.github.florent37.viewanimator.ViewAnimator;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.data.model.local.OnTouchZone;
 
@@ -46,6 +50,29 @@ public class CommonUtils {
     public static void showLongToast(Context context, String mess){
         Toast.makeText(context, mess, Toast.LENGTH_LONG).show();
     }
+
+    public static void handleImageAnimated(final ImageView view){
+        final Animatable front = (Animatable) view.getDrawable();
+        front.start();
+    }
+
+    public static void rotate(View view, int time){
+        if(time % 2 == 0){
+            ViewAnimator.animate(view)
+                    .rotation(0, 180)
+                    .duration(300)
+                    .decelerate()
+                    .start();
+        }else{
+            ViewAnimator.animate(view)
+                    .rotation(180, 360)
+                    .duration(300)
+                    .decelerate()
+                    .start();
+        }
+
+    }
+
 
     /**
      * Calculates the similarity (a number within 0 and 1) between two strings.
@@ -134,5 +161,10 @@ public class CommonUtils {
             e.printStackTrace();
         }
         return rotate;
+    }
+
+    public static boolean isNullOrEmpty(String str){
+        if(str != null && !str.isEmpty() && !str.equals("null") ) return false;
+        return true;
     }
 }

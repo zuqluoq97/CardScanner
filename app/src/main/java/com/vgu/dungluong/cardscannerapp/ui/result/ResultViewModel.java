@@ -2,14 +2,20 @@ package com.vgu.dungluong.cardscannerapp.ui.result;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.provider.ContactsContract;
+import android.view.View;
 
 import com.androidnetworking.utils.ParseUtil;
 import com.googlecode.leptonica.android.Pix;
 import com.googlecode.leptonica.android.Rotate;
+import com.vgu.dungluong.cardscannerapp.BR;
 import com.vgu.dungluong.cardscannerapp.data.DataManager;
+import com.vgu.dungluong.cardscannerapp.data.model.local.Contact;
+import com.vgu.dungluong.cardscannerapp.data.model.local.ContactField;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
 import com.vgu.dungluong.cardscannerapp.data.model.local.OnTouchZone;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseViewModel;
+import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardExtract;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
@@ -19,6 +25,9 @@ import com.vgu.dungluong.cardscannerapp.utils.ParserUtils;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -26,18 +35,30 @@ import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import androidx.databinding.Bindable;
+import androidx.databinding.ObservableArrayList;
 import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
+import androidx.databinding.ObservableInt;
 import androidx.lifecycle.MutableLiveData;
 import opennlp.tools.doccat.DocumentCategorizerME;
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinder;
+import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.tokenize.TokenizerME;
+import opennlp.tools.tokenize.TokenizerModel;
+import opennlp.tools.util.Span;
 
 /**
  * Created by Dung Luong on 02/07/2019
@@ -64,11 +85,51 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
     private List<Corners> mRects;
 
+    private int mTimes;
+
     private MutableLiveData<List<OnTouchZone>> mOnTouchZonesMutableLiveData;
+
+    private Contact mContact;
+
+    private ObservableArrayList<String> mTypeObservableArrayList;
+
+    private MutableLiveData<List<ContactField>> mPhoneContactFieldMutableLiveData;
+
+    private MutableLiveData<List<ContactField>> mEmailContactFieldMutableLiveData;
+
+    private MutableLiveData<List<String>> mWebContactFieldMutableLiveData;
+
+    private ObservableField<String> mDepartmentObservableField;
+
+    private ObservableField<String> mFullAddressObservableField;
+
+    private ObservableField<String> mAddressDataTypeObservableField;
+
+    private ObservableField<String> mNameObservableField;
+
+    private ObservableField<String> mCompanyObservableField;
+
+    private ObservableField<String> mTitleObservableField;
 
     public ResultViewModel(DataManager dataManager, SchedulerProvider schedulerProvider) {
         super(dataManager, schedulerProvider);
-        mIsOCRSucceed = new ObservableBoolean(true);
+
+        mTypeObservableArrayList = new ObservableArrayList<>();
+        mTypeObservableArrayList.addAll(AppConstants.DATA_TYPE1_TYPE_TITLE);
+        notifyPropertyChanged(BR.typeObservableArrayList);
+
+        mPhoneContactFieldMutableLiveData = new MutableLiveData<>();
+        mEmailContactFieldMutableLiveData = new MutableLiveData<>();
+        mWebContactFieldMutableLiveData = new MutableLiveData<>();
+
+        mDepartmentObservableField = new ObservableField<>("");
+        mFullAddressObservableField = new ObservableField<>("");
+        mNameObservableField = new ObservableField<>("");
+        mCompanyObservableField = new ObservableField<>("");
+        mTitleObservableField = new ObservableField<>("");
+        mAddressDataTypeObservableField = new ObservableField<>(mTypeObservableArrayList.get(1));
+
+        mIsOCRSucceed = new ObservableBoolean(false);
         mIsTextDetectSucceed = new ObservableBoolean(false);
         mResultString = new ObservableField<>("");
         bms = new ArrayList<>();
@@ -95,9 +156,27 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         idx ++;
     }
 
-    public void rotate(){
+    public void rotate(View view){
         Core.rotate(mCardPicture, mCardPicture, Core.ROTATE_180);
+        getNavigator().animateButton(view, mTimes);
+        mTimes ++;
         displayCardImage();
+    }
+
+    public void onAddMorePhoneButtonClick(){
+        getNavigator().addOnePhoneContactField();
+    }
+
+    public void onAddMoreEmailButtonClick(){
+        getNavigator().addOneEmailContactField();
+    }
+
+    public void onAddMoreWebButtonClick(){
+        getNavigator().addOneWebContactField();
+    }
+
+    public void onSaveContactButtonClick(){
+
     }
 
     public void textDetect(){
@@ -115,7 +194,6 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                             updateCropAreas(rects.getCorners());
                             displayCardImage();
                             setIsTextDetectSucceed(true);
-                            setIsOCRSucceed(false);
                         },
                         throwable -> {
                             setIsLoading(false);
@@ -142,7 +220,6 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                 .subscribe(bitmaps -> {
                     bms = bitmaps;
                     tesseract(bitmaps);
-                    setIsLoading(false);
                 }, throwable -> {
                     setIsLoading(false);
                     AppLogger.e(throwable.getLocalizedMessage());
@@ -157,12 +234,10 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
                     .subscribeOn(getSchedulerProvider().io())
                     .observeOn(getSchedulerProvider().ui())
                     .subscribe(ocr -> {
-                        AppLogger.i(ocr.first + " " + ocr.second);
                             mOCRs.add(ocr.first);
                             idx2++;
                             if(idx2 == bitmap.size()){
                                 displayOCR();
-                                //ContactUtils.addContact(getNavigator().getContentResolver());
                             }
                     }, throwable -> {
                         getNavigator().handleError(throwable.getLocalizedMessage());
@@ -172,14 +247,75 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     }
 
     private void displayOCR(){
-        setIsLoading(false);
         final String[] result = {""};
         mOCRs.forEach(ocr -> {
             result[0] += ocr + "\n";
         });
-        AppLogger.i(ParserUtils.parseEmails(mOCRs).toString());
         mResultString.set(result[0]);
+        ParserUtils parserUtils = new ParserUtils(mOCRs);
+        parserUtils.run();
+        doTextClassification(parserUtils.getTexts());
+
+        mPhoneContactFieldMutableLiveData.postValue(parserUtils.getPhones()
+                .stream()
+                .map(phone ->{
+                    if(phone.first.trim().isEmpty()){
+                        return ContactField.create(ContactsContract.CommonDataKinds.Phone.TYPE_WORK, "", phone.second);
+                    }else{
+                        return ContactField.create(ContactsContract.CommonDataKinds.Phone.TYPE_CUSTOM, phone.first, phone.second);
+                    }
+                }).collect(Collectors.toList()));
+
+        mEmailContactFieldMutableLiveData.postValue(parserUtils.getEmails()
+                .stream()
+                .map(email -> ContactField.create(ContactsContract.CommonDataKinds.Email.TYPE_WORK, "", email))
+                .collect(Collectors.toList()));
+
+        if(!parserUtils.getDepartment().isEmpty()) setDepartmentObservableField(parserUtils.getDepartment());
+
+        mWebContactFieldMutableLiveData.postValue(parserUtils.getWebs());
+
+        String fullAddress = "";
+        List<String> addresses = parserUtils.getAddresses();
+        for(int i =0; i < addresses.size(); i++){
+            fullAddress += addresses.get(i);
+            if(i != addresses.size() - 1) fullAddress += ", ";
+        }
+
+        setFullAddressObservableField(fullAddress);
+
+        AppLogger.i(parserUtils.getEmails().toString());
+        AppLogger.i(parserUtils.getWebs().toString());
+        AppLogger.i(parserUtils.getAddresses().toString());
+        AppLogger.i(parserUtils.getPhones().toString());
+        AppLogger.i(parserUtils.getTexts().toString());
+
     }
+
+    public void doTextClassification(List<String> unLabeledTexts){
+        try {
+            setIsLoading(true);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("texts", new JSONArray(unLabeledTexts));
+            AppLogger.i(jsonObject.toString());
+            getCompositeDisposable().add(getDataManager()
+                    .doServerTextClassification(jsonObject)
+                    .subscribeOn(getSchedulerProvider().io())
+                    .observeOn(getSchedulerProvider().ui())
+                    .subscribe(labeledList -> {
+                        setNameObservableField(labeledList.getName(unLabeledTexts));
+                        setCompanyObservableField(labeledList.getCompany(unLabeledTexts));
+                        setTitleObservableField(labeledList.getJob(unLabeledTexts));
+                        setIsLoading(false);
+                        setIsOCRSucceed(true);
+                        AppLogger.i(labeledList.toString());
+                    }, throwable -> getNavigator().handleError(throwable.getLocalizedMessage())));
+        }catch (JSONException e){
+            setIsLoading(false);
+            AppLogger.e(e.getLocalizedMessage());
+        }
+    }
+
 
     private Bitmap get300DPIBitmap(File file){
         Bitmap bm = null;
@@ -254,4 +390,92 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         return mOnTouchZonesMutableLiveData;
     }
 
+    @Bindable
+    public List<String> getTypeObservableArrayList(){
+        return mTypeObservableArrayList;
+    }
+
+    @Bindable
+    public String getDepartmentObservableField(){
+        return mDepartmentObservableField.get();
+    }
+
+    public void setDepartmentObservableField(String department){
+        if(!Objects.equals(getDepartmentObservableField(), department)){
+            mDepartmentObservableField.set(department);
+            notifyPropertyChanged(BR.departmentObservableField);
+        }
+    }
+
+    @Bindable
+    public String getFullAddressObservableField(){
+        return mFullAddressObservableField.get();
+    }
+
+    public void setFullAddressObservableField(String fullAddress){
+        if(!Objects.equals(getFullAddressObservableField(), fullAddress)){
+            mFullAddressObservableField.set(fullAddress);
+            notifyPropertyChanged(BR.fullAddressObservableField);
+        }
+    }
+
+    @Bindable
+    public String getAddressDataTypeObservableField(){
+        return mAddressDataTypeObservableField.get();
+    }
+
+    public void setAddressDataTypeObservableField(String addressType){
+        if(!Objects.equals(getAddressDataTypeObservableField(), addressType)){
+            mAddressDataTypeObservableField.set(addressType);
+            notifyPropertyChanged(BR.addressDataTypeObservableField);
+        }
+    }
+
+    @Bindable
+    public String getNameObservableField(){
+        return mNameObservableField.get();
+    }
+
+    public void setNameObservableField(String name){
+        if(!Objects.equals(getNameObservableField(), name)){
+            mNameObservableField.set(name);
+            notifyPropertyChanged(BR.nameObservableField);
+        }
+    }
+
+    @Bindable
+    public String getCompanyObservableField(){
+        return mCompanyObservableField.get();
+    }
+
+    public void setCompanyObservableField(String company){
+        if(!Objects.equals(getCompanyObservableField(), company)){
+            mCompanyObservableField.set(company);
+            notifyPropertyChanged(BR.companyObservableField);
+        }
+    }
+
+    @Bindable
+    public String getTitleObservableField(){
+        return mTitleObservableField.get();
+    }
+
+    public void setTitleObservableField(String title){
+        if(!Objects.equals(getTitleObservableField(), title)){
+            mTitleObservableField.set(title);
+            notifyPropertyChanged(BR.titleObservableField);
+        }
+    }
+
+    public MutableLiveData<List<ContactField>> getPhoneContactFieldMutableLiveData() {
+        return mPhoneContactFieldMutableLiveData;
+    }
+
+    public MutableLiveData<List<ContactField>> getEmailContactFieldMutableLiveData() {
+        return mEmailContactFieldMutableLiveData;
+    }
+
+    public MutableLiveData<List<String>> getWebContactFieldMutableLiveData() {
+        return mWebContactFieldMutableLiveData;
+    }
 }

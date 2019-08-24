@@ -45,7 +45,7 @@ public class CardExtract {
         img_x = img.cols();
         Mat gray = new Mat();
         Imgproc.bilateralFilter(img, gray, 5, 150, 150, BORDER_CONSTANT);
-        Imgproc.cvtColor(gray, gray, COLOR_BGR2GRAY);
+        Imgproc.cvtColor(img, gray, COLOR_BGR2GRAY);
         Mat edges=new Mat();
         Imgproc.Canny(gray,edges,70,210);
         contours=new ArrayList<>();
@@ -85,6 +85,8 @@ public class CardExtract {
         Mat new_image=img.clone();
         new_image.setTo(new Scalar(255,255,255));
 
+        int lightText = 0;
+        int darkText = 0;
         for(int i = 0; i< keepers.size(); i++)
         {
             //# Find the average intensity of the edge pixels to
@@ -129,11 +131,13 @@ public class CardExtract {
             int fg,bg;
             if (fg_int >= bg_intN)
             {
+                lightText ++;
                 fg = 255;
                 bg = 0;
             }
             else
             {
+                darkText ++;
                 fg = 0;
                 bg = 255;
             }
@@ -153,7 +157,8 @@ public class CardExtract {
         Mat sharpen = new Mat();
         Imgproc.GaussianBlur(new_image, sharpen, new Size(0,0), 3);
         Core.addWeighted(new_image, 1.5, sharpen, -0.5, 0, new_image);
-        return new_image;
+        if(lightText > darkText) return new_image;
+        else return img;
     }
     // Function for calculating median
     private double findMedian(double a[]) {

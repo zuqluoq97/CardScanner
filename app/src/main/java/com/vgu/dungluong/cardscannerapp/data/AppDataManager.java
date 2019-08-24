@@ -9,6 +9,7 @@ import android.util.Pair;
 import com.googlecode.tesseract.android.ResultIterator;
 import com.googlecode.tesseract.android.TessBaseAPI;
 import com.vgu.dungluong.cardscannerapp.data.local.locale.LocaleHelper;
+import com.vgu.dungluong.cardscannerapp.data.model.api.Labels;
 import com.vgu.dungluong.cardscannerapp.data.model.api.Rects;
 import com.vgu.dungluong.cardscannerapp.data.local.permission.PermissionHelper;
 import com.vgu.dungluong.cardscannerapp.data.model.local.Corners;
@@ -18,6 +19,7 @@ import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CardProcessor;
 import com.vgu.dungluong.cardscannerapp.utils.SourceManager;
 
+import org.json.JSONObject;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -155,6 +157,11 @@ public class AppDataManager implements DataManager{
     @Override
     public Single<Rects> doServerTextDetection(File imgFile) {
         return mApiHelper.doServerTextDetection(imgFile);
+    }
+
+    @Override
+    public Single<Labels> doServerTextClassification(JSONObject textUnLabelJSONObject) {
+        return mApiHelper.doServerTextClassification(textUnLabelJSONObject);
     }
 
     @Override

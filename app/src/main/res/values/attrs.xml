@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Custom state for the text input layout to determine whether the label is shown above some text or not -->
+    <declare-styleable name="EmptyTextState">
+        <attr name="state_empty_text" format="boolean"/>
+    </declare-styleable>
+</resources>

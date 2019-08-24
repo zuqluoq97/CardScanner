@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.vgu.dungluong.cardscannerapp.ui.result.adapter.EmailItemViewModel"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+            android:id="@+id/emailTypeInputLayout"
+            style="@style/EditTextLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/emailInputLayout"
+            app:layout_constraintHorizontal_weight="1">
+
+            <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                android:id="@+id/emailTypeEditText"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dropDownHeight="wrap_content"
+                android:hint="@string/data_type_title"
+                android:text="@={viewModel.emailDataTypeObservableField}"
+                app:items="@{viewModel.typeObservableArrayList}"/>
+        </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+
+        <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
+            android:id="@+id/emailInputLayout"
+            style="@style/EditTextLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/emailTypeInputLayout"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="3">
+
+            <com.vgu.dungluong.cardscannerapp.ui.custom.ClearableInstantAutoComplete
+                android:id="@+id/emailEditText"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dropDownHeight="wrap_content"
+                android:hint="@string/email_address_title"
+                android:text="@={viewModel.emailObservableField}"/>
+        </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

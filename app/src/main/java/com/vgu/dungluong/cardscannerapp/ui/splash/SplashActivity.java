@@ -10,6 +10,7 @@ import com.vgu.dungluong.cardscannerapp.ui.base.BaseActivity;
 import com.vgu.dungluong.cardscannerapp.ui.main.MainActivity;
 import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.CommonUtils;
+import com.vgu.dungluong.cardscannerapp.utils.ContactUtils;
 import com.vgu.dungluong.cardscannerapp.utils.PermissionUtils;
 
 import java.io.File;
@@ -82,13 +83,13 @@ public class SplashActivity extends BaseActivity<ActivitySplashBinding, SplashVi
     public void prepareTesseract() {
         try {
             prepareDirectory(DATA_PATH + TESSDATA);
-            prepareDirectory(MODEL_PATH + MODELDATA);
+            //prepareDirectory(MODEL_PATH + MODELDATA);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         copyDataFiles(DATA_PATH, TESSDATA);
-        copyDataFiles(MODEL_PATH, MODELDATA);
+        //copyDataFiles(MODEL_PATH, MODELDATA);
     }
 
     /**
