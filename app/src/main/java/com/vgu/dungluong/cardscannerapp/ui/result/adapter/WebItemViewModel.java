@@ -20,13 +20,17 @@ public class WebItemViewModel extends BaseViewModel {
 
     private WebItemClickListener mListener;
 
+    private int mPosition;
+
     public WebItemViewModel(DataManager dataManager,
                             SchedulerProvider schedulerProvider,
                             String web,
-                            WebItemClickListener listener) {
+                            WebItemClickListener listener,
+                            int position) {
         super(dataManager, schedulerProvider);
         mWebObservableField = new ObservableField<>(web);
         mListener = listener;
+        mPosition = position;
     }
 
     @Bindable
@@ -38,11 +42,11 @@ public class WebItemViewModel extends BaseViewModel {
         if(!Objects.equals(getWebObservableField(), web)){
             mWebObservableField.set(web);
             notifyPropertyChanged(BR.webObservableField);
-            mListener.updateWeb(web);
+            mListener.updateWeb(web, mPosition);
         }
     }
 
     public interface WebItemClickListener{
-        void updateWeb(String web);
+        void updateWeb(String web, int position);
     }
 }

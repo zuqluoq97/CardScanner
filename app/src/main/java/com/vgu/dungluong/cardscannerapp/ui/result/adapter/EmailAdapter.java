@@ -48,7 +48,10 @@ public class EmailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     public List<ContactField> getContactField() {
-        return mContactFieldList.stream().filter(contactField -> !contactField.dataValue().isEmpty()).collect(Collectors.toList());
+        return mContactFieldList.stream()
+                .filter(contactField -> !contactField.dataValue().isEmpty() && contactField.dataType() != -1)
+                .map(contactField -> ContactField.create(contactField.dataType(), contactField.dataLabel(), contactField.dataValue().replaceAll("\\s+", "")))
+                .collect(Collectors.toList());
     }
 
     @NonNull
@@ -62,7 +65,7 @@ public class EmailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof EmailViewHolder)
-            ((EmailViewHolder) holder).onBind(mContactFieldList.get(position), position);
+            ((EmailViewHolder) holder).onBind(mContactFieldList.get(position));
     }
 
     @Override
@@ -77,25 +80,24 @@ public class EmailAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         private EmailItemViewModel mEmployeeItemViewModel;
 
-        private int mPosition;
         public EmailViewHolder(ItemEmailBinding binding){
             super(binding.getRoot());
             this.mBinding = binding;
         }
 
-        public void onBind(ContactField contactField, int position){
+        public void onBind(ContactField contactField){
             mEmployeeItemViewModel = new EmailItemViewModel(mDataManager,
                     mSchedulerProvider,
                     contactField,
-                    this);
-            mPosition = position;
+                    this,
+                    mContactFieldList.indexOf(contactField));
             mBinding.setViewModel(mEmployeeItemViewModel);
             mBinding.executePendingBindings();
         }
 
         @Override
-        public void updateContactField(ContactField contactField) {
-            mContactFieldList.set(mPosition, contactField);
+        public void updateContactField(ContactField contactField, int position) {
+            mContactFieldList.set(position, contactField);
             AppLogger.i(mContactFieldList.toString());
         }
     }

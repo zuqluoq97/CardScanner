@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.ByteArrayOutputStream;
@@ -59,6 +60,8 @@ import opennlp.tools.tokenize.Tokenizer;
 import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.Span;
+
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.GROUP_PHONE_TITLE;
 
 /**
  * Created by Dung Luong on 02/07/2019
@@ -111,9 +114,22 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
 
     private ObservableField<String> mTitleObservableField;
 
+    private ContactField mAddressContactField;
+
     public ResultViewModel(DataManager dataManager, SchedulerProvider schedulerProvider) {
         super(dataManager, schedulerProvider);
-
+        mContact = Contact.create(0,
+                0,
+                0,
+                "",
+                "",
+                "",
+                "",
+                new ArrayList<>(),
+                new ArrayList<>(),
+                ContactField.create(-1, "", ""),
+                new ArrayList<>(),
+                new byte[]{});
         mTypeObservableArrayList = new ObservableArrayList<>();
         mTypeObservableArrayList.addAll(AppConstants.DATA_TYPE1_TYPE_TITLE);
         notifyPropertyChanged(BR.typeObservableArrayList);
@@ -128,6 +144,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         mCompanyObservableField = new ObservableField<>("");
         mTitleObservableField = new ObservableField<>("");
         mAddressDataTypeObservableField = new ObservableField<>(mTypeObservableArrayList.get(1));
+        mAddressContactField = ContactField.create(-1, "", "");
 
         mIsOCRSucceed = new ObservableBoolean(false);
         mIsTextDetectSucceed = new ObservableBoolean(false);
@@ -176,7 +193,31 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
     }
 
     public void onSaveContactButtonClick(){
+        setIsLoading(true);
+        mContact = mContact.withGroupId(ContactUtils.getGroupId(getNavigator().getContentResolver()));
+        mContact = mContact.withContactId(ContactUtils.insertContact(getNavigator().getContentResolver(), getNameObservableField()));
+        mContact = mContact.withrawContactId(mContact.contactId());
+        mContact = mContact.withDisplayName(getNameObservableField().trim());
+        mContact = mContact.withCompany(getCompanyObservableField().trim());
+        mContact = mContact.withDepartment(getDepartmentObservableField().trim());
+        mContact = mContact.withTitle(getTitleObservableField().trim());
+        mContact = mContact.withPhoneList(getNavigator().getPhoneContactFields());
+        mContact = mContact.withEmailList(getNavigator().getEmailContactFields());
+        mContact = mContact.withWebsiteList(getNavigator().getWebs());
+        mContact = mContact.withAddress(mAddressContactField);
 
+        int maxPhotoWidth = CommonUtils.getMaxContactPhotoSize(getNavigator().getActivityContext());
+        Imgproc.resize(mCardPicture, mCardPicture, new Size(maxPhotoWidth, (double) (mCardPicture.height() * maxPhotoWidth/ mCardPicture.width())));
+        Bitmap bitmap = Bitmap.createBitmap(mCardPicture.width(), mCardPicture.height(), Bitmap.Config.ARGB_8888);
+        Utils.matToBitmap(mCardPicture, bitmap);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] byteArray = stream.toByteArray();
+        bitmap.recycle();
+        mContact = mContact.withContactPhoto(byteArray);
+        ContactUtils.addContact(getNavigator().getContentResolver(), mContact);
+        setIsLoading(false);
+        getNavigator().openMainActivity();
     }
 
     public void textDetect(){
@@ -416,6 +457,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         if(!Objects.equals(getFullAddressObservableField(), fullAddress)){
             mFullAddressObservableField.set(fullAddress);
             notifyPropertyChanged(BR.fullAddressObservableField);
+            mAddressContactField = mAddressContactField.withDataValue(fullAddress);
         }
     }
 
@@ -428,6 +470,26 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         if(!Objects.equals(getAddressDataTypeObservableField(), addressType)){
             mAddressDataTypeObservableField.set(addressType);
             notifyPropertyChanged(BR.addressDataTypeObservableField);
+            switch (mTypeObservableArrayList.stream()
+                    .map(String::toLowerCase).collect(Collectors.toList())
+                    .indexOf(addressType.toLowerCase().trim())){
+                case 0:
+                    mAddressContactField = mAddressContactField.withDataType(ContactsContract.CommonDataKinds.SipAddress.TYPE_HOME);
+                    break;
+                case 1:
+                    mAddressContactField = mAddressContactField.withDataType(ContactsContract.CommonDataKinds.SipAddress.TYPE_WORK);
+                    break;
+                case 2:
+                    mAddressContactField = mAddressContactField.withDataType(ContactsContract.CommonDataKinds.SipAddress.TYPE_OTHER);
+                    break;
+                default:
+                    if(addressType.isEmpty()){
+                        mAddressContactField = mAddressContactField.withDataType(ContactsContract.CommonDataKinds.SipAddress.TYPE_WORK);
+                    }else {
+                        mAddressContactField = mAddressContactField.withDataLabel(addressType);
+                        mAddressContactField = mAddressContactField.withDataType(ContactsContract.CommonDataKinds.SipAddress.TYPE_CUSTOM);
+                    }
+            }
         }
     }
 

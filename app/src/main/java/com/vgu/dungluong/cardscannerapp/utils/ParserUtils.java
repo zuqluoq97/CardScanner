@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.ORDINAL_NUMBER_PATTERN;
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.WEB_ADDRESS_PATTERN;
 
 /**
@@ -234,6 +235,8 @@ public class ParserUtils {
         addressKeywords.add("industrial");
         addressKeywords.add("square");
         addressKeywords.add("hill");
+        addressKeywords.add("floor");
+        addressKeywords.add("block");
     }
 
     public void run(){
@@ -269,12 +272,16 @@ public class ParserUtils {
 
         // Search for department
         clone.forEach(text ->{
-            if(text.toLowerCase().contains("department")||text.toLowerCase().contains("dept")||text.toLowerCase().contains("dpt")){
+            if(text.toLowerCase().contains("department")
+                    ||text.toLowerCase().contains("dept")
+                    ||text.toLowerCase().contains("dpt")
+                    ||text.toLowerCase().contains("division")){
                 department = text;
                 clone.set(clone.indexOf(text), "");
             }
         });
 
+        // Get last first three lines
         setTexts(clone.stream().filter(text -> !text.isEmpty()).collect(Collectors.toList()));
     }
 
@@ -364,11 +371,11 @@ public class ParserUtils {
                                     String dataType = "";
                                     for(int j = text.indexOf(phone) - 1; j > -1 ; j --){
                                         char c1 = text.charAt(j);
-                                        if(Character.isLetter(c1))
+                                        if(Character.isLetter(c1) || c1 == ':')
                                             dataType = c1 + dataType;
                                         else break;
                                     }
-                                    matches.add(new Pair<>(dataType, phone));
+                                    matches.add(new Pair<>(dataType.replaceAll(":",""), phone));
                                 }
                             }
                         }
@@ -385,11 +392,11 @@ public class ParserUtils {
                         String dataType = "";
                         for (int j = text.indexOf(phone) - 1; j > -1; j--) {
                             char c1 = text.charAt(j);
-                            if (Character.isLetter(c1))
+                            if (Character.isLetter(c1) || c1 == ':')
                                 dataType = c1 + dataType;
                             else break;
                         }
-                        matches.add(new Pair<>(dataType, phone));
+                        matches.add(new Pair<>(dataType.replaceAll(":",""), phone));
                     }
                 }
             }
@@ -482,6 +489,11 @@ public class ParserUtils {
                     addressProbability += 0.1;
                     break;
                 }
+            }
+
+            // Check is ordinal number
+            if(ORDINAL_NUMBER_PATTERN.matcher(item).matches()){
+                addressProbability += 0.3;
             }
 
             // Increase 0.02 for each word

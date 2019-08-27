@@ -45,7 +45,7 @@ public abstract class Contact implements Parcelable {
 
     // Contact address list.
     @AutoValue.CopyAnnotations
-    public abstract ContactField addressList();
+    public abstract ContactField address();
 
     // Contact website list.
     @AutoValue.CopyAnnotations
@@ -65,7 +65,7 @@ public abstract class Contact implements Parcelable {
                                  String title,
                                  List<ContactField> phoneList,
                                  List<ContactField> emailList,
-                                 ContactField addressList,
+                                 ContactField address,
                                  List<String> websiteList,
                                  byte[] contactPhoto){
         return builder()
@@ -78,7 +78,7 @@ public abstract class Contact implements Parcelable {
                 .title(title)
                 .phoneList(phoneList)
                 .emailList(emailList)
-                .addressList(addressList)
+                .address(address)
                 .websiteList(websiteList)
                 .contactPhoto(contactPhoto)
                 .build();
@@ -97,7 +97,7 @@ public abstract class Contact implements Parcelable {
     public abstract Contact withTitle(String title);
     public abstract Contact withPhoneList(List<ContactField> phoneList);
     public abstract Contact withEmailList(List<ContactField> emailList);
-    public abstract Contact withAddressList(ContactField addressList);
+    public abstract Contact withAddress(ContactField address);
     public abstract Contact withWebsiteList(List<String> websiteList);
     public abstract Contact withContactPhoto(byte[] contactPhoto);
 
@@ -114,7 +114,7 @@ public abstract class Contact implements Parcelable {
         public abstract Builder title(String title);
         public abstract Builder phoneList(List<ContactField> phoneList);
         public abstract Builder emailList(List<ContactField> emailList);
-        public abstract Builder addressList(ContactField addressList);
+        public abstract Builder address(ContactField address);
         public abstract Builder websiteList(List<String> websiteList);
         public abstract Builder contactPhoto(byte[] contactPhoto);
 

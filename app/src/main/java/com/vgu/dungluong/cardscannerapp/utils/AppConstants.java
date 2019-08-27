@@ -50,10 +50,12 @@ public class AppConstants {
 
     public static final String IS_SELECTED_CARD = "IS_SELECTED_CARD";
 
+    public static final String GROUP_PHONE_TITLE = "CardScanner";
     // REGEX
-    public static final Pattern EMAIL_ADDDRESS_PATTERN = Pattern.compile("[a-zA-Z0-9.(]+@[a-zA-Z0-9.]+\\.[a-zA-Z0-9]+");
+    public static final Pattern EMAIL_ADDDRESS_PATTERN = Pattern.compile("[a-zA-Z0-9.\\-_(]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z0-9]+");
     public static final Pattern INTENT_EMAIL_ADDDRESS_PATTERN = Pattern.compile(".+@.+\\..+");
     public static final Pattern WEB_ADDRESS_PATTERN = Pattern.compile("(?:[a-zA-Z0-9]+?\\.)+[a-zA-Z0-9]{2,}");
+    public static final Pattern ORDINAL_NUMBER_PATTERN = Pattern.compile("([1-9]?1)st|([1-9]?2)nd|([1-9]?3)rd|(([1-9]?([456789])|[1-9]+0)th)");
 
     public static final List<String> DATA_TYPE1_TYPE_TITLE = Arrays.asList("Home", "Work", "Other");
     public static final List<Integer> DATE_TYPE1_ADDRESS_TYPE = Arrays.asList(ContactsContract.CommonDataKinds.SipAddress.TYPE_HOME, ContactsContract.CommonDataKinds.SipAddress.TYPE_WORK, ContactsContract.CommonDataKinds.SipAddress.TYPE_OTHER, ContactsContract.CommonDataKinds.SipAddress.TYPE_CUSTOM);

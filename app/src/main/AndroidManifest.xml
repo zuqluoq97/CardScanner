@@ -44,7 +44,7 @@
 
         <activity android:name=".ui.result.ResultActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan"/>
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize"/>
 
         <provider
             android:name=".tools.GenericFileProvider"

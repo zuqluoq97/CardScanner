@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
@@ -41,6 +42,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -106,9 +108,12 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
         return new Intent(context, ResultActivity.class);
     }
 
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         //LayoutInflaterCompat.setFactory(getLayoutInflater(), new IconicsLayoutInflater(getDelegate()));
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         mResultBinding = getViewDataBinding();
         mResultViewModel.setNavigator(this);
@@ -257,5 +262,15 @@ public class ResultActivity extends BaseActivity<ActivityResultBinding, ResultVi
     @Override
     public List<String> getWebs() {
         return mWebAdapter.getWebList();
+    }
+
+    @Override
+    public Context getActivityContext() {
+        return this;
+    }
+
+    @Override
+    public void openMainActivity() {
+        onBackPressed();
     }
 }

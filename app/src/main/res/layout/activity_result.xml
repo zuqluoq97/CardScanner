@@ -108,9 +108,9 @@
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scrolView"
             android:layout_below="@+id/actionSection"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:scrollbarThumbVertical="@drawable/scrollbar"
             android:scrollbars="vertical"
             android:scrollbarSize="5dip"
@@ -172,6 +172,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
                     android:background="@color/white"
                     app:layout_constraintTop_toBottomOf="@+id/categoryNameRelativeLayout">
 
@@ -402,10 +403,9 @@
                             style="@style/EditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:dropDownHeight="180dp"
                             android:hint="@string/data_type_title"
                             android:text="@={viewModel.addressDataTypeObservableField}"
-                            app:items="@{viewModel.typeObservableArrayList}"/>
+                            app:items="@{viewModel.typeObservableArrayList}" />
                     </com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout>
 
                     <com.vgu.dungluong.cardscannerapp.ui.custom.EmptyStateTextInputLayout
@@ -441,12 +441,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
                     app:layout_constraintTop_toBottomOf="@+id/categoryAddressConstraintLayout"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:enabled="@{!viewModel.isLoading}"
+                    android:onClick="@{() -> viewModel.onSaveContactButtonClick()}"
                     android:text="@string/save_title" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

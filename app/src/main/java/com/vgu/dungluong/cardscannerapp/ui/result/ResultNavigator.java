@@ -1,6 +1,7 @@
 package com.vgu.dungluong.cardscannerapp.ui.result;
 
 import android.content.ContentResolver;
+import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -45,5 +46,9 @@ public interface ResultNavigator {
     List<ContactField> getPhoneContactFields();
 
     List<String> getWebs();
+
+    Context getActivityContext();
+
+    void openMainActivity();
 
 }

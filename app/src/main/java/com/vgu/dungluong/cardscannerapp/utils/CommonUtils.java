@@ -1,10 +1,14 @@
 package com.vgu.dungluong.cardscannerapp.utils;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.drawable.Animatable;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
+import android.provider.ContactsContract;
 import android.text.Html;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,7 +25,9 @@ import java.io.File;
 import java.util.Comparator;
 import java.util.List;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresPermission;
 
 /**
  * Created by Dung Luong on 17/06/2019
@@ -166,5 +172,20 @@ public class CommonUtils {
     public static boolean isNullOrEmpty(String str){
         if(str != null && !str.isEmpty() && !str.equals("null") ) return false;
         return true;
+    }
+
+    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    public static int getMaxContactPhotoSize(final Context context) {
+        // Note that this URI is safe to call on the UI thread.
+        final Uri uri = ContactsContract.DisplayPhoto.CONTENT_MAX_DIMENSIONS_URI;
+        final String[] projection = new String[] { ContactsContract.DisplayPhoto.DISPLAY_MAX_DIM };
+        final Cursor c = context.getContentResolver().query(uri, projection, null, null, null);
+        try {
+            c.moveToFirst();
+            return c.getInt(0);
+        } finally {
+            c.close();
+        }
+        // fallback: 96x96 is the max contact photo size for pre-ICS versions
     }
 }

@@ -8,6 +8,7 @@ import com.vgu.dungluong.cardscannerapp.data.model.local.ContactField;
 import com.vgu.dungluong.cardscannerapp.databinding.ItemEmailBinding;
 import com.vgu.dungluong.cardscannerapp.databinding.ItemPhoneBinding;
 import com.vgu.dungluong.cardscannerapp.ui.result.ResultActivity;
+import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import java.util.ArrayList;
@@ -48,7 +49,10 @@ public class PhoneAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     public List<ContactField> getContactField() {
-        return mContactFieldList.stream().filter(contactField -> !contactField.dataValue().isEmpty()).collect(Collectors.toList());
+        AppLogger.i(mContactFieldList.toString());
+        return mContactFieldList.stream().filter(contactField -> !contactField.dataValue().isEmpty() && contactField.dataType() != -1)
+                .map(contactField -> ContactField.create(contactField.dataType(), contactField.dataLabel(), contactField.dataValue().trim()))
+                .collect(Collectors.toList());
     }
 
     @NonNull
@@ -62,7 +66,7 @@ public class PhoneAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof PhoneViewHolder)
-            ((PhoneViewHolder) holder).onBind(mContactFieldList.get(position), position);
+            ((PhoneViewHolder) holder).onBind(mContactFieldList.get(position));
     }
 
     @Override
@@ -77,26 +81,26 @@ public class PhoneAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
         private PhoneItemViewModel mPhoneItemViewModel;
 
-        private int mPosition;
-
         public PhoneViewHolder(ItemPhoneBinding binding){
             super(binding.getRoot());
             this.mBinding = binding;
         }
 
-        public void onBind(ContactField contactField, int position){
+        public void onBind(ContactField contactField){
             mPhoneItemViewModel = new PhoneItemViewModel(mDataManager,
                     mSchedulerProvider,
                     contactField,
-                    this);
-            mPosition = position;
+                    this,
+                    mContactFieldList.indexOf(contactField));
             mBinding.setViewModel(mPhoneItemViewModel);
             mBinding.executePendingBindings();
         }
 
         @Override
-        public void updateContactField(ContactField contactField) {
-            mContactFieldList.set(mPosition, contactField);
+        public void updateContactField(ContactField contactField, int position) {
+            AppLogger.i(contactField.toString() + " " + position);
+            mContactFieldList.set(position, contactField);
+            AppLogger.i(mContactFieldList.toString());
         }
     }
 }

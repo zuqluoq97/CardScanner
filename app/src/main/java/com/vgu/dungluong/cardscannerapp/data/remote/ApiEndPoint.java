@@ -8,7 +8,7 @@ import com.vgu.dungluong.cardscannerapp.BuildConfig;
 public class ApiEndPoint {
 
     // -------------- IMAGE TEXT DETECTION API URL--------------
-    public static final String ENDPOINT_SERVER_TEXT_DETECTION = BuildConfig.SERVER_URL + "/upload";
+    public static final String ENDPOINT_SERVER_TEXT_DETECTION = BuildConfig.SERVER_URL + "/textDetection";
 
     public static final String ENDPOINT_SERVER_TEXT_CLASSIFICATION = BuildConfig.SERVER_URL + "/textClassification";
 }

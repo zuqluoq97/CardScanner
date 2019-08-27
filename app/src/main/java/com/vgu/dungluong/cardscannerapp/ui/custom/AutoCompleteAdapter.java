@@ -28,7 +28,6 @@ public class AutoCompleteAdapter extends ArrayAdapter{
         this.mArrayList = objects;
     }
 
-
     @Override
     public int getCount() {
         return mArrayList.size();

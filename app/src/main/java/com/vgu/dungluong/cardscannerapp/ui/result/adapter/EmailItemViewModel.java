@@ -7,6 +7,7 @@ import com.vgu.dungluong.cardscannerapp.data.DataManager;
 import com.vgu.dungluong.cardscannerapp.data.model.local.ContactField;
 import com.vgu.dungluong.cardscannerapp.ui.base.BaseViewModel;
 import com.vgu.dungluong.cardscannerapp.utils.AppConstants;
+import com.vgu.dungluong.cardscannerapp.utils.AppLogger;
 import com.vgu.dungluong.cardscannerapp.utils.rx.SchedulerProvider;
 
 import java.util.Objects;
@@ -34,10 +35,13 @@ public class EmailItemViewModel extends BaseViewModel {
 
     private final EmailItemClickListener mListener;
 
+    private int mPosition;
+
     public EmailItemViewModel(DataManager dataManager,
                               SchedulerProvider schedulerProvider,
                               ContactField contactField,
-                              EmailItemClickListener listener) {
+                              EmailItemClickListener listener,
+                              int position) {
         super(dataManager, schedulerProvider);
         typeObservableArrayList = new ObservableArrayList<>();
         typeObservableArrayList.addAll(AppConstants.DATA_TYPE1_TYPE_TITLE);
@@ -46,6 +50,7 @@ public class EmailItemViewModel extends BaseViewModel {
         mEmailDataTypeObservableField = new ObservableField<>(typeObservableArrayList.get(1));
         mContactField = contactField;
         mListener = listener;
+        mPosition = position;
     }
 
     @Bindable
@@ -57,7 +62,7 @@ public class EmailItemViewModel extends BaseViewModel {
         if(!Objects.equals(getEmailObservableField(), email)){
             mEmailObservableField.set(email);
             notifyPropertyChanged(BR.emailObservableField);
-            mListener.updateContactField(mContactField.withDataValue(email));
+            mListener.updateContactField(mContactField.withDataValue(email), mPosition);
         }
     }
 
@@ -74,27 +79,28 @@ public class EmailItemViewModel extends BaseViewModel {
                     .map(String::toLowerCase).collect(Collectors.toList())
                     .indexOf(type.toLowerCase().trim())){
                 case 0:
-                    mListener.updateContactField(mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_HOME));
+                    mListener.updateContactField(mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_HOME), mPosition);
                     break;
                 case 1:
-                    mListener.updateContactField(mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_WORK));
+                    mListener.updateContactField(mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_WORK), mPosition);
                     break;
                 case 2:
-                    mListener.updateContactField(mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_OTHER));
+                    mListener.updateContactField(mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_OTHER), mPosition);
                     break;
                 default:
                     if(type.isEmpty()){
-                        mListener.updateContactField(mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_WORK));
+                        mListener.updateContactField(mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_WORK), mPosition);
                     }else {
                         mContactField = mContactField.withDataLabel(type);
                         mContactField= mContactField.withDataType(ContactsContract.CommonDataKinds.Email.TYPE_CUSTOM);
-                        mListener.updateContactField(mContactField);
+                        mListener.updateContactField(mContactField, mPosition);
                     }
             }
+
         }
     }
 
     public interface EmailItemClickListener{
-        void updateContactField(ContactField contactField);
+        void updateContactField(ContactField contactField, int position);
     }
 }

@@ -47,7 +47,10 @@ public class WebAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     }
 
     public List<String> getWebList() {
-        return mWebList.stream().filter(web -> !web.isEmpty()).collect(Collectors.toList());
+        return mWebList.stream()
+                .filter(web -> !web.isEmpty())
+                .map(web -> web.replaceAll("\\s+", ""))
+                .collect(Collectors.toList());
 
     }
 
@@ -62,7 +65,7 @@ public class WebAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if(holder instanceof WebViewHolder)
-            ((WebViewHolder) holder).onBind(mWebList.get(position), position);
+            ((WebViewHolder) holder).onBind(mWebList.get(position));
     }
 
     @Override
@@ -84,19 +87,19 @@ public class WebAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
             this.mBinding = binding;
         }
 
-        public void onBind(String web, int position){
+        public void onBind(String web){
             mWebItemViewModel = new WebItemViewModel(mDataManager,
                     mSchedulerProvider,
                     web,
-                    this);
-            mPosition = position;
+                    this,
+                    mWebList.indexOf(web));
             mBinding.setViewModel(mWebItemViewModel);
             mBinding.executePendingBindings();
         }
 
         @Override
-        public void updateWeb(String web) {
-            mWebList.set(mPosition, web);
+        public void updateWeb(String web, int position) {
+            mWebList.set(position, web);
         }
     }
 }

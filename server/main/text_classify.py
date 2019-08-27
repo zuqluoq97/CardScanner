@@ -34,7 +34,8 @@ class TextClassify:
             # i->rows, j->columns
             i = int(i)
             j = int(j)
-            print(prediction)
+            if np.count_nonzero(tokens[0]) == 0:
+                j = 1
             total_possible_outcomes = ['name','company','job']
             print("Result:",total_possible_outcomes[j])  
             labels.append(total_possible_outcomes[j])

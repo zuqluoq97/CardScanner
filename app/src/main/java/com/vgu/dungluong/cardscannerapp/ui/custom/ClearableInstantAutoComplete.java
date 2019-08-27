@@ -35,6 +35,7 @@ public class ClearableInstantAutoComplete extends androidx.appcompat.widget.AppC
         super.onFocusChanged(focused, direction, previouslyFocusedRect);
         if(focused && getAdapter()!=null){
             performFiltering(getText(),0);
+            showDropDown();
         }
     }
 
