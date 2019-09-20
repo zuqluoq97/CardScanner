@@ -64,9 +64,6 @@ dependencies {
     // Opencv
     implementation project(path: ':opencv')
 
-    // Opennlp
-    implementation deps.opennlp
-
     // Animation
     implementation deps.animator
 }

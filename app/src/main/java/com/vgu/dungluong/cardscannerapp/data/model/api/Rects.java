@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import opennlp.tools.namefind.NameFinderME;
 
 /**
  * Created by Dung Luong on 25/07/2019

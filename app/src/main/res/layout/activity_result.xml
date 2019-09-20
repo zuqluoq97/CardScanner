@@ -101,7 +101,7 @@
                 android:text="next"
                 tools:ignore="HardcodedText"
                 android:visibility="gone"/>
-                <!--android:visibility="@{viewModel.isTextDetectSucceed ? View.VISIBLE : View.GONE}"-->
+                <!--android:visibility="@{viewModel.isTextDetectSucceed ? View.VISIBLE : View.GONE}"/>-->
 
         </RelativeLayout>
 

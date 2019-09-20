@@ -46,8 +46,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.tokenize.TokenizerModel;
+
 
 /**
  * Created by Dung Luong on 02/07/2019

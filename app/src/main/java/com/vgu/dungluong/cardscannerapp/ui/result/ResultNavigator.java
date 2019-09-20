@@ -12,9 +12,6 @@ import com.vgu.dungluong.cardscannerapp.data.model.local.ContactField;
 import java.io.File;
 import java.util.List;
 
-import opennlp.tools.langdetect.LanguageDetector;
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.tokenize.TokenizerModel;
 
 /**
  * Created by Dung Luong on 02/07/2019

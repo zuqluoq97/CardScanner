@@ -44,7 +44,7 @@ public class AppConstants {
     public static final String MODEL_PATH = Environment.getExternalStorageDirectory().toString() + "/OpenNLP/";
     public static final String MODELDATA = "model";
 
-    public static final double EPISILON = 1E-8;
+    public static final double EPISILON = 1E-5;
 
     public static final int GALLERY_REQUEST_CODE = 1;
 

@@ -52,14 +52,7 @@ import androidx.databinding.ObservableBoolean;
 import androidx.databinding.ObservableField;
 import androidx.databinding.ObservableInt;
 import androidx.lifecycle.MutableLiveData;
-import opennlp.tools.doccat.DocumentCategorizerME;
-import opennlp.tools.namefind.NameFinderME;
-import opennlp.tools.namefind.TokenNameFinder;
-import opennlp.tools.namefind.TokenNameFinderModel;
-import opennlp.tools.tokenize.Tokenizer;
-import opennlp.tools.tokenize.TokenizerME;
-import opennlp.tools.tokenize.TokenizerModel;
-import opennlp.tools.util.Span;
+
 
 import static com.vgu.dungluong.cardscannerapp.utils.AppConstants.GROUP_PHONE_TITLE;
 
@@ -293,7 +286,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
             result[0] += ocr + "\n";
         });
         mResultString.set(result[0]);
-        ParserUtils parserUtils = new ParserUtils(mOCRs);
+        ParserUtils parserUtils = new ParserUtils(mOCRs, getDataManager().getLocale());
         parserUtils.run();
         doTextClassification(parserUtils.getTexts());
 

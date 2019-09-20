@@ -43,18 +43,17 @@ public class CardExtract {
         if(scale > 1) Imgproc.resize(img,img,size, INTER_AREA);
         img_y = img.rows();
         img_x = img.cols();
+        AppLogger.i("smallest" + img_y * img_x/81920);
         Mat gray = new Mat();
-        Imgproc.bilateralFilter(img, gray, 5, 150, 150, BORDER_CONSTANT);
         Imgproc.cvtColor(img, gray, COLOR_BGR2GRAY);
-        Mat edges=new Mat();
-        Imgproc.Canny(gray,edges,70,210);
+        Imgproc.Canny(gray,gray,70,210);
         contours=new ArrayList<>();
         Mat hierarchy=new Mat();
-        Imgproc.findContours(edges, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
+        Imgproc.findContours(gray, contours, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_NONE);
        // Mat clone = new Mat(size, CV_8U);
         //printExternalContours(clone, contours, hierarchy, 0);
         List<MatOfPoint> keepers = new ArrayList<>();
-        Mat processed = edges.clone();
+        Mat processed = gray.clone();
 //        for(int i = 0; i >= 0; i = (int) hierarchy.get(0, i)[0])
 //        {
 //            MatOfPoint contour=contours.get(i);
@@ -78,7 +77,9 @@ public class CardExtract {
             if (keep(contour) && include_box(i, hierarchy, contour)) {
                 // It's a winner!
                 keepers.add(contour);
-                Imgproc.rectangle(processed, new Point(x, y),new Point(x + w, y + h), new Scalar(100, 100, 100), 3);
+                Imgproc.rectangle(processed, new Point(x, y),new Point(x + w, y + h), new Scalar(100, 100, 100), 2);
+            }else{
+                AppLogger.i("not a winner");
             }
         }
 
@@ -87,15 +88,17 @@ public class CardExtract {
 
         int lightText = 0;
         int darkText = 0;
-        for(int i = 0; i< keepers.size(); i++)
-        {
+        for(int i = 0; i< keepers.size(); i++) {
             //# Find the average intensity of the edge pixels to
             //# determine the foreground intensity
             double fg_int = 0;
-            for (Point p: keepers.get(i).toArray())
+            for (Point p: keepers.get(i).toArray()){
                 fg_int +=ii(p.x, p.y);
+
+            }
+
             fg_int /= keepers.get(i).rows();
-            fg_int = (int)fg_int;
+
             Rect rect=Imgproc.boundingRect(keepers.get(i));
             double x_=rect.x, y_=rect.y, width=rect.width, height=rect.height;
 
@@ -129,31 +132,32 @@ public class CardExtract {
             double bg_intN = findMedian(bg_int);
             //# Determine if the box should be inverted
             int fg,bg;
-            if (fg_int >= bg_intN)
-            {
+            AppLogger.i("intensity comparison: " + fg_int + " " + bg_intN);
+            if (fg_int > bg_intN) {
                 lightText ++;
                 fg = 255;
                 bg = 0;
-            }
-            else
-            {
+            } else {
                 darkText ++;
                 fg = 0;
                 bg = 255;
             }
-            for(double x=x_;x<x_+width;x++)
-            {
-                for(double y=y_;y<y_+height;y++)
-                {
-                    if (y >= img_y || x >= img_x){
+
+            for (double x = x_; x < x_ + width; x++) {
+                for (double y = y_; y < y_ + height; y++) {
+                    if (y >= img_y || x >= img_x) {
                         //System.out.println("pixel out of bounds ("+y+","+x+")");
                         continue;
                     }
-                    if (ii(x, y) > fg_int) new_image.put((int)y,(int)x,bg,bg,bg);
-                    else new_image.put((int)y,(int)x,fg,fg,fg);
+                    if (ii(x, y) >= fg_int) {
+                        new_image.put((int) y, (int) x, bg, bg, bg);
+                    } else {
+                        new_image.put((int) y, (int) x, fg, fg, fg);
+                    }
                 }
             }
         }
+
         Mat sharpen = new Mat();
         Imgproc.GaussianBlur(new_image, sharpen, new Size(0,0), 3);
         Core.addWeighted(new_image, 1.5, sharpen, -0.5, 0, new_image);

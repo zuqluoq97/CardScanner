@@ -39,7 +39,6 @@ versions.animator = '1.1.0'
 versions.calligraphy = '2.2.0'
 versions.rx2_fast_android_networking = '1.0.1'
 versions.timber = '4.7.1'
-versions.opennlp = '1.9.1'
 
 // Test
 versions.junit = '4.13-beta-2'
@@ -116,8 +115,6 @@ def auto_value_parcel = [:]
 auto_value_parcel.compiler = "com.ryanharter.auto.value:auto-value-parcel:$versions.auto_value_parcel"
 auto_value_parcel.adapter = "com.ryanharter.auto.value:auto-value-parcel-adapter:$versions.auto_value_parcel"
 deps.auto_value_parcel = auto_value_parcel
-
-deps.opennlp = "org.apache.opennlp:opennlp-tools:$versions.opennlp"
 
 deps.animator = "com.github.florent37:viewanimator:$versions.animator"
 
