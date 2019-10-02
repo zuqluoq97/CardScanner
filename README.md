@@ -3,9 +3,9 @@ VGU THESIS - Business Card Detection based on Artificial Intelligence
 # Overview
 This repository contains an implementation of a system that can digitalize business cards and save the details into a contact list of the Android Operating System. The system has a client-server architecture where the client-side is the Android application and the server provides API using Flask.
 
-![alt text](crop_1.jpg "pic1")
-![alt text](result_3.jpg "pic2")
-![alt text](save_to_contact.jpg "pic3")
+![alt text](images/crop_1.jpg "pic1")
+![alt text](images/result_3.jpg "pic2")
+![alt text](images/save_to_contact.jpg "pic3")
 
 ## System flow
 ![alt text](images/pipeline.png "System flow")
@@ -49,7 +49,7 @@ docker-compose up
 Wait until Docker's containers finish creating the environment, go to [localhost:8080](http://localhost:8080)
 
 ### Online Server
-https://thesis.tkhco.com.vn:8080
+http://thesis.tkhco.com.vn:8080
 
 ## Client setup
 Android application handle business card image processing, text recognition and save contact details.
@@ -80,7 +80,7 @@ Open [CMakeLists.txt](CMakeLists.txt) and change the first two paths which are p
 ### Generating APK
 1. Go to __Build__ -> __Select Build Variant__ and then select build variant you want to build for the app module.
 2. Go to __Build__ -> __Generate Signed Bundle or APK__, select __APK__ option and then press __NEXT__ button. 
-3. Next, you have to create a new key store or you can choose exisiting key in the [repo](key.jks), which has both passwords is _123456789_, and key alias is _key0_.
+3. Next, you have to create a new key store or you can choose exisiting key in the [repo](app/key.jks), which has both passwords is _123456789_, and key alias is _key0_.
 4. Then, choosing destination folder for the APK and select __release__ build variant. Finally, select both __V1 (Jar Signature)__ and __V2(Full APK Signature)__, and press the __FINISH__ button.
-5. By default destination, the APK will be placed [here](release/app-release.apk).
+5. By default destination, the APK will be placed [here](app/release/app-release.apk).
 
