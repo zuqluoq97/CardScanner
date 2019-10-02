@@ -4,8 +4,8 @@ services:
   dung_server:
     container_name: dung_server
     build: server
-    command: bash -c "python3 main/server.py"
-    volumes:
-      - ./server:/code
+    # command: bash -c "python3 app.py"
+    # volumes:
+    #   - ./server:/code
     ports:
       - "8080:8080"

@@ -5,7 +5,7 @@
 # numpy
 # tensorflow
 # Cython
-# flask
+flask
 absl-py==0.7.1
 args==0.1.0
 asn1crypto==0.24.0
@@ -21,14 +21,14 @@ Click==7.0
 clint==0.5.1
 cryptography==2.1.4
 defusedxml==0.6.0
-dj-database-url==0.5.0
-Django==2.1.10
-django-cors-headers==2.4.0
-django-heroku==0.3.1
-django-jet==1.0.8
-django-rest-auth==0.9.3
-djangorestframework==3.9.1
-djangorestframework-jwt==1.11.0
+# dj-database-url==0.5.0
+# Django==2.1.10
+# django-cors-headers==2.4.0
+# django-heroku==0.3.1
+# django-jet==1.0.8
+# django-rest-auth==0.9.3
+# djangorestframework==3.9.1
+# djangorestframework-jwt==1.11.0
 feedparser==5.2.1
 future==0.17.1
 gast==0.2.2
@@ -51,7 +51,7 @@ lxml==4.4.1
 Markdown==3.1.1
 MarkupSafe==1.1.1
 more-itertools==7.2.0
-mysqlclient==1.4.4
+# mysqlclient==1.4.4
 nltk==3.4
 numpy==1.16.4
 oauthlib==3.0.1
@@ -67,7 +67,7 @@ pyaml==19.4.1
 pycrypto==2.6.1
 pycryptodome==3.8.2
 PyJWT==1.7.1
-pytesseract==0.2.7
+# pytesseract==0.2.7
 python-crfsuite==0.9.6
 python-dateutil==2.8.0
 python-docx==0.8.10
@@ -91,7 +91,7 @@ tensorflow==1.14.0
 tensorflow-estimator==1.14.0
 termcolor==1.1.0
 tqdm==4.33.0
-underthesea==1.1.16
+# underthesea==1.1.16
 urllib3==1.24.2
 Wand==0.5.4
 Werkzeug==0.15.5

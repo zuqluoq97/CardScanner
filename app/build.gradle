@@ -3,15 +3,21 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'key0'
+            keyPassword '123456789'
+            storeFile file('G:/ProjectAndroid/CardScanner/key.jks')
+            storePassword '123456789'
+        }
+    }
     compileSdkVersion versions.compile_sdk
     defaultConfig {
         applicationId "com.vgu.dungluong.cardscannerapp"
         minSdkVersion versions.min_sdk
         targetSdkVersion versions.target_sdk
-        versionCode versions.version_code
         versionName versions.version_name
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
         // Add abiFilters
         externalNativeBuild {
             cmake {
@@ -19,13 +25,14 @@ android {
                 abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a'
             }
         }
+        signingConfig signingConfigs.config
     }
     buildTypes {
-        debug{
+        debug {
             buildConfigField("String", "SERVER_URL", "\"http://thesis.tkhco.com.vn:8080\"")
         }
         release {
-            minifyEnabled true
+            minifyEnabled false
             buildConfigField("String", "SERVER_URL", "\"http://thesis.tkhco.com.vn:8080\"")
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -35,18 +42,19 @@ android {
             path "CMakeLists.txt"
         }
     }
-
     dataBinding {
         enabled = true
     }
-
     compileOptions {
         targetCompatibility '1.8'
         sourceCompatibility '1.8'
     }
-
     // Add jnitLibs dirctory
-    sourceSets {main { jni.srcDirs = ['src/main/jni', 'src/main/jniLibs/'] } }
+    sourceSets {
+        main { jni.srcDirs = ['G:\\ProjectAndroid\\CardScanner\\app\\src\\main\\jniLibs'] }
+    }
+    productFlavors {
+    }
 }
 
 apply from : 'dependencies.gradle'
