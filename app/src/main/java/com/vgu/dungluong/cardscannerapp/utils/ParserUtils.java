@@ -2,6 +2,8 @@ package com.vgu.dungluong.cardscannerapp.utils;
 
 import android.util.Pair;
 
+import org.opencv.core.Point;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +40,9 @@ public class ParserUtils {
 
     private String locale;
 
-    public ParserUtils(List<String> texts, String locale) {
+
+    public ParserUtils(List<String> texts,
+                       String locale) {
         this.texts = texts;
         this.locale = locale;
         emails = new ArrayList<>();
@@ -227,7 +231,7 @@ public class ParserUtils {
             addressKeywords.add("road");
             addressKeywords.add("rd");
             addressKeywords.add("avenue");
-            addressKeywords.add("ave.");
+            addressKeywords.add("ave");
             addressKeywords.add("drive");
             addressKeywords.add("court");
             addressKeywords.add("terrace");
@@ -243,6 +247,8 @@ public class ParserUtils {
             addressKeywords.add("block");
             addressKeywords.add("island");
             addressKeywords.add("park");
+            addressKeywords.add("address");
+            addressKeywords.add("tower");
         }else{
             addressKeywords.add("đường");
             addressKeywords.add("quận");
@@ -263,10 +269,8 @@ public class ParserUtils {
 
     public void run(){
         List<String> clone = new ArrayList<>(texts);
+
         setEmails(parseEmails(new ArrayList<>(texts)));
-        setPhones(parsePhones(new ArrayList<>(texts)));
-        setAddresses(parseAddress(new ArrayList<>(texts)));
-        setWebs(parseWebs(new ArrayList<>(texts)));
 
         emails.forEach(email ->{
             clone.forEach(text ->{
@@ -274,17 +278,15 @@ public class ParserUtils {
             });
         });
 
+        setPhones(parsePhones(new ArrayList<>(texts)));
+
         phones.forEach(phone ->{
             clone.forEach(text ->{
                 if(text.contains(phone.second))  clone.set(clone.indexOf(text), "");
             });
         });
 
-        addresses.forEach(address ->{
-            clone.forEach(text ->{
-                if(text.contains(address))  clone.set(clone.indexOf(text), "");
-            });
-        });
+        setWebs(parseWebs(new ArrayList<>(texts)));
 
         webs.forEach(web ->{
             clone.forEach(text ->{
@@ -302,6 +304,15 @@ public class ParserUtils {
                 clone.set(clone.indexOf(text), "");
             }
         });
+        setTexts(clone);
+
+        setAddresses(parseAddress(new ArrayList<>(texts)));
+
+        addresses.forEach(address ->{
+            clone.forEach(text ->{
+                if(text.contains(address)) clone.set(clone.indexOf(text), "");
+            });
+        });
 
         // Get last first three lines
         setTexts(clone.stream().filter(text -> !text.isEmpty()).collect(Collectors.toList()));
@@ -310,20 +321,20 @@ public class ParserUtils {
     private List<String> parseEmails(List<String> texts){
         List<String> emails = new ArrayList<>();
         texts.forEach(text -> {
-            if(consider(text)){
+//            if(consider(text)){
                 List<String> validEmails = extractEmails(text);
-                if(validEmails.size() > 0){
+                if(validEmails.size() > 0) {
                     int textIndex = texts.indexOf(text);
                     validEmails.forEach(validEmail -> {
                         String modifiedText = texts.get(textIndex);
-                        texts.set(textIndex, modifiedText.replace(validEmail,""));
+                        texts.set(textIndex, modifiedText.replace(validEmail, ""));
                     });
                     emails.addAll(validEmails);
                 }
-                else {
-                    emails.add(text);
-                }
-            }
+//                } else {
+//                    emails.add(text);
+//                }
+//            }
         });
         setTexts(texts);
         return emails;
@@ -349,15 +360,15 @@ public class ParserUtils {
             List<String> webs = new ArrayList<>();
             while(m.find()) {
                 String result = m.group(0);
-                int firstIndex  = text.indexOf(result.charAt(0));
-                for(int i = firstIndex - 1; i > -1; i--){
-                    char c = text.charAt(i);
-                    if(c == 'w' || c == 'W' || c == '.' || Character.isWhitespace(c)){
-                        result = c + result;
-                    }else{
-                        break;
-                    }
-                }
+//                int firstIndex  = text.indexOf(result.charAt(0));
+//                for(int i = firstIndex - 1; i > -1; i--){
+//                    char c = text.charAt(i);
+//                    if(c == 'w' || c == 'W' || c == '.' || Character.isWhitespace(c)){
+//                        result = c + result;
+//                    }else{
+//                        break;
+//                    }
+//                }
                 //if(result.replaceAll("\\s+","").toLowerCase().contains("www")) {
                     webs.add(result);
                 //}
@@ -486,10 +497,10 @@ public class ParserUtils {
             boolean containsZip = false;
             boolean containsState = false;
             boolean containsKeyword = false;
-            boolean containsNumber = false;
+            //boolean containsNumber = false;
             boolean containsComma = false;
             boolean containsCountry = false;
-            boolean containsUpperAndDigit = false;
+            //boolean containsUpperAndDigit = false;
 
 
             // Check contain comma
@@ -503,10 +514,10 @@ public class ParserUtils {
                 addressProbability += 0.1;
             }
 
-            if (Pattern.compile("([A-Z]+[0-9]+)+ ").matcher(text).matches()) {
-                addressProbability += 0.2;
-                containsUpperAndDigit = true;
-            }
+//            if (Pattern.compile("([A-Z]+[0-9]+)+ ").matcher(text).matches()) {
+//                addressProbability += 0.2;
+//                containsUpperAndDigit = true;
+//            }
 
 //        Zero or more whitespaces (\\s*)
 //        comma, or whitespace (,|\\s)
@@ -537,13 +548,13 @@ public class ParserUtils {
                 for (String countryCode : countryCodes) {
                     Locale obj = new Locale("", countryCode);
                     if (item.toLowerCase().contains(obj.getDisplayCountry().toLowerCase())) {
-                        for (int i = text.indexOf(item) - 1; i > -1; i--) {
-                            char c = text.charAt(i);
-                            if (Character.isWhitespace(c)) {
-
-                            } else if (c == ',') return true;
-                            else break;
-                        }
+//                        for (int i = text.indexOf(item) - 1; i > -1; i--) {
+//                            char c = text.charAt(i);
+//                            if (Character.isWhitespace(c)) {
+//
+//                            } else if (c == ',') return true;
+//                            else break;
+//                        }
                         containsCountry = true;
                         addressProbability += 0.1;
                         break;
@@ -560,23 +571,36 @@ public class ParserUtils {
             }
 
             // Check contains number
-            if (Pattern.compile(".*\\d.*").matcher(text).matches()) {
-                containsNumber = true;
-//            System.out.println("match number");
-                addressProbability += 0.1;
+//            if (Pattern.compile(".*\\d.*").matcher(text).matches()) {
+//                containsNumber = true;
+////            System.out.println("match number");
+//                addressProbability += 0.1;
+//            }
+            int nums = 0;
+            for(int i = 0; i < text.length(); i++){
+                char c = text.charAt(i);
+                if(Character.isDigit(c)){
+                    addressProbability += 0.2;
+                    nums ++;
+                    if(nums > 7) {
+                        int textIndex = texts.indexOf(text);
+                        texts.set(textIndex, "");
+                        return false;
+                    }
+                }
             }
 
             if (containsState && containsZip) return true;
-            if (containsState && containsNumber) return true;
-            if (containsKeyword && containsNumber) return true;
+            //if (containsState && containsNumber) return true;
+            //if (containsKeyword && containsNumber) return true;
             if (containsKeyword && containsComma) return true;
-            if (containsComma && containsNumber) return true;
-            if (containsComma && containsZip) return true;
+            //if (containsComma && containsNumber) return true;
+            //if (containsComma && containsZip) return true;
             if (containsCountry && items.length == 1) return true;
-            if (containsCountry && containsNumber) return true;
-            if (containsCountry && containsComma) return true;
-            if (containsUpperAndDigit && containsComma) return true;
-            if (containsState) addressProbability += 0.3;
+            //if (containsCountry && containsNumber) return true;
+            //if (containsCountry && containsComma) return true;
+            //if (containsUpperAndDigit && containsComma) return true;
+            //if (containsState) addressProbability += 0.3;
 
         }else{
             boolean containsNumber = false;
@@ -618,16 +642,32 @@ public class ParserUtils {
             }
 
             // Check contains number
-            if (Pattern.compile(".*\\d.*").matcher(text).matches()) {
-                containsNumber = true;
-                addressProbability += 0.1;
+//            if (Pattern.compile(".*\\d.*").matcher(text).matches()) {
+//                containsNumber = true;
+//                addressProbability += 0.1;
+//            }
+
+            int nums = 0;
+            for(int i = 0; i < text.length(); i++){
+                char c = text.charAt(i);
+                if(Character.isDigit(c)){
+                    addressProbability += 0.2;
+                    nums ++;
+                    if(nums > 7) {
+                        int textIndex = texts.indexOf(text);
+                        texts.set(textIndex, "");
+                        return false;
+                    }
+                }
             }
 
             if(containsNumber && containSpecialCharacter) return true;
 
         }
         AppLogger.i("Address prob: " + addressProbability);
-        if (addressProbability > 0.49) return true;
+        if (addressProbability > 0.49) {
+            return true;
+        }
         else return false;
     }
 

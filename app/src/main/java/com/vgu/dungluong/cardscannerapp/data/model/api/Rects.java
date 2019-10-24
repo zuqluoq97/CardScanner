@@ -58,7 +58,7 @@ public abstract class Rects implements Parcelable {
                 .forEach(rect -> {
             List<Point> coordinates = new ArrayList<>();
             int height1 = (rect.get(7) - rect.get(1));
-            int height2 = (rect.get(5) - rect.get(3));
+                    int height2 = (rect.get(5) - rect.get(3));
             for(int i=0; i < rect.size(); i+=2){
                 int x = rect.get(i);
                 int y = rect.get(i+1);

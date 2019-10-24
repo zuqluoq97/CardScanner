@@ -31,6 +31,7 @@ import org.json.JSONObject;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -285,6 +286,7 @@ public class ResultViewModel extends BaseViewModel<ResultNavigator> {
         mOCRs.forEach(ocr -> {
             result[0] += ocr + "\n";
         });
+
         mResultString.set(result[0]);
         ParserUtils parserUtils = new ParserUtils(mOCRs, getDataManager().getLocale());
         parserUtils.run();

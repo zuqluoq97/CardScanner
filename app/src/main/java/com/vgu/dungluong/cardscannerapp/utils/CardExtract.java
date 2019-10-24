@@ -37,13 +37,13 @@ public class CardExtract {
     }
 
     public Mat run() {
-        double scale = img.size().height/60;
+        double scale = img.size().height/100;
         Size size;
-        size = new Size(img.size().width / scale, 60);
+        size = new Size(img.size().width / scale, 100);
         if(scale > 1) Imgproc.resize(img,img,size, INTER_AREA);
         img_y = img.rows();
         img_x = img.cols();
-        AppLogger.i("smallest" + img_y * img_x/81920);
+
         Mat gray = new Mat();
         Imgproc.cvtColor(img, gray, COLOR_BGR2GRAY);
         Imgproc.Canny(gray,gray,70,210);
@@ -203,7 +203,9 @@ public class CardExtract {
         // probably not a real character
         if (w / h < 0.05 || w/h > 20)return false;
         // check size of the box
-        if (((w * h) > ((img_x * img_y) / 2)) || ((w * h) < 4))return false;
+        if ((w * h) > ((img_x * img_y) / 2))
+                //|| ((w * h) < 4))
+            return false;
         return true;
     }
 

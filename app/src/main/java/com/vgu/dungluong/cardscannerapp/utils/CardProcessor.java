@@ -143,13 +143,14 @@ public class CardProcessor {
         // Down sample
         Mat resizeMat = src.clone();
         if(scale > 1) Imgproc.resize(resizeMat, resizeMat, croppedSize, INTER_AREA);
-        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(7, 7));
+        Mat kernel2 = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(7, 7));
         Imgproc.morphologyEx(resizeMat, resizeMat, MORPH_OPEN, kernel2);
 //        Imgproc.erode(src, src, kernel, new Point(-1,-1), 5);
         Mat canny = new Mat(croppedSize, CV_8UC1);
 
         // Do contour detection
         Imgproc.Canny(resizeMat, canny, 30, 90);
+
         Mat lines = new Mat();
         // Do hough transform
 //        Imgproc.HoughLines(canny, lines, 1, Math.PI / 360.0, 70);
