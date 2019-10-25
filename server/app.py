@@ -25,25 +25,17 @@ def load_model():
     with open('data/model/tokenizer.pickle', 'rb') as handle:
         tokenizer = pickle.load(handle)
 
-def get_global_step(self):
-    with tf.variable_scope(tf.get_variable_scope(), reuse=tf.compat.v1.AUTO_REUSE) as scope:
-        global_step = tf.get_variable('global_step', [], initializer=tf.constant_initializer(0), trainable=False)
-    return global_step
-
 @app.route("/")
 def main():
     return "Welcome to my Flask page!"
 
 @app.route("/textDetection", methods = ['POST'])
 def detect():
-    global graph
-    with graph.as_default():
-        print("detect")
-        file = request.files['image']
-        td = TextDetect(file, app)
-        res = {}
-        res['rect'] = td.find().tolist()
-        return json.dumps(res)
+    file = request.files['image']
+    td = TextDetect(file, app)
+    res = {}
+    res['rect'] = td.find().tolist()
+    return json.dumps(res)
 
 
 @app.route("/textClassification", methods = ['POST'])
