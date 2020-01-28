@@ -87,7 +87,7 @@ soupsieve==1.9.2
 tabulate==0.8.3
 tempora==1.14.1
 tensorboard==1.14.0
-tensorflow==1.14.0
+tensorflow==1.15.2
 tensorflow-estimator==1.14.0
 termcolor==1.1.0
 tqdm==4.33.0
