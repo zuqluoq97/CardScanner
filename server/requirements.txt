@@ -92,7 +92,7 @@ tensorflow-estimator==1.14.0
 termcolor==1.1.0
 tqdm==4.33.0
 # underthesea==1.1.16
-urllib3==1.24.2
+urllib3==1.26.5
 Wand==0.5.4
 Werkzeug==0.15.5
 whitenoise==4.1.2
