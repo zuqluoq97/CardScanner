@@ -53,7 +53,7 @@ MarkupSafe==1.1.1
 more-itertools==7.2.0
 # mysqlclient==1.4.4
 nltk==3.4
-numpy==1.16.4
+numpy==1.22.0
 oauthlib==3.0.1
 opencv-python==4.1.0.25
 pandas==0.24.2
