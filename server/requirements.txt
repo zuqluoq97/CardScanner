@@ -59,7 +59,7 @@ opencv-python==4.1.0.25
 pandas==0.24.2
 Pattern==3.6
 pdfminer.six==20181108
-Pillow==5.4.1
+Pillow==9.3.0
 portend==2.5
 protobuf==3.9.1
 psycopg2==2.7.7
