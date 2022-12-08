@@ -13,7 +13,7 @@ astor==0.8.0
 backports.csv==1.0.7
 backports.functools-lru-cache==1.5
 beautifulsoup4==4.7.1
-certifi==2019.6.16
+certifi==2022.12.7
 chardet==3.0.4
 cheroot==6.5.5
 CherryPy==18.1.2
